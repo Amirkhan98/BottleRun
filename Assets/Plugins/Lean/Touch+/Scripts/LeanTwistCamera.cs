@@ -1,6 +1,4 @@
 using UnityEngine;
-using Lean.Common;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
 
 namespace Lean.Touch
 {
@@ -16,17 +14,22 @@ namespace Lean.Touch
 		/// -1 = Instantly change.
 		/// 1 = Slowly change.
 		/// 10 = Quickly change.</summary>
-		public float Damping { set { damping = value; } get { return damping; } } [FSA("Damping")] [FSA("Dampening")] [SerializeField] private float damping = -1.0f;
+		[Tooltip("If you want this component to change smoothly over time, then this allows you to control how quick the changes reach their target value.\n\n-1 = Instantly change.\n\n1 = Slowly change.\n\n10 = Quickly change.")]
+		public float Dampening = -1.0f;
 
-		/// <summary>Should the rotation be performed relative to the finger center?</summary>
-		public bool Relative { set { relative = value; } get { return relative; } } [FSA("Relative")] [SerializeField] private bool relative;
+		[Space]
+
+		[Tooltip("Should the rotation be performanced relative to the finger center?")]
+		public bool Relative;
 
 		/// <summary>The method used to find world coordinates from a finger. See LeanScreenDepth documentation for more information.</summary>
 		public LeanScreenDepth ScreenDepth = new LeanScreenDepth(LeanScreenDepth.ConversionType.DepthIntercept);
 
+		[HideInInspector]
 		[SerializeField]
 		private Vector3 remainingTranslation;
 
+		[HideInInspector]
 		[SerializeField]
 		private Quaternion remainingRotation = Quaternion.identity;
 
@@ -47,14 +50,12 @@ namespace Lean.Touch
 		{
 			Use.RemoveAllFingers();
 		}
-
 #if UNITY_EDITOR
 		protected virtual void Reset()
 		{
 			Use.UpdateRequiredSelectable(gameObject);
 		}
 #endif
-
 		protected virtual void Awake()
 		{
 			Use.UpdateRequiredSelectable(gameObject);
@@ -63,7 +64,7 @@ namespace Lean.Touch
 		protected virtual void Update()
 		{
 			// Get the fingers we want to use
-			var fingers = Use.UpdateAndGetFingers();
+			var fingers = Use.GetFingers();
 
 			// Calculate the rotation values based on these fingers
 			var twistDegrees = -LeanGesture.GetTwistDegrees(fingers);
@@ -73,7 +74,7 @@ namespace Lean.Touch
 			var oldRotation = transform.localRotation;
 
 			// Rotate
-			if (relative == true)
+			if (Relative == true)
 			{
 				var screenPoint = default(Vector2);
 
@@ -94,7 +95,7 @@ namespace Lean.Touch
 			remainingRotation    *= Quaternion.Inverse(oldRotation) * transform.localRotation;
 
 			// Get t value
-			var factor = LeanHelper.GetDampenFactor(damping, Time.deltaTime);
+			var factor = LeanTouch.GetDampenFactor(Dampening, Time.deltaTime);
 
 			// Dampen remainingDelta
 			var newRemainingTranslation = Vector3.Lerp(remainingTranslation, Vector3.zero, factor);
@@ -110,25 +111,3 @@ namespace Lean.Touch
 		}
 	}
 }
-
-#if UNITY_EDITOR
-namespace Lean.Touch.Editor
-{
-	using TARGET = LeanTwistCamera;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET), true)]
-	public class LeanTwistCamera_Editor : LeanEditor
-	{
-		protected override void OnInspector()
-		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
-
-			Draw("Use");
-			Draw("damping", "If you want this component to change smoothly over time, then this allows you to control how quick the changes reach their target value.\n\n-1 = Instantly change.\n\n1 = Slowly change.\n\n10 = Quickly change.");
-			Draw("relative", "Should the rotation be performed relative to the finger center?");
-			Draw("ScreenDepth");
-		}
-	}
-}
-#endif

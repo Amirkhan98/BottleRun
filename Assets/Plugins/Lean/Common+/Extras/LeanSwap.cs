@@ -1,23 +1,27 @@
 using UnityEngine;
+using Lean.Common;
 using System.Collections.Generic;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
 
-namespace Lean.Common
+namespace Lean.Touch
 {
 	/// <summary>This component will swap the target GameObject with one of the specified prefabs when swiping.</summary>
-	[HelpURL(LeanHelper.PlusHelpUrlPrefix + "LeanSwap")]
-	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Swap")]
+	[HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanSwap")]
+	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Swap")]
 	public class LeanSwap : MonoBehaviour
 	{
 		/// <summary>The current index within the Prefabs list.</summary>
-		public int Index { set { index = value; } get { return index; } } [FSA("Delay")] [SerializeField] private int index;
+		[Tooltip("The current index within the Prefabs list.")]
+		public int Index;
 
 		/// <summary>The alternative prefabs that can be swapped to.</summary>
-		public List<Transform> Prefabs { get { if (prefabs == null) prefabs = new List<Transform>(); return prefabs; } } [FSA("Prefabs")] [SerializeField] private List<Transform> prefabs;
+		[Tooltip("The alternative prefabs that can be swapped to.")]
+		public List<Transform> Prefabs;
 
+		[HideInInspector]
 		[SerializeField]
 		private Transform clone;
 
+		[HideInInspector]
 		[SerializeField]
 		private Transform clonePrefab;
 
@@ -40,7 +44,7 @@ namespace Lean.Common
 				clonePrefab = null;
 			}
 
-			if (prefabs != null && prefabs.Count > 0)
+			if (Prefabs != null && Prefabs.Count > 0)
 			{
 				clone = Instantiate(prefab);
 
@@ -53,7 +57,7 @@ namespace Lean.Common
 		/// <summary>This method allows you to swap to the specified index.</summary>
 		public void SwapTo(int newIndex)
 		{
-			index = newIndex;
+			Index = newIndex;
 
 			UpdateSwap();
 		}
@@ -62,7 +66,7 @@ namespace Lean.Common
 		[ContextMenu("Swap To Previous")]
 		public void SwapToPrevious()
 		{
-			index -= 1;
+			Index -= 1;
 
 			UpdateSwap();
 		}
@@ -71,47 +75,27 @@ namespace Lean.Common
 		[ContextMenu("Swap To Next")]
 		public void SwapToNext()
 		{
-			index += 1;
+			Index += 1;
 
 			UpdateSwap();
 		}
 
 		private Transform GetPrefab()
 		{
-			if (prefabs != null && prefabs.Count > 0)
+			if (Prefabs != null && Prefabs.Count > 0)
 			{
 				// Wrap index to stay within Prefabs.length
-				index %= prefabs.Count;
+				Index %= Prefabs.Count;
 
-				if (index < 0)
+				if (Index < 0)
 				{
-					index += prefabs.Count;
+					Index += Prefabs.Count;
 				}
 
-				return prefabs[index];
+				return Prefabs[Index];
 			}
 
 			return null;
 		}
 	}
 }
-
-#if UNITY_EDITOR
-namespace Lean.Common.Editor
-{
-	using TARGET = LeanSwap;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET))]
-	public class LeanSwap_Editor : LeanEditor
-	{
-		protected override void OnInspector()
-		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
-
-			Draw("index", "The current index within the Prefabs list.");
-			Draw("prefabs", "The alternative prefabs that can be swapped to.");
-		}
-	}
-}
-#endif

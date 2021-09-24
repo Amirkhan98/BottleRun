@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using Lean.Common;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
+﻿using UnityEngine;
 
 namespace Lean.Touch
 {
@@ -10,119 +7,112 @@ namespace Lean.Touch
 	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Drag Select")]
 	public class LeanDragSelect : MonoBehaviour
 	{
-		class FingerData : LeanFingerData
-		{
-			public LeanSelectableByFinger LastSelectable;
-		}
+		[Tooltip("The select component that will be used.")]
+		public LeanSelect Select;
 
-		/// <summary>The select component that will be used.</summary>
-		public LeanSelectByFinger Select { set { select = value; } get { return select; } } [FSA("Select")] [SerializeField] private LeanSelectByFinger select;
+		[Tooltip("If you begin dragging while objects are already selected, skip?")]
+		public bool RequireNoSelectables;
 
-		/// <summary>If you begin dragging while objects are already selected, skip?</summary>
-		public bool RequireNoSelectables { set { requireNoSelectables = value; } get { return requireNoSelectables; } } [FSA("RequireNoSelectables")] [SerializeField] private bool requireNoSelectables;
+		[Tooltip("If you begin dragging on a point that isn't above a selectable object, skip?")]
+		public bool RequireInitialSelection;
 
-		/// <summary>If you begin dragging on a point that isn't above a selectable object, skip?</summary>
-		public bool RequireInitialSelection { set { requireInitialSelection = value; } get { return requireInitialSelection; } } [FSA("RequireInitialSelection")] [SerializeField] private bool requireInitialSelection;
+		[Tooltip("Autoaticaly deselect all objects when the drag starts?")]
+		public bool DeselectAllAtStart;
 
-		/// <summary>Automatically deselect all objects when the drag starts?</summary>
-		public bool DeselectAllAtStart { set { deselectAllAtStart = value; } get { return deselectAllAtStart; } } [FSA("DeselectAllAtStart")] [SerializeField] private bool deselectAllAtStart;
-
-		/// <summary>Must the next selected object be within a specified world space distance?\n\n0 = Any distance.</summary>
-		public float MaximumSeparation { set { maximumSeparation = value; } get { return maximumSeparation; } } [FSA("MaximumSeparation")] [SerializeField] private float maximumSeparation;
+		[Tooltip("Must the next selected object be within a specified world space distance? (0 = any distance)")]
+		public float MaximumSeparation;
 
 		[System.NonSerialized]
-		private List<FingerData> fingerDatas;
+		private LeanFinger selectingFinger;
+
+		[System.NonSerialized]
+		private LeanSelectable lastSelectable;
 
 		[System.NonSerialized]
 		private bool waitingForSelection;
 
 		protected virtual void OnEnable()
 		{
-			LeanTouch.OnFingerDown   += HandleFingerDown;
-			LeanTouch.OnFingerUpdate += HandleFingerUpdate;
-			LeanTouch.OnFingerUp     += HandleFingerUp;
+			LeanTouch.OnFingerDown += HandleFingerDown;
+			LeanTouch.OnFingerUpdate  += HandleFingerSet;
+			LeanTouch.OnFingerUp   += HandleFingerUp;
 
-			LeanSelectableByFinger.OnAnySelectedFinger += HandleAnySelectedFinger;
+			LeanSelectable.OnSelectGlobal += SelectGlobal;
 		}
 
 		protected virtual void OnDisable()
 		{
-			LeanTouch.OnFingerDown   -= HandleFingerDown;
-			LeanTouch.OnFingerUpdate -= HandleFingerUpdate;
-			LeanTouch.OnFingerUp     -= HandleFingerUp;
+			LeanTouch.OnFingerDown -= HandleFingerDown;
+			LeanTouch.OnFingerUpdate  -= HandleFingerSet;
+			LeanTouch.OnFingerUp   -= HandleFingerUp;
 
-			LeanSelectableByFinger.OnAnySelectedFinger -= HandleAnySelectedFinger;
+			LeanSelectable.OnSelectGlobal -= SelectGlobal;
 		}
 
 		private void HandleFingerDown(LeanFinger finger)
 		{
-			if (select != null)
+			if (Select != null)
 			{
-				if (requireNoSelectables == true && select.Selectables.Count > 0)
+				if (RequireNoSelectables == true && LeanSelectable.IsSelectedCount > 0)
 				{
 					return;
 				}
 
-				if (finger.Index == LeanTouch.HOVER_FINGER_INDEX)
+				if (DeselectAllAtStart == true)
 				{
-					return;
+					LeanSelectable.DeselectAll();
 				}
 
-				if (deselectAllAtStart == true)
-				{
-					select.DeselectAll();
-				}
-
-				if (requireInitialSelection == true)
+				if (RequireInitialSelection == true)
 				{
 					waitingForSelection = true;
 
-					select.SelectScreenPosition(finger);
+					Select.SelectScreenPosition(finger);
 
 					waitingForSelection = false;
 				}
 				else
 				{
-					LeanFingerData.FindOrCreate(ref fingerDatas, finger);
+					selectingFinger = finger;
 
-					select.SelectScreenPosition(finger);
+					Select.SelectScreenPosition(finger);
 				}
 			}
 		}
 
-		private void HandleFingerUpdate(LeanFinger finger)
+		private void HandleFingerSet(LeanFinger finger)
 		{
-			var fingerData = LeanFingerData.Find(fingerDatas, finger);
-
-			if (fingerData != null)
+			if (finger == selectingFinger)
 			{
-				if (select != null)
+				if (Select != null)
 				{
-					select.SelectScreenPosition(finger);
+					Select.SelectScreenPosition(finger);
 				}
 			}
 		}
 
 		private void HandleFingerUp(LeanFinger finger)
 		{
-			LeanFingerData.Remove(fingerDatas, finger);
+			if (finger == selectingFinger)
+			{
+				selectingFinger = null;
+				lastSelectable  = null;
+			}
 		}
 
-		private void HandleAnySelectedFinger(LeanSelectByFinger select, LeanSelectableByFinger selectable, LeanFinger finger)
+		private void SelectGlobal(LeanSelectable selectable, LeanFinger finger)
 		{
 			if (waitingForSelection == true)
 			{
-				LeanFingerData.FindOrCreate(ref fingerDatas, finger);
+				selectingFinger = finger;
+				lastSelectable  = selectable;
 			}
-
-			var fingerData = LeanFingerData.Find(fingerDatas, finger);
-
-			if (fingerData != null)
+			else if (finger == selectingFinger)
 			{
 				// Good selection?
-				if (maximumSeparation <= 0.0f || fingerData.LastSelectable == null || Vector3.Distance(fingerData.LastSelectable.transform.position, selectable.transform.position) <= maximumSeparation)
+				if (MaximumSeparation <= 0.0f || lastSelectable == null || Vector3.Distance(lastSelectable.transform.position, selectable.transform.position) <= MaximumSeparation)
 				{
-					fingerData.LastSelectable = selectable;
+					lastSelectable = selectable;
 				}
 				// Too far to select?
 				else
@@ -133,26 +123,3 @@ namespace Lean.Touch
 		}
 	}
 }
-
-#if UNITY_EDITOR
-namespace Lean.Touch.Editor
-{
-	using TARGET = LeanDragSelect;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET))]
-	public class LeanDragSelect_Editor : LeanEditor
-	{
-		protected override void OnInspector()
-		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
-
-			Draw("select", "The select component that will be used.");
-			Draw("requireNoSelectables", "If you begin dragging while objects are already selected, skip?");
-			Draw("requireInitialSelection", "If you begin dragging on a point that isn't above a selectable object, skip?");
-			Draw("deselectAllAtStart", "Automatically deselect all objects when the drag starts?");
-			Draw("maximumSeparation", "Must the next selected object be within a specified world space distance?\n\n0 = Any distance.");
-		}
-	}
-}
-#endif

@@ -1,8 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 using System.Collections.Generic;
-using Lean.Common;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
 
 namespace Lean.Touch
 {
@@ -19,26 +18,26 @@ namespace Lean.Touch
 		/// <summary>The method used to find fingers to use with this component. See LeanFingerFilter documentation for more information.</summary>
 		public LeanFingerFilter Use = new LeanFingerFilter(true);
 
-		/// <summary>Each finger touching the screen must have moved at least this distance for a multi swipe to be considered. This prevents the scenario where multiple fingers are touching, but only one swipes.</summary>
-		public float ScaledDistanceThreshold { set { scaledDistanceThreshold = value; } get { return scaledDistanceThreshold; } } [FSA("ScaledDistanceThreshold")] [SerializeField] private float scaledDistanceThreshold = 50.0f;
+		[Tooltip("Each finger touching the screen must have moved at least this distance for a multi swipe to be considered. This prevents the scenario where multiple fingers are touching, but only one swipes.")]
+		public float ScaledDistanceThreshold = 50.0f;
 
-		/// <summary>This allows you to set the maximum angle between parallel swiping fingers for the OnSwipeParallel event to be fired.</summary>
-		public float ParallelAngleThreshold { set { parallelAngleThreshold = value; } get { return parallelAngleThreshold; } } [FSA("ParallelAngleThreshold")] [SerializeField] private float parallelAngleThreshold = 20.0f;
+		[Tooltip("This allows you to set the maximum angle between parallel swiping fingers for the OnSwipeParallel event to be fired.")]
+		public float ParallelAngleThreshold = 20.0f;
 
-		/// <summary>This allows you to set the minimum pinch distance for the OnSwipeIn and OnSwipeOut events to be fired.</summary>
-		public float PinchScaledDistanceThreshold { set { pinchScaledDistanceThreshold = value; } get { return pinchScaledDistanceThreshold; } } [FSA("PinchScaledDistanceThreshold")] [SerializeField] private float pinchScaledDistanceThreshold = 100.0f;
+		[Tooltip("This allows you to set the minimum pinch distance for the OnSwipeIn and OnSwipeOut events to be fired.")]
+		public float PinchScaledDistanceThreshold = 100.0f;
 
 		// Called when a multi-swipe occurs
-		public FingerListEvent OnFingers { get { if (onFingers == null) onFingers = new FingerListEvent(); return onFingers; } } [FSA("onSwipe")] [FSA("OnSwipe")] [SerializeField] private FingerListEvent onFingers;
+		public FingerListEvent OnFingers { get { if (onFingers == null) onFingers = new FingerListEvent(); return onFingers; } } [FormerlySerializedAs("onSwipe")] [FormerlySerializedAs("OnSwipe")] [SerializeField] private FingerListEvent onFingers;
 
-		// Called when a multi-swipe occurs where each finger moves parallel to each other (Vector2 = ScaledDirection)
-		public Vector2Event OnSwipeParallel { get { if (onSwipeParallel == null) onSwipeParallel = new Vector2Event(); return onSwipeParallel; } } [FSA("OnSwipeParallel")] [SerializeField] private Vector2Event onSwipeParallel;
+		// Called when a multi-swipe occurs where each finger moves paralell to each other (Vector2 = ScaledDirection)
+		public Vector2Event OnSwipeParallel { get { if (onSwipeParallel == null) onSwipeParallel = new Vector2Event(); return onSwipeParallel; } } [FormerlySerializedAs("OnSwipeParallel")] [SerializeField] private Vector2Event onSwipeParallel;
 
 		// Called when a multi-swipe occurs where each finger pinches in (Float = ScaledDistance)
-		public FloatEvent OnSwipeIn { get { if (onSwipeIn == null) onSwipeIn = new FloatEvent(); return onSwipeIn; } } [FSA("OnSwipeIn")] [SerializeField] private FloatEvent onSwipeIn;
+		public FloatEvent OnSwipeIn { get { if (onSwipeIn == null) onSwipeIn = new FloatEvent(); return onSwipeIn; } } [FormerlySerializedAs("OnSwipeIn")] [SerializeField] private FloatEvent onSwipeIn;
 
 		// Called when a multi-swipe occurs where each finger pinches out (Float = ScaledDistance)
-		public FloatEvent OnSwipeOut { get { if (onSwipeOut == null) onSwipeOut = new FloatEvent(); return onSwipeOut; } } [FSA("OnSwipeOut")] [SerializeField] private FloatEvent onSwipeOut;
+		public FloatEvent OnSwipeOut { get { if (onSwipeOut == null) onSwipeOut = new FloatEvent(); return onSwipeOut; } } [FormerlySerializedAs("OnSwipeOut")] [SerializeField] private FloatEvent onSwipeOut;
 
 		// Set to prevent multiple invocation
 		private bool swiped;
@@ -60,14 +59,12 @@ namespace Lean.Touch
 		{
 			Use.RemoveAllFingers();
 		}
-
 #if UNITY_EDITOR
 		protected virtual void Reset()
 		{
 			Use.UpdateRequiredSelectable(gameObject);
 		}
 #endif
-
 		protected virtual void Awake()
 		{
 			Use.UpdateRequiredSelectable(gameObject);
@@ -76,7 +73,7 @@ namespace Lean.Touch
 		protected virtual void Update()
 		{
 			// Get all valid fingers for swipe
-			var fingers = Use.UpdateAndGetFingers();
+			var fingers = Use.GetFingers();
 
 			if (fingers.Count > 0)
 			{
@@ -120,17 +117,17 @@ namespace Lean.Touch
 				}
 
 				// If it didn't move far enough to swipe, skip
-				if (finger.SwipeScaledDelta.magnitude < scaledDistanceThreshold)
+				if (finger.SwipeScaledDelta.magnitude < ScaledDistanceThreshold)
 				{
 					return;
 				}
 
-				// If the finger didn't move parallel the others, make the OnSwipeParallel event ineligible
+				// If the finger didn't move parallel the others, make the OnSwipeParallel event inelligible
 				if (finger != swipedFinger)
 				{
 					var angle = Vector2.Angle(scaledDelta, finger.SwipeScaledDelta);
 
-					if (angle > parallelAngleThreshold)
+					if (angle > ParallelAngleThreshold)
 					{
 						isParallel = false;
 					}
@@ -157,12 +154,12 @@ namespace Lean.Touch
 				{
 					var pinch = LeanGesture.GetScaledDistance(fingers, centerB) - LeanGesture.GetStartScaledDistance(fingers, centerA);
 
-					if (onSwipeIn != null && pinch <= -pinchScaledDistanceThreshold)
+					if (onSwipeIn != null && pinch <= -PinchScaledDistanceThreshold)
 					{
 						onSwipeIn.Invoke(-pinch);
 					}
 
-					if (onSwipeOut != null && pinch >= pinchScaledDistanceThreshold)
+					if (onSwipeOut != null && pinch >= PinchScaledDistanceThreshold)
 					{
 						onSwipeOut.Invoke(pinch);
 					}
@@ -171,57 +168,3 @@ namespace Lean.Touch
 		}
 	}
 }
-
-#if UNITY_EDITOR
-namespace Lean.Touch.Editor
-{
-	using TARGET = LeanMultiSwipe;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET), true)]
-	public class LeanMultiSwipe_Editor : LeanEditor
-	{
-		protected override void OnInspector()
-		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
-
-			Draw("Use");
-
-			Separator();
-
-			Draw("scaledDistanceThreshold", "Each finger touching the screen must have moved at least this distance for a multi swipe to be considered. This prevents the scenario where multiple fingers are touching, but only one swipes.");
-			Draw("parallelAngleThreshold", "This allows you to set the maximum angle between parallel swiping fingers for the OnSwipeParallel event to be fired.");
-			Draw("pinchScaledDistanceThreshold", "This allows you to set the minimum pinch distance for the OnSwipeIn and OnSwipeOut events to be fired.");
-
-			Separator();
-
-			var usedA = Any(tgts, t => t.OnFingers.GetPersistentEventCount() > 0);
-			var usedB = Any(tgts, t => t.OnSwipeParallel.GetPersistentEventCount() > 0);
-			var usedC = Any(tgts, t => t.OnSwipeIn.GetPersistentEventCount() > 0);
-			var usedD = Any(tgts, t => t.OnSwipeOut.GetPersistentEventCount() > 0);
-
-			var showUnusedEvents = DrawFoldout("Show Unused Events", "Show all events?");
-
-			if (usedA == true || showUnusedEvents == true)
-			{
-				Draw("onFingers");
-			}
-
-			if (usedB == true || showUnusedEvents == true)
-			{
-				Draw("onSwipeParallel");
-			}
-
-			if (usedC == true || showUnusedEvents == true)
-			{
-				Draw("onSwipeIn");
-			}
-
-			if (usedD == true || showUnusedEvents == true)
-			{
-				Draw("onSwipeOut");
-			}
-		}
-	}
-}
-#endif

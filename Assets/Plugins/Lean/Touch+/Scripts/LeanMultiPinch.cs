@@ -1,7 +1,5 @@
 using UnityEngine;
 using UnityEngine.Events;
-using Lean.Common;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
 
 namespace Lean.Touch
 {
@@ -25,17 +23,22 @@ namespace Lean.Touch
 		public LeanFingerFilter Use = new LeanFingerFilter(true);
 
 		/// <summary>If there is no pinching, ignore it?</summary>
-		public bool IgnoreIfStatic { set { ignoreIfStatic = value; } get { return ignoreIfStatic; } } [FSA("IgnoreIfStatic")] [SerializeField] private bool ignoreIfStatic;
+		[Tooltip("If there is no pinching, ignore it?")]
+		public bool IgnoreIfStatic;
+
+		[Space]
 
 		/// <summary>OneBasedScale = Scale (1 = no change, 2 = double size, 0.5 = half size).
 		/// OneBasedReciprocal = 1 / Scale (1 = no change, 2 = half size, 0.5 = double size).
 		/// ZeroBasedScale = Scale - 1 (0 = no change, 1 = double size, -0.5 = half size).
 		/// ZeroBasedRatio = 1 / Scale - 1 (0 = no change, 1 = half size, -0.5 = double size).
 		/// ZeroBasedDistance = Linear change in distance (0 = no change, 10 = 10 pixel larger radius, -10 = 10 pixel smaller radius).</summary>
-		public CoordinateType Coordinate { set { coordinate = value; } get { return coordinate; } } [FSA("Coordinate")] [SerializeField] private CoordinateType coordinate;
+		[Tooltip("OneBasedScale = Scale (1 = no change, 2 = double size, 0.5 = half size).\n\nOneBasedReciprocal = 1 / Scale (1 = no change, 2 = half size, 0.5 = double size).\n\nZeroBasedScale = Scale - 1 (0 = no change, 1 = double size, -0.5 = half size).\n\nZeroBasedRatio = 1 / Scale - 1 (0 = no change, 1 = half size, -0.5 = double size).\n\nZeroBasedDistance = Linear change in distance (0 = no change, 10 = 10 pixel larger radius, -10 = 10 pixel smaller radius).")]
+		public CoordinateType Coordinate;
 
 		/// <summary>The swipe delta will be multiplied by this value.</summary>
-		public float Multiplier { set { multiplier = value; } get { return multiplier; } } [FSA("Multiplier")] [SerializeField] private float multiplier = 1.0f;
+		[Tooltip("The swipe delta will be multiplied by this value.")]
+		public float Multiplier = 1.0f;
 
 		/// <summary>This event is invoked when the requirements are met.
 		/// Float = Pinch value based on your Scale setting.</summary>
@@ -58,14 +61,12 @@ namespace Lean.Touch
 		{
 			Use.RemoveAllFingers();
 		}
-
 #if UNITY_EDITOR
 		protected virtual void Reset()
 		{
 			Use.UpdateRequiredSelectable(gameObject);
 		}
 #endif
-
 		protected virtual void Awake()
 		{
 			Use.UpdateRequiredSelectable(gameObject);
@@ -74,17 +75,17 @@ namespace Lean.Touch
 		protected virtual void Update()
 		{
 			// Get fingers
-			var fingers = Use.UpdateAndGetFingers();
+			var fingers = Use.GetFingers();
 
 			if (fingers.Count > 1 && onPinch != null)
 			{
-				switch (coordinate)
+				switch (Coordinate)
 				{
 					case CoordinateType.OneBasedScale:
 					{
 						var scale = LeanGesture.GetPinchScale(fingers);
 
-						scale = Mathf.Pow(scale, multiplier);
+						scale = Mathf.Pow(scale, Multiplier);
 
 						onPinch.Invoke(scale);
 					}
@@ -94,7 +95,7 @@ namespace Lean.Touch
 					{
 						var ratio = LeanGesture.GetPinchRatio(fingers);
 
-						ratio = Mathf.Pow(ratio, multiplier);
+						ratio = Mathf.Pow(ratio, Multiplier);
 
 						onPinch.Invoke(ratio);
 					}
@@ -104,7 +105,7 @@ namespace Lean.Touch
 					{
 						var scale = LeanGesture.GetPinchScale(fingers);
 
-						scale = (scale - 1.0f) * multiplier;
+						scale = (scale - 1.0f) * Multiplier;
 
 						onPinch.Invoke(scale);
 					}
@@ -114,7 +115,7 @@ namespace Lean.Touch
 					{
 						var ratio = LeanGesture.GetPinchRatio(fingers);
 
-						ratio = (ratio - 1.0f) * multiplier;
+						ratio = (ratio - 1.0f) * Multiplier;
 
 						onPinch.Invoke(ratio);
 					}
@@ -124,7 +125,7 @@ namespace Lean.Touch
 					{
 						var oldDistance = LeanGesture.GetLastScaledDistance(fingers, LeanGesture.GetLastScreenCenter(fingers));
 						var newDistance = LeanGesture.GetScaledDistance(fingers, LeanGesture.GetScreenCenter(fingers));
-						var movement    = (newDistance - oldDistance) * multiplier;
+						var movement    = (newDistance - oldDistance) * Multiplier;
 
 						onPinch.Invoke(movement);
 					}
@@ -134,32 +135,3 @@ namespace Lean.Touch
 		}
 	}
 }
-
-#if UNITY_EDITOR
-namespace Lean.Touch.Editor
-{
-	using TARGET = LeanMultiPinch;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET), true)]
-	public class LeanMultiPinch_Editor : LeanEditor
-	{
-		protected override void OnInspector()
-		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
-
-			Draw("Use");
-
-			Separator();
-
-			Draw("ignoreIfStatic", "If there is no pinching, ignore it?");
-			Draw("coordinate", "OneBasedScale = Scale (1 = no change, 2 = double size, 0.5 = half size).\n\nOneBasedReciprocal = 1 / Scale (1 = no change, 2 = half size, 0.5 = double size).\n\nZeroBasedScale = Scale - 1 (0 = no change, 1 = double size, -0.5 = half size).\n\nZeroBasedRatio = 1 / Scale - 1 (0 = no change, 1 = half size, -0.5 = double size).\n\nZeroBasedDistance = Linear change in distance (0 = no change, 10 = 10 pixel larger radius, -10 = 10 pixel smaller radius).");
-			Draw("multiplier", "The swipe delta will be multiplied by this value.");
-
-			Separator();
-
-			Draw("onPinch");
-		}
-	}
-}
-#endif

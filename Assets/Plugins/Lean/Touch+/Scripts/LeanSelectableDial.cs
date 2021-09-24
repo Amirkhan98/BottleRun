@@ -1,8 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
 using System.Collections.Generic;
-using Lean.Common;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
 
 namespace Lean.Touch
 {
@@ -10,7 +8,7 @@ namespace Lean.Touch
 	[ExecuteInEditMode]
 	[HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanSelectableDial")]
 	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Selectable Dial")]
-	public class LeanSelectableDial : LeanSelectableByFingerBehaviour
+	public class LeanSelectableDial : LeanSelectableBehaviour
 	{
 		[System.Serializable]
 		public class Trigger
@@ -43,60 +41,56 @@ namespace Lean.Touch
 			}
 		}
 
-		[System.Serializable] public class FloatEvent : UnityEvent<float> {}
-
-		/// <summary>The camera this component will calculate using.
-		/// None/null = MainCamera.</summary>
-		public Camera Camera { set { _camera = value; } get { return _camera; } } [FSA("Camera")] [SerializeField] private Camera _camera;
+		/// <summary>The camera we will be used.
+		/// None = MainCamera.</summary>
+		[Tooltip("The camera we will be used.\n\nNone = MainCamera.")]
+		public Camera Camera;
 
 		/// <summary>The base rotation in local space.</summary>
-		public Vector3 Tilt { set { tilt = value; } get { return tilt; } } [FSA("Tilt")] [SerializeField] private Vector3 tilt;
+		[Tooltip("The base rotation in local space.")]
+		public Vector3 Tilt;
 
 		/// <summary>The axis of the rotation in local space.</summary>
-		public Vector3 Axis { set { axis = value; } get { return axis; } } [FSA("Axis")] [SerializeField] private Vector3 axis = Vector3.up;
+		[Tooltip("The axis of the rotation in local space.")]
+		public Vector3 Axis = Vector3.up;
 
 		/// <summary>The angle of the dial in degrees.</summary>
-		public float Angle { set { var newAngle = value; if (clamp == true) { newAngle = Mathf.Clamp(newAngle, clampMin, clampMax); } if (angle != newAngle) { angle = newAngle; if (onAngleChanged != null) onAngleChanged.Invoke(angle); } } get { return angle; } } [FSA("Angle")] [SerializeField] private float angle;
+		[Tooltip("The angle of the dial in degrees.")]
+		public float Angle;
+
+		[Space]
 
 		/// <summary>Should the Angle value be clamped?</summary>
-		public bool Clamp { set { clamp = value; } get { return clamp; } } [FSA("Clamp")] [SerializeField] private bool clamp;
+		[Tooltip("Should the Angle value be clamped?")]
+		public bool Clamp;
 
 		/// <summary>The minimum Angle value.</summary>
-		public float ClampMin { set { clampMin = value; } get { return clampMin; } } [FSA("ClampMin")] [SerializeField] private float clampMin = -45.0f;
+		[Tooltip("The minimum Angle value.")]
+		public float ClampMin = -45.0f;
 
 		/// <summary>The maximum Angle value.</summary>
-		public float ClampMax { set { clampMax = value; } get { return clampMax; } } [FSA("ClampMax")] [SerializeField] private float clampMax = 45.0f;
+		[Tooltip("The maximum Angle value.")]
+		public float ClampMax = 45.0f;
 
-		/// <summary>This allows you to perform a custom event when the dial is within a specified angle range.</summary>
-		public List<Trigger> Triggers { get { if (triggers == null) triggers = new List<Trigger>(); return triggers; } } [FSA("Triggers")] [SerializeField] private List<Trigger> triggers;
+		[Space]
 
-		/// <summary>This event is invoked when the <b>Angle</b> changes.
-		/// Float = Current Angle.</summary>
-		public FloatEvent OnAngleChanged { get { if (onAngleChanged == null) onAngleChanged = new FloatEvent(); return onAngleChanged; } } [SerializeField] private FloatEvent onAngleChanged;
+		/// <summary>This allows you to perform a custom event when the dial is within a specifid angle range.</summary>
+		[Tooltip("This allows you to perform a custom event when the dial is within a specifid angle range.")]
+		public List<Trigger> Triggers;
 
 		private Vector2 oldPoint;
 
 		private bool oldPointSet;
-
-		/// <summary>This method allows you to increase the <b>Angle</b> value from an external event (e.g. UI button click).</summary>
-		public void IncrementAngle(float delta)
-		{
-			Angle += delta;
-		}
-
 #if UNITY_EDITOR
 		protected virtual void OnDrawGizmosSelected()
 		{
-			Gizmos.DrawLine(transform.position, transform.TransformPoint(axis));
+			Gizmos.DrawLine(transform.position, transform.TransformPoint(Axis));
 		}
 #endif
-
 		protected virtual void Update()
 		{
-			var newAngle = angle;
-
 			// Reset rotation and get axis
-			transform.localEulerAngles = tilt;
+			transform.localEulerAngles = Tilt;
 
 			// Is this GameObject selected?
 			if (Selectable != null && Selectable.IsSelected == true)
@@ -110,7 +104,7 @@ namespace Lean.Touch
 
 					if (oldPointSet == true)
 					{
-						newAngle -= Vector2.SignedAngle(newPoint, oldPoint);
+						Angle += Vector2.SignedAngle(newPoint, oldPoint);
 					}
 
 					oldPoint    = newPoint;
@@ -122,20 +116,20 @@ namespace Lean.Touch
 				oldPointSet = false;
 			}
 
-			if (clamp == true)
+			if (Clamp == true)
 			{
-				newAngle = Mathf.Clamp(newAngle, clampMin, clampMax);
+				Angle = Mathf.Clamp(Angle, ClampMin, ClampMax);
 			}
 
-			transform.Rotate(axis, angle, Space.Self);
+			transform.Rotate(Axis, Angle, Space.Self);
 
-			if (triggers != null)
+			if (Triggers != null)
 			{
-				for (var i = 0; i < triggers.Count; i++)
+				for (var i = 0; i < Triggers.Count; i++)
 				{
-					var trigger = triggers[i];
+					var trigger = Triggers[i];
 
-					if (trigger.IsInside(angle, clamp) == true)
+					if (trigger.IsInside(Angle, Clamp) == true)
 					{
 						if (trigger.Inside == false)
 						{
@@ -155,14 +149,12 @@ namespace Lean.Touch
 					}
 				}
 			}
-
-			Angle = newAngle;
 		}
 
 		private Vector2 GetPoint(Vector2 screenPoint)
 		{
 			// Make sure the camera exists
-			var camera = LeanHelper.GetCamera(_camera, gameObject);
+			var camera = LeanTouch.GetCamera(Camera, gameObject);
 
 			if (camera != null)
 			{
@@ -170,22 +162,36 @@ namespace Lean.Touch
 
 				if (rectTransform != null)
 				{
+					/*
+					var localPoint = default(Vector2);
+
+					if (RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, screenPoint, camera, out localPoint) == true)
+					{
+						return new Vector2(-localPoint.x, localPoint.y);
+					}
+					*/
 					var worldPoint = default(Vector3);
 
 					if (RectTransformUtility.ScreenPointToWorldPointInRectangle(rectTransform, screenPoint, camera, out worldPoint) == true)
 					{
-						return Quaternion.LookRotation(axis) * transform.InverseTransformPoint(worldPoint);
+						var vector = Quaternion.LookRotation(Axis) * transform.InverseTransformPoint(worldPoint);
+
+						vector.x = -vector.x;
+
+						return vector;
 					}
 				}
 				else
 				{
 					var ray      = camera.ScreenPointToRay(screenPoint);
-					var plane    = new Plane(transform.TransformDirection(axis), transform.position);
+					var plane    = new Plane(transform.TransformDirection(Axis), transform.position);
 					var distance = default(float);
 
 					if (plane.Raycast(ray, out distance) == true)
 					{
-						return Quaternion.Inverse(Quaternion.LookRotation(axis)) * transform.InverseTransformPoint(ray.GetPoint(distance));
+						var vector = ray.GetPoint(distance) - transform.position;
+
+						return Quaternion.LookRotation(Axis) * vector;
 					}
 				}
 			}
@@ -198,41 +204,3 @@ namespace Lean.Touch
 		}
 	}
 }
-
-#if UNITY_EDITOR
-namespace Lean.Touch.Editor
-{
-	using TARGET = LeanSelectableDial;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET))]
-	public class LeanSelectableDial_Editor : LeanEditor
-	{
-		protected override void OnInspector()
-		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
-
-			Draw("_camera", "The camera we will be used.\n\nNone/null = MainCamera.");
-			Draw("tilt", "The base rotation in local space.");
-			Draw("axis", "The axis of the rotation in local space.");
-			Draw("angle", "The angle of the dial in degrees.");
-
-			Separator();
-
-			Draw("clamp", "Should the Angle value be clamped?");
-			BeginIndent();
-				Draw("clampMin", "The minimum Angle value.", "Min");
-				Draw("clampMax", "The maximum Angle value.", "Max");
-			EndIndent();
-
-			Separator();
-
-			Draw("triggers", "This allows you to perform a custom event when the dial is within a specified angle range.");
-
-			Separator();
-
-			Draw("onAngleChanged");
-		}
-	}
-}
-#endif

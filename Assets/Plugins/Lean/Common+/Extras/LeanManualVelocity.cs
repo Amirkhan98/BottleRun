@@ -1,44 +1,44 @@
 using UnityEngine;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
 
-namespace Lean.Common
+namespace Lean.Touch
 {
 	/// <summary>This component allows you to add force to the current GameObject using events.</summary>
-	[HelpURL(LeanHelper.PlusHelpUrlPrefix + "LeanManualVelocity")]
-	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Manual Velocity")]
+	[HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanManualVelocity")]
+	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Manual Velocity")]
 	public class LeanManualVelocity : MonoBehaviour
 	{
-		/// <summary>If your Rigidbody is on a different GameObject, set it here.</summary>
-		public GameObject Target { set { target = value; } get { return target; } } [FSA("Target")] [SerializeField] private GameObject target;
+		[Tooltip("If your Rigidbody is on a different GameObject, set it here")]
+		public GameObject Target;
 
-		/// <summary>The force mode.</summary>
-		public ForceMode Mode { set { mode = value; } get { return mode; } } [FSA("Mode")] [SerializeField] private ForceMode mode;
+		public ForceMode Mode;
 
-		/// <summary>The applied velocity will be multiplied by this.</summary>
-		public float Multiplier { set { multiplier = value; } get { return multiplier; } } [FSA("Multiplier")] [SerializeField] private float multiplier = 1.0f;
+		[Tooltip("Fixed multiplier for the force")]
+		public float Multiplier = 1.0f;
 
-		/// <summary>The velocity space.</summary>
-		public Space Space { set { space = value; } get { return space; } } [FSA("Space")] [SerializeField] private Space space = Space.World;
+		[Space]
 
-		/// <summary>The first force direction.</summary>
-		public Vector2 DirectionA { set { directionA = value; } get { return directionA; } } [FSA("DirectionA")] [SerializeField] private Vector2 directionA = Vector2.right;
+		[Tooltip("The velocity space")]
+		public Space Space = Space.World;
 
-		/// <summary>The second force direction.</summary>
-		public Vector2 DirectionB { set { directionB = value; } get { return directionB; } } [FSA("DirectionB")] [SerializeField] private Vector2 directionB = Vector2.up;
+		[Tooltip("The first force direction")]
+		public Vector3 DirectionA = Vector3.right;
+
+		[Tooltip("The second force direction")]
+		public Vector3 DirectionB = Vector3.up;
 
 		public void AddForceA(float delta)
 		{
-			AddForce(directionA * delta);
+			AddForce(DirectionA * delta);
 		}
 
 		public void AddForceB(float delta)
 		{
-			AddForce(directionB * delta);
+			AddForce(DirectionB * delta);
 		}
 
 		public void AddForceAB(Vector2 delta)
 		{
-			AddForce(directionA * delta.x + directionB * delta.y);
+			AddForce(DirectionA * delta.x + DirectionB * delta.y);
 		}
 
 		public void AddForceFromTo(Vector3 from, Vector3 to)
@@ -48,44 +48,20 @@ namespace Lean.Common
 
 		public void AddForce(Vector3 delta)
 		{
-			var finalGameObject = target != null ? target : gameObject;
+			var finalGameObject = Target != null ? Target : gameObject;
 			var rigidbody       = finalGameObject.GetComponent<Rigidbody>();
 
 			if (rigidbody != null)
 			{
-				var force = delta * multiplier;
+				var force = delta * Multiplier;
 
-				if (space == Space.Self)
+				if (Space == Space.Self)
 				{
 					force = rigidbody.transform.rotation * force;
 				}
 
-				rigidbody.AddForce(force, mode);
+				rigidbody.AddForce(force, Mode);
 			}
 		}
 	}
 }
-
-#if UNITY_EDITOR
-namespace Lean.Common.Editor
-{
-	using TARGET = LeanManualVelocity;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET), true)]
-	public class LeanManualVelocity_Editor : LeanEditor
-	{
-		protected override void OnInspector()
-		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
-
-			Draw("target", "If your Rigidbody is on a different GameObject, set it here.");
-			Draw("mode", "The force mode.");
-			Draw("multiplier", "The applied velocity will be multiplied by this.");
-			Draw("space", "The velocity space.");
-			Draw("directionA", "The first force direction.");
-			Draw("directionB", "The second force direction.");
-		}
-	}
-}
-#endif

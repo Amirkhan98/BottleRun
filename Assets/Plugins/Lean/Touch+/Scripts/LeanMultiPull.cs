@@ -1,7 +1,9 @@
 using UnityEngine;
 using UnityEngine.Events;
 using Lean.Common;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Lean.Touch
 {
@@ -27,13 +29,16 @@ namespace Lean.Touch
 		public LeanFingerFilter Use = new LeanFingerFilter(true);
 
 		/// <summary>The coordinate space of the OnDelta values.</summary>
-		public CoordinateType Coordinate { set { coordinate = value; } get { return coordinate; } } [FSA("Coordinate")] [SerializeField] private CoordinateType coordinate;
+		[Tooltip("The coordinate space of the OnDelta values.")]
+		public CoordinateType Coordinate;
 
 		/// <summary>The delta values will be multiplied by this when output.</summary>
-		public float Multiplier { set { multiplier = value; } get { return multiplier; } } [FSA("Multiplier")] [SerializeField] private float multiplier = 1.0f;
+		[Tooltip("The delta values will be multiplied by this when output.")]
+		public float Multiplier = 1.0f;
 
-		/// <summary>If you enable this then the delta values will be multiplied by Time.deltaTime. This allows you to maintain frame rate independent actions.</summary>
-		public bool ScaleByTime { set { scaleByTime = value; } get { return scaleByTime; } } [FSA("ScaleByTime")] [SerializeField] private bool scaleByTime = true;
+		/// <summary>If you enable this then the delta values will be multiplied by Time.deltaTime. This allows you to maintain framerate independent actions.</summary>
+		[Tooltip("If you enable this then the delta values will be multiplied by Time.deltaTime. This allows you to maintain framerate independent actions.")]
+		public bool ScaleByTime = true;
 
 		/// <summary>This event is invoked when the requirements are met.
 		/// Vector2 = Position Delta based on your Delta setting.</summary>
@@ -80,14 +85,12 @@ namespace Lean.Touch
 		{
 			Use.RemoveAllFingers();
 		}
-
 #if UNITY_EDITOR
 		protected virtual void Reset()
 		{
 			Use.UpdateRequiredSelectable(gameObject);
 		}
 #endif
-
 		protected virtual void Awake()
 		{
 			Use.UpdateRequiredSelectable(gameObject);
@@ -96,7 +99,7 @@ namespace Lean.Touch
 		protected virtual void Update()
 		{
 			// Get fingers
-			var fingers = Use.UpdateAndGetFingers();
+			var fingers = Use.GetFingers();
 
 			if (fingers.Count > 0)
 			{
@@ -105,18 +108,18 @@ namespace Lean.Touch
 				var finalDelta = screenTo - screenFrom;
 				var timeScale  = 1.0f;
 
-				if (scaleByTime == true)
+				if (ScaleByTime == true)
 				{
 					timeScale = Time.deltaTime;
 				}
 
-				switch (coordinate)
+				switch (Coordinate)
 				{
 					case CoordinateType.ScaledPixels:     finalDelta *= LeanTouch.ScalingFactor; break;
 					case CoordinateType.ScreenPercentage: finalDelta *= LeanTouch.ScreenFactor;  break;
 				}
 
-				finalDelta *= multiplier;
+				finalDelta *= Multiplier;
 
 				if (onVector != null)
 				{
@@ -156,40 +159,42 @@ namespace Lean.Touch
 }
 
 #if UNITY_EDITOR
-namespace Lean.Touch.Editor
+namespace Lean.Touch
 {
-	using TARGET = LeanMultiPull;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET))]
-	public class LeanMultiPull_Editor : LeanEditor
+	[CanEditMultipleObjects]
+	[CustomEditor(typeof(LeanMultiPull))]
+	public class LeanMultiPull_Inspector : LeanInspector<LeanMultiPull>
 	{
-		protected override void OnInspector()
-		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
+		private bool showUnusedEvents;
 
+		protected override void DrawInspector()
+		{
 			Draw("Use");
 
-			Separator();
+			EditorGUILayout.Separator();
 
-			var usedA = Any(tgts, t => t.OnVector.GetPersistentEventCount() > 0);
-			var usedB = Any(tgts, t => t.OnDistance.GetPersistentEventCount() > 0);
-			var usedC = Any(tgts, t => t.OnWorldFrom.GetPersistentEventCount() > 0);
-			var usedD = Any(tgts, t => t.OnWorldTo.GetPersistentEventCount() > 0);
-			var usedE = Any(tgts, t => t.OnWorldDelta.GetPersistentEventCount() > 0);
-			var usedF = Any(tgts, t => t.OnWorldFromTo.GetPersistentEventCount() > 0);
+			var usedA = Any(t => t.OnVector.GetPersistentEventCount() > 0);
+			var usedB = Any(t => t.OnDistance.GetPersistentEventCount() > 0);
+			var usedC = Any(t => t.OnWorldFrom.GetPersistentEventCount() > 0);
+			var usedD = Any(t => t.OnWorldTo.GetPersistentEventCount() > 0);
+			var usedE = Any(t => t.OnWorldDelta.GetPersistentEventCount() > 0);
+			var usedF = Any(t => t.OnWorldFromTo.GetPersistentEventCount() > 0);
 
-			var showUnusedEvents = DrawFoldout("Show Unused Events", "Show all events?");
+			EditorGUI.BeginDisabledGroup(usedA && usedB && usedC && usedD && usedE && usedF);
+				showUnusedEvents = EditorGUILayout.Foldout(showUnusedEvents, "Show Unused Events");
+			EditorGUI.EndDisabledGroup();
+
+			EditorGUILayout.Separator();
 
 			if (usedA == true || usedB == true || showUnusedEvents == true)
 			{
-				Draw("coordinate", "The coordinate space of the OnDelta values.");
-				Draw("multiplier", "The delta values will be multiplied by this when output.");
+				Draw("Coordinate");
+				Draw("Multiplier");
 			}
 
 			if (usedA == true || usedB == true || usedE == true || showUnusedEvents == true)
 			{
-				Draw("scaleByTime", "If you enable this then the delta values will be multiplied by Time.deltaTime. This allows you to maintain frame rate independent actions.");
+				Draw("ScaleByTime");
 			}
 
 			if (usedA == true || showUnusedEvents == true)

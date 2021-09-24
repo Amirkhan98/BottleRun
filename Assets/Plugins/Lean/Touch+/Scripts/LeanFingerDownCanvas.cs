@@ -1,8 +1,10 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 using Lean.Common;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Lean.Touch
 {
@@ -17,10 +19,12 @@ namespace Lean.Touch
 		[System.Serializable] public class Vector3Event : UnityEvent<Vector3> {}
 
 		/// <summary>Ignore fingers with StartedOverGui?</summary>
-		public bool IgnoreStartedOverGui { set { ignoreStartedOverGui = value; } get { return ignoreStartedOverGui; } } [FSA("IgnoreStartedOverGui")] [SerializeField] private bool ignoreStartedOverGui = true;
+		[Tooltip("Ignore fingers with StartedOverGui?")]
+		public bool IgnoreStartedOverGui;
 
-		/// <summary>If the specified object is set and isn't selected, then this component will do nothing.</summary>
-		public LeanSelectable RequiredSelectable { set { requiredSelectable = value; } get { return requiredSelectable; } } [FSA("RequiredSelectable")] [SerializeField] private LeanSelectable requiredSelectable;
+		/// <summary>Do nothing if this LeanSelectable isn't selected?</summary>
+		[Tooltip("Do nothing if this LeanSelectable isn't selected?")]
+		public LeanSelectable RequiredSelectable;
 
 		/// <summary>Called on the first frame the conditions are met.</summary>
 		public LeanFingerEvent OnFinger { get { if (onFinger == null) onFinger = new LeanFingerEvent(); return onFinger; } } [FormerlySerializedAs("onDown")] [FormerlySerializedAs("OnDown")] [SerializeField] private LeanFingerEvent onFinger;
@@ -59,17 +63,12 @@ namespace Lean.Touch
 
 		private void HandleFingerDown(LeanFinger finger)
 		{
-			if (ignoreStartedOverGui == true && finger.IsOverGui == true)
+			if (IgnoreStartedOverGui == true && finger.IsOverGui == true)
 			{
 				return;
 			}
 
-			if (requiredSelectable != null && requiredSelectable.IsSelected == false)
-			{
-				return;
-			}
-
-			if (finger.Index == LeanTouch.HOVER_FINGER_INDEX)
+			if (RequiredSelectable != null && RequiredSelectable.IsSelected == false)
 			{
 				return;
 			}
@@ -93,31 +92,36 @@ namespace Lean.Touch
 }
 
 #if UNITY_EDITOR
-namespace Lean.Touch.Editor
+namespace Lean.Touch
 {
-	using TARGET = LeanFingerDownCanvas;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET))]
-	public class LeanFingerDownCanvas_Editor : LeanEditor
+	[CanEditMultipleObjects]
+	[CustomEditor(typeof(LeanFingerDownCanvas))]
+	public class LeanFingerDownCanvas_Inspector : LeanInspector<LeanFingerDownCanvas>
 	{
-		protected override void OnInspector()
+		private bool showUnusedEvents;
+
+		protected override void DrawInspector()
 		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
+			Draw("IgnoreStartedOverGui");
+			Draw("RequiredSelectable");
 
-			Draw("ignoreStartedOverGui", "Ignore fingers with StartedOverGui?");
-			Draw("requiredSelectable", "If the specified object is set and isn't selected, then this component will do nothing.");
+			EditorGUILayout.Separator();
 
-			Separator();
+			var usedA = Any(t => t.OnFinger.GetPersistentEventCount() > 0);
+			var usedB = Any(t => t.OnWorld.GetPersistentEventCount() > 0);
 
-			var showUnusedEvents = DrawFoldout("Show Unused Events", "Show all events?");
+			EditorGUI.BeginDisabledGroup(usedA && usedB);
+				showUnusedEvents = EditorGUILayout.Foldout(showUnusedEvents, "Show Unused Events");
+			EditorGUI.EndDisabledGroup();
 
-			if (Any(tgts, t => t.OnFinger.GetPersistentEventCount() > 0) == true || showUnusedEvents == true)
+			EditorGUILayout.Separator();
+
+			if (usedA == true || showUnusedEvents == true)
 			{
 				Draw("onFinger");
 			}
 
-			if (Any(tgts, t => t.OnWorld.GetPersistentEventCount() > 0) == true || showUnusedEvents == true)
+			if (usedB == true || showUnusedEvents == true)
 			{
 				Draw("ScreenDepth");
 				Draw("onWorld");

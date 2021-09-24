@@ -1,6 +1,4 @@
 using UnityEngine;
-using Lean.Common;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
 
 namespace Lean.Touch
 {
@@ -13,15 +11,14 @@ namespace Lean.Touch
 		/// <summary>The method used to find fingers to use with this component. See LeanFingerFilter documentation for more information.</summary>
 		public LeanFingerFilter Use = new LeanFingerFilter(true);
 
-		/// <summary>Radius around the finger the vertices will be moved in scaled screen space.</summary>
-		public float ScaledRadius { set { scaledRadius = value; } get { return scaledRadius; } } [FSA("ScaledRadius")] [SerializeField] private float scaledRadius = 50.0f;
+		[Tooltip("Radius around the finger the vertices will be moved in scaled screen space")]
+		public float ScaledRadius = 50.0f;
 
-		/// <summary>Should mesh deformation be applied to an attached MeshCollider?</summary>
-		public bool ApplyToMeshCollider { set { applyToMeshCollider = value; } get { return applyToMeshCollider; } } [FSA("ApplyToMeshCollider")] [SerializeField] private bool applyToMeshCollider;
+		[Tooltip("Should mesh deformation be applied to an attached MeshCollider?")]
+		public bool ApplyToMeshCollider;
 
-		/// <summary>The camera this component will calculate using.
-		/// None/null = MainCamera.</summary>
-		public Camera Camera { set { _camera = value; } get { return _camera; } } [FSA("Camera")] [SerializeField] private Camera _camera;
+		[Tooltip("The camera the translation will be calculated using (None = MainCamera)")]
+		public Camera Camera;
 
 		// The cached mesh filter
 		[System.NonSerialized]
@@ -54,14 +51,12 @@ namespace Lean.Touch
 		{
 			Use.RemoveAllFingers();
 		}
-
 #if UNITY_EDITOR
 		protected virtual void Reset()
 		{
 			Use.UpdateRequiredSelectable(gameObject);
 		}
 #endif
-
 		protected virtual void Awake()
 		{
 			Use.UpdateRequiredSelectable(gameObject);
@@ -69,14 +64,14 @@ namespace Lean.Touch
 
 		protected virtual void Update()
 		{
-			// Get the fingers we want to use to translate
-			var fingers = Use.UpdateAndGetFingers();
-
 			// Make sure the camera exists
-			var camera = LeanHelper.GetCamera(_camera, gameObject);
+			var camera = LeanTouch.GetCamera(Camera, gameObject);
 
 			if (camera != null)
 			{
+				// Get the fingers we want to use to translate
+				var fingers = Use.GetFingers();
+
 				if (cachedMeshFilter == null) cachedMeshFilter = GetComponent<MeshFilter>();
 
 				if (cachedMeshFilter.sharedMesh != null)
@@ -109,7 +104,7 @@ namespace Lean.Touch
 							var scaledDist = Vector2.Distance(screenPoint, finger.ScreenPosition) * scalingFactor;
 
 							// Is this finger within the required scaled radius of the vertex?
-							if (scaledDist <= scaledRadius)
+							if (scaledDist <= ScaledRadius)
 							{
 								deformed = true;
 
@@ -117,7 +112,7 @@ namespace Lean.Touch
 								screenPoint.x += finger.ScreenDelta.x;
 								screenPoint.y += finger.ScreenDelta.y;
 
-								// Un-transform it back to local space and write
+								// Untransform it back to local space and write
 								worldPoint = camera.ScreenToWorldPoint(screenPoint);
 
 								deformedVertices[i] = transform.InverseTransformPoint(worldPoint);
@@ -133,7 +128,7 @@ namespace Lean.Touch
 						deformedMesh.RecalculateBounds();
 						deformedMesh.RecalculateNormals();
 
-						if (applyToMeshCollider == true)
+						if (ApplyToMeshCollider == true)
 						{
 							if (cachedMeshCollider == null) cachedMeshCollider = GetComponent<MeshCollider>();
 
@@ -153,25 +148,3 @@ namespace Lean.Touch
 		}
 	}
 }
-
-#if UNITY_EDITOR
-namespace Lean.Touch.Editor
-{
-	using TARGET = LeanDragDeformMesh;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET))]
-	public class LeanDragDeformMesh_Editor : LeanEditor
-	{
-		protected override void OnInspector()
-		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
-
-			Draw("Use");
-			Draw("scaledRadius", "Radius around the finger the vertices will be moved in scaled screen space.");
-			Draw("applyToMeshCollider", "Should mesh deformation be applied to an attached MeshCollider?");
-			Draw("_camera", "The camera this component will calculate using.\n\nNone/null = MainCamera.");
-		}
-	}
-}
-#endif

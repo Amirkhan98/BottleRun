@@ -1,6 +1,6 @@
 ﻿using KeyCode = UnityEngine.KeyCode;
 #if ENABLE_INPUT_SYSTEM
-using NewCode = UnityEngine.InputSystem.Key;
+using NewCode = Unity​Engine.InputSystem.Key;
 #endif
 
 namespace Lean.Common

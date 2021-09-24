@@ -1,32 +1,49 @@
 using UnityEngine;
 using UnityEngine.Events;
 using Lean.Common;
-using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Lean.Touch
 {
 	/// <summary>This script allows you to change the color of the SpriteRenderer attached to the current GameObject.</summary>
 	[HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanSelectableDrop")]
 	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Selectable Drop")]
-	public class LeanSelectableDrop : LeanSelectableByFingerBehaviour
+	public class LeanSelectableDrop : LeanSelectableBehaviour
 	{
-		public enum IgnoreType
-		{
-			None,
-			ThisGameObject,
-			ThisGameObjectAndAncestors
-		}
-
 		[System.Serializable] public class GameObjectEvent : UnityEvent<GameObject> {}
 		[System.Serializable] public class IDropHandlerEvent : UnityEvent<IDropHandler> {}
 
-		/// <summary>When this object is dropped, should its GameObject layer be temporarily switched to IgnoreRaycast, so the drop can pass through it?
-		/// None = Make no changes.
-		/// ThisGameObject = Change this GameObject's layer only.
-		/// ThisGameObjectAndAncestors = Change this GameObject and its ancestors's layers.</summary>
-		public IgnoreType Ignore { set { ignore = value; } get { return ignore; } } [SerializeField] private IgnoreType ignore = IgnoreType.ThisGameObjectAndAncestors;
+		public enum SelectType
+		{
+			Raycast3D,
+			Overlap2D,
+			CanvasUI
+		}
 
-		public LeanScreenQuery ScreenQuery = new LeanScreenQuery(LeanScreenQuery.MethodType.Raycast);
+		public enum SearchType
+		{
+			GetComponent,
+			GetComponentInParent,
+			GetComponentInChildren
+		}
+
+		public SelectType SelectUsing;
+
+		[Tooltip("This stores the layers we want the raycast/overlap to hit.")]
+		public LayerMask LayerMask = Physics.DefaultRaycastLayers;
+
+		/// <summary>The GameObject you drop this on must have this tag.
+		/// Empty = No tag required.</summary>
+		[Tooltip("The GameObject you drop this on must have this tag.\n\nEmpty = No tag required.")]
+		public string RequiredTag;
+
+		[Tooltip("How should the IDropHandler be searched for on the dropped GameObject?")]
+		public SearchType Search;
+
+		[Tooltip("The camera used to calculate the ray (None = MainCamera)")]
+		public Camera Camera;
 
 		/// <summary>Called on the first frame the conditions are met.
 		/// GameObject = The GameObject instance this was dropped on.</summary>
@@ -36,27 +53,106 @@ namespace Lean.Touch
 		/// IDropHandler = The IDropHandler instance this was dropped on.</summary>
 		public IDropHandlerEvent OnDropHandler { get { if (onDropHandler == null) onDropHandler = new IDropHandlerEvent(); return onDropHandler; } } [SerializeField] private IDropHandlerEvent onDropHandler;
 
-		protected override void OnSelectedFingerUp(LeanFinger finger)
+		//private static RaycastHit[] raycastHits = new RaycastHit[1024];
+
+		private static RaycastHit2D[] raycastHit2Ds = new RaycastHit2D[1024];
+
+		protected override void OnSelectUp(LeanFinger finger)
 		{
-			if (ignore != IgnoreType.None)
+			// Stores the component we hit (Collider or Collider2D)
+			var component = default(Component);
+
+			switch (SelectUsing)
 			{
-				LeanScreenQuery.ChangeLayers(gameObject, ignore == IgnoreType.ThisGameObjectAndAncestors, false);
+				case SelectType.Raycast3D:
+				{
+					// Make sure the camera exists
+					var camera = LeanTouch.GetCamera(Camera, gameObject);
+
+					if (camera != null)
+					{
+						var ray = camera.ScreenPointToRay(finger.ScreenPosition);
+						var hit = default(RaycastHit);
+
+						if (Physics.Raycast(ray, out hit, float.PositiveInfinity, LayerMask) == true)
+						{
+							component = hit.collider;
+						}
+					}
+					else
+					{
+						Debug.LogError("Failed to find camera. Either tag your cameras MainCamera, or set one in this component.", this);
+					}
+				}
+				break;
+
+				case SelectType.Overlap2D:
+				{
+					// Make sure the camera exists
+					var camera = LeanTouch.GetCamera(Camera, gameObject);
+
+					if (camera != null)
+					{
+						var ray   = camera.ScreenPointToRay(finger.ScreenPosition);
+						var count = Physics2D.GetRayIntersectionNonAlloc(ray, raycastHit2Ds, float.PositiveInfinity, LayerMask);
+
+						if (count > 0)
+						{
+							component = raycastHit2Ds[0].transform;
+						}
+					}
+					else
+					{
+						Debug.LogError("Failed to find camera. Either tag your cameras MainCamera, or set one in this component.", this);
+					}
+				}
+				break;
+
+				case SelectType.CanvasUI:
+				{
+					var results = LeanTouch.RaycastGui(finger.ScreenPosition, LayerMask);
+
+					if (results != null && results.Count > 0)
+					{
+						component = results[0].gameObject.transform;
+					}
+				}
+				break;
 			}
 
-			var dropHandler   = default(IDropHandler);
-			var root          = default(Component);
-			var worldPosition = default(Vector3);
-			var query         = ScreenQuery.TryQuery(gameObject, finger.ScreenPosition, ref dropHandler, ref root, ref worldPosition);
+			// Select the component
+			Drop(finger, component);
+		}
 
-			LeanScreenQuery.RevertLayers();
+		private void Drop(LeanFinger finger, Component component)
+		{
+			var dropHandler = default(IDropHandler);
 
-			if (query == true)
+			if (component != null)
 			{
+				switch (Search)
+				{
+					case SearchType.GetComponent:           dropHandler = component.GetComponent          <IDropHandler>(); break;
+					case SearchType.GetComponentInParent:   dropHandler = component.GetComponentInParent  <IDropHandler>(); break;
+					case SearchType.GetComponentInChildren: dropHandler = component.GetComponentInChildren<IDropHandler>(); break;
+				}
+			}
+
+			if (dropHandler != null)
+			{
+				if (string.IsNullOrEmpty(RequiredTag) == false)
+				{
+					if (component.tag != RequiredTag)
+					{
+						return;
+					}
+				}
+
 				dropHandler.HandleDrop(gameObject, finger);
 
 				if (onGameObject != null)
 				{
-					onGameObject.Invoke(root.gameObject);
+					onGameObject.Invoke(component.gameObject);
 				}
 
 				if (onDropHandler != null)
@@ -65,33 +161,36 @@ namespace Lean.Touch
 				}
 			}
 		}
-
-		
 	}
 }
 
 #if UNITY_EDITOR
-namespace Lean.Touch.Editor
+namespace Lean.Touch
 {
-	using TARGET = LeanSelectableDrop;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET))]
-	public class LeanSelectableDrop_Editor : LeanEditor
+	[CanEditMultipleObjects]
+	[CustomEditor(typeof(LeanSelectableDrop))]
+	public class LeanSelectableDrop_Inspector : LeanInspector<LeanSelectableDrop>
 	{
-		protected override void OnInspector()
+		private bool showUnusedEvents;
+
+		protected override void DrawInspector()
 		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
+			Draw("SelectUsing");
+			Draw("LayerMask");
+			Draw("RequiredTag");
+			Draw("Search");
+			Draw("Camera");
 
-			Draw("ignore", "When this object is dropped, should its GameObject layer be temporarily switched to IgnoreRaycast, so the drop can pass through it?\n\nNone = Make no changes.\n\nThisGameObject = Change this GameObject's layer only.\n\nThisGameObjectAndAncestors = Change this GameObject and its ancestors's layers.");
-			Draw("ScreenQuery");
+			EditorGUILayout.Separator();
 
-			Separator();
+			var usedA = Any(t => t.OnGameObject.GetPersistentEventCount() > 0);
+			var usedB = Any(t => t.OnDropHandler.GetPersistentEventCount() > 0);
 
-			var usedA = Any(tgts, t => t.OnGameObject.GetPersistentEventCount() > 0);
-			var usedB = Any(tgts, t => t.OnDropHandler.GetPersistentEventCount() > 0);
+			EditorGUI.BeginDisabledGroup(usedA && usedB);
+				showUnusedEvents = EditorGUILayout.Foldout(showUnusedEvents, "Show Unused Events");
+			EditorGUI.EndDisabledGroup();
 
-			var showUnusedEvents = DrawFoldout("Show Unused Events", "Show all events?");
+			EditorGUILayout.Separator();
 
 			if (usedA == true || showUnusedEvents == true)
 			{

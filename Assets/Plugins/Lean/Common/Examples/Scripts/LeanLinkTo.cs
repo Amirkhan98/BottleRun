@@ -1,12 +1,14 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Lean.Common.Examples
 {
-	/// <summary>This component turns the current UI element into a button that will perform a common action you specify.</summary>
+	/// <summary>This component allows you to open a URL using Unity events (e.g. a button).</summary>
 	[ExecuteInEditMode]
-	[HelpURL(LeanHelper.HelpUrlPrefix + "LeanLinkTo")]
-	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Link To")]
+	[AddComponentMenu("Lean/Common/Lean Link To")]
 	public class LeanLinkTo : MonoBehaviour, IPointerClickHandler
 	{
 		public enum LinkType
@@ -16,7 +18,7 @@ namespace Lean.Common.Examples
 			NextScene
 		}
 
-		/// <summary>The action that will be performed when clicked.</summary>
+		/// <summary>The URL that will be opened.</summary>
 		public LinkType Link { set { link = value; } get { return link; } } [SerializeField] private LinkType link;
 
 		protected virtual void Update()
@@ -47,7 +49,7 @@ namespace Lean.Common.Examples
 			{
 				case LinkType.Publisher:
 				{
-					Application.OpenURL("https://carloswilkes.com");
+					Application.OpenURL("http://carloswilkes.com");
 				}
 				break;
 
@@ -114,19 +116,15 @@ namespace Lean.Common.Examples
 }
 
 #if UNITY_EDITOR
-namespace Lean.Common.Examples.Editor
+namespace Lean.Common.Examples
 {
-	using TARGET = LeanLinkTo;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET))]
-	public class LeanLinkTo_Editor : LeanEditor
+	[CanEditMultipleObjects]
+	[CustomEditor(typeof(LeanLinkTo))]
+	public class LeanLinkTo_Editor : LeanInspector<LeanLinkTo>
 	{
-		protected override void OnInspector()
+		protected override void DrawInspector()
 		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
-
-			Draw("link", "The action that will be performed when clicked.");
+			base.DrawInspector();
 		}
 	}
 }

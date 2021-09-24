@@ -1,7 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Lean.Common;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Lean.Touch
 {
@@ -28,23 +30,29 @@ namespace Lean.Touch
 		public LeanScreenDepth ScreenDepth = new LeanScreenDepth(LeanScreenDepth.ConversionType.FixedDistance, Physics.DefaultRaycastLayers, 10.0f);
 
 		/// <summary>The line prefab that will be used to render the trails.</summary>
-		public LineRenderer Prefab { set { prefab = value; } get { return prefab; } } [FSA("Prefab")] [SerializeField] private LineRenderer prefab;
+		[Tooltip("The line prefab that will be used to render the trails.")]
+		public LineRenderer Prefab;
 
 		/// <summary>The maximum amount of active trails.
 		/// -1 = Unlimited.</summary>
-		public int MaxTrails { set { maxTrails = value; } get { return maxTrails; } } [FSA("MaxTrails")] [SerializeField] private int maxTrails = -1;
+		[Tooltip("The maximum amount of active trails.\n\n-1 = Unlimited.")]
+		public int MaxTrails = -1;
 
 		/// <summary>How many seconds it takes for each trail to disappear after a finger is released.</summary>
-		public float FadeTime { set { fadeTime = value; } get { return fadeTime; } } [FSA("FadeTime")] [SerializeField] protected float fadeTime = 1.0f;
+		[Tooltip("How many seconds it takes for each trail to disappear after a finger is released.")]
+		public float FadeTime = 1.0f;
 
 		/// <summary>The color of the trail start.</summary>
-		public Color StartColor { set { startColor = value; } get { return startColor; } } [FSA("StartColor")] [SerializeField] protected Color startColor = Color.white;
+		[Tooltip("The color of the trail start.")]
+		public Color StartColor = Color.white;
 
 		/// <summary>The color of the trail end.</summary>
-		public Color EndColor { set { endColor = value; } get { return endColor; } } [FSA("EndColor")] [SerializeField] protected Color endColor = Color.white;
+		[Tooltip("The color of the trail end.")]
+		public Color EndColor = Color.white;
 
 		// This stores all the links between fingers and LineRenderer instances
 		[SerializeField]
+		[HideInInspector]
 		protected List<FingerData> fingerDatas = new List<FingerData>();
 
 		/// <summary>If you've set Use to ManuallyAddedFingers, then you can call this method to manually add a finger.</summary>
@@ -64,14 +72,12 @@ namespace Lean.Touch
 		{
 			Use.RemoveAllFingers();
 		}
-
 #if UNITY_EDITOR
 		protected virtual void Reset()
 		{
 			Use.UpdateRequiredSelectable(gameObject);
 		}
 #endif
-
 		protected virtual void Awake()
 		{
 			Use.UpdateRequiredSelectable(gameObject);
@@ -90,7 +96,7 @@ namespace Lean.Touch
 		protected virtual void Update()
 		{
 			// Get the fingers we want to use
-			var fingers = Use.UpdateAndGetFingers(true);
+			var fingers = Use.GetFingers(true);
 
 			for (var i = 0; i < fingers.Count; i++)
 			{
@@ -99,15 +105,15 @@ namespace Lean.Touch
 				if (LeanFingerData.Exists(fingerDatas, finger) == false)
 				{
 					// Too many active links?
-					if (maxTrails >= 0 && LeanFingerData.Count(fingerDatas) >= maxTrails)
+					if (MaxTrails >= 0 && LeanFingerData.Count(fingerDatas) >= MaxTrails)
 					{
 						continue;
 					}
 
-					if (prefab != null)
+					if (Prefab != null)
 					{
 						// Spawn and activate
-						var clone = Instantiate(prefab);
+						var clone = Instantiate(Prefab);
 
 						clone.gameObject.SetActive(true);
 
@@ -116,7 +122,7 @@ namespace Lean.Touch
 
 						fingerData.Line  = clone;
 						fingerData.Age   = 0.0f;
-						fingerData.Width = prefab.widthMultiplier;
+						fingerData.Width = Prefab.widthMultiplier;
 					}
 				}
 			}
@@ -130,7 +136,7 @@ namespace Lean.Touch
 				{
 					UpdateLine(fingerData, fingerData.Finger, fingerData.Line);
 
-					if (fingerData.Age >= fadeTime)
+					if (fingerData.Age >= FadeTime)
 					{
 						Destroy(fingerData.Line.gameObject);
 
@@ -146,8 +152,8 @@ namespace Lean.Touch
 
 		protected virtual void UpdateLine(FingerData fingerData, LeanFinger finger, LineRenderer line)
 		{
-			var color0 = startColor;
-			var color1 =   endColor;
+			var color0 = StartColor;
+			var color1 =   EndColor;
 
 			if (finger != null)
 			{
@@ -159,7 +165,7 @@ namespace Lean.Touch
 				{
 					var snapshot = finger.Snapshots[i];
 
-					// Get the world position of this snapshot
+					// Get the world postion of this snapshot
 					var worldPoint = ScreenDepth.Convert(snapshot.ScreenPosition, gameObject);
 
 					// Write position
@@ -170,7 +176,7 @@ namespace Lean.Touch
 			{
 				fingerData.Age += Time.deltaTime;
 
-				var alpha = Mathf.InverseLerp(fadeTime, 0.0f, fingerData.Age);
+				var alpha = Mathf.InverseLerp(FadeTime, 0.0f, fingerData.Age);
 
 				color0.a *= alpha;
 				color1.a *= alpha;
@@ -191,31 +197,3 @@ namespace Lean.Touch
 		}
 	}
 }
-
-#if UNITY_EDITOR
-namespace Lean.Touch.Editor
-{
-	using TARGET = LeanDragTrail;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET), true)]
-	public class LeanDragTrail_Editor : LeanEditor
-	{
-		protected override void OnInspector()
-		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
-
-			Draw("Use");
-			Draw("ScreenDepth");
-			Draw("prefab", "The line prefab that will be used to render the trails.");
-			Draw("maxTrails", "The maximum amount of active trails.\n\n-1 = Unlimited.");
-
-			Separator();
-
-			Draw("fadeTime", "How many seconds it takes for each trail to disappear after a finger is released.");
-			Draw("startColor", "The color of the trail start.");
-			Draw("endColor", "The color of the trail end.");
-		}
-	}
-}
-#endif

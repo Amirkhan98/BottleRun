@@ -1,8 +1,10 @@
 using UnityEngine;
 using UnityEngine.Events;
-using System.Collections.Generic;
 using Lean.Common;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
+using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Lean.Touch
 {
@@ -13,43 +15,36 @@ namespace Lean.Touch
 	{
 		[System.Serializable] public class LeanFingerEvent : UnityEvent<LeanFinger> {}
 		[System.Serializable] public class Vector3Event : UnityEvent<Vector3> {}
-		[System.Serializable] public class Vector2Event : UnityEvent<Vector2> {}
 
 		/// <summary>Ignore fingers with StartedOverGui?</summary>
-		public bool IgnoreStartedOverGui { set { ignoreStartedOverGui = value; } get { return ignoreStartedOverGui; } } [FSA("IgnoreStartedOverGui")] [SerializeField] private bool ignoreStartedOverGui = true;
+		public bool IgnoreStartedOverGui = true;
 
-		/// <summary>If the specified object is set and isn't selected, then this component will do nothing.</summary>
-		public LeanSelectable RequiredSelectable { set { requiredSelectable = value; } get { return requiredSelectable; } } [FSA("RequiredSelectable")] [SerializeField] private LeanSelectable requiredSelectable;
+		/// <summary>Do nothing if this LeanSelectable isn't selected?</summary>
+		public LeanSelectable RequiredSelectable;
 
-		/// <summary>This event will be called if the above conditions are met when you finish touching the screen.</summary>
+		/// <summary>Called on the first frame the conditions are met.</summary>
 		public LeanFingerEvent OnFinger { get { if (onFinger == null) onFinger = new LeanFingerEvent(); return onFinger; } } [SerializeField] private LeanFingerEvent onFinger;
 
 		/// <summary>The method used to find world coordinates from a finger. See LeanScreenDepth documentation for more information.</summary>
 		public LeanScreenDepth ScreenDepth = new LeanScreenDepth(LeanScreenDepth.ConversionType.DepthIntercept);
 
-		/// <summary>This event will be called if the above conditions are met when you finish touching the screen.
-		/// Vector2 = Finger position in world space.</summary>
+		/// <summary>Called on the first frame the conditions are met.
+		/// Vector3 = Start point based on the ScreenDepth settings.</summary>
 		public Vector3Event OnWorld { get { if (onWorld == null) onWorld = new Vector3Event(); return onWorld; } } [SerializeField] private Vector3Event onWorld;
-
-		/// <summary>This event will be called if the above conditions are met when you finish touching the screen.
-		/// Vector2 = Finger position in screen space.</summary>
-		public Vector2Event OnScreen { get { if (onScreen == null) onScreen = new Vector2Event(); return onScreen; } } [SerializeField] private Vector2Event onScreen;
 
 		[System.NonSerialized]
 		private List<LeanFinger> fingers = new List<LeanFinger>();
-
 #if UNITY_EDITOR
 		protected virtual void Reset()
 		{
-			requiredSelectable = GetComponentInParent<LeanSelectable>();
+			RequiredSelectable = GetComponentInParent<LeanSelectable>();
 		}
 #endif
-
 		protected virtual void Awake()
 		{
-			if (requiredSelectable == null)
+			if (RequiredSelectable == null)
 			{
-				requiredSelectable = GetComponentInParent<LeanSelectable>();
+				RequiredSelectable = GetComponentInParent<LeanSelectable>();
 			}
 		}
 
@@ -65,19 +60,14 @@ namespace Lean.Touch
 			LeanTouch.OnFingerUp   -= HandleFingerUp;
 		}
 
-		protected virtual void HandleFingerDown(LeanFinger finger)
+		private void HandleFingerDown(LeanFinger finger)
 		{
-			if (ignoreStartedOverGui == true && finger.IsOverGui == true)
+			if (IgnoreStartedOverGui == true && finger.IsOverGui == true)
 			{
 				return;
 			}
 
-			if (requiredSelectable != null && requiredSelectable.IsSelected == false)
-			{
-				return;
-			}
-
-			if (finger.Index == LeanTouch.HOVER_FINGER_INDEX)
+			if (RequiredSelectable != null && RequiredSelectable.IsSelected == false)
 			{
 				return;
 			}
@@ -102,41 +92,35 @@ namespace Lean.Touch
 
 					onWorld.Invoke(position);
 				}
-
-				if (onScreen != null)
-				{
-					onScreen.Invoke(finger.ScreenPosition);
-				}
 			}
 		}
 	}
 }
 
 #if UNITY_EDITOR
-namespace Lean.Touch.Editor
+namespace Lean.Touch
 {
-	using TARGET = LeanLastUp;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET))]
-	public class LeanLastUp_Editor : LeanEditor
+	[CanEditMultipleObjects]
+	[CustomEditor(typeof(LeanLastUp))]
+	public class LeanLastUp_Inspector : LeanInspector<LeanLastUp>
 	{
 		private bool showUnusedEvents;
 
-		protected override void OnInspector()
+		protected override void DrawInspector()
 		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
+			Draw("IgnoreStartedOverGui", "Ignore fingers with StartedOverGui?");
+			Draw("RequiredSelectable", "Do nothing if this LeanSelectable isn't selected?");
 
-			Draw("ignoreStartedOverGui", "Ignore fingers with StartedOverGui?");
-			Draw("requiredSelectable", "If the specified object is set and isn't selected, then this component will do nothing.");
+			EditorGUILayout.Separator();
 
-			Separator();
+			var usedA = Any(t => t.OnFinger.GetPersistentEventCount() > 0);
+			var usedB = Any(t => t.OnWorld.GetPersistentEventCount() > 0);
 
-			var usedA = Any(tgts, t => t.OnFinger.GetPersistentEventCount() > 0);
-			var usedB = Any(tgts, t => t.OnWorld.GetPersistentEventCount() > 0);
-			var usedC = Any(tgts, t => t.OnScreen.GetPersistentEventCount() > 0);
+			EditorGUI.BeginDisabledGroup(usedA && usedB);
+				showUnusedEvents = EditorGUILayout.Foldout(showUnusedEvents, "Show Unused Events");
+			EditorGUI.EndDisabledGroup();
 
-			var showUnusedEvents = DrawFoldout("Show Unused Events", "Show all events?");
+			EditorGUILayout.Separator();
 
 			if (usedA == true || showUnusedEvents == true)
 			{
@@ -147,11 +131,6 @@ namespace Lean.Touch.Editor
 			{
 				Draw("ScreenDepth");
 				Draw("onWorld");
-			}
-
-			if (usedC == true || showUnusedEvents == true)
-			{
-				Draw("onScreen");
 			}
 		}
 	}

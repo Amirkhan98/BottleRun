@@ -2,7 +2,9 @@ using UnityEngine;
 using UnityEngine.Events;
 using System.Collections.Generic;
 using Lean.Common;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Lean.Touch
 {
@@ -18,7 +20,7 @@ namespace Lean.Touch
 		public LeanFingerFilter Use = new LeanFingerFilter(false);
 
 		/// <summary>If a finger is currently off the current UI element, ignore it?</summary>
-		public bool IgnoreIfOff { set { ignoreIfOff = value; } get { return ignoreIfOff; } } [FSA("IgnoreIfOff")] [SerializeField] private bool ignoreIfOff = true;
+		public bool IgnoreIfOff = true;
 
 		/// <summary>This event is invoked when the requirements are met.
 		/// List<LeanFinger> = The fingers that are touching the screen.</summary>
@@ -66,14 +68,12 @@ namespace Lean.Touch
 
 			return false;
 		}
-
 #if UNITY_EDITOR
 		protected virtual void Reset()
 		{
 			Use.UpdateRequiredSelectable(gameObject);
 		}
 #endif
-
 		protected virtual void Awake()
 		{
 			Use.UpdateRequiredSelectable(gameObject);
@@ -94,7 +94,7 @@ namespace Lean.Touch
 		protected virtual void Update()
 		{
 			// Get an initial list of fingers
-			var fingers = Use.UpdateAndGetFingers();
+			var fingers = Use.GetFingers();
 
 			// Remove fingers that didn't begin on this UI element
 			for (var i = fingers.Count - 1; i >= 0; i--)
@@ -108,7 +108,7 @@ namespace Lean.Touch
 			}
 
 			// Remove fingers that currently aren't on this UI element?
-			if (ignoreIfOff == true)
+			if (IgnoreIfOff == true)
 			{
 				for (var i = fingers.Count - 1; i >= 0; i--)
 				{
@@ -140,11 +140,6 @@ namespace Lean.Touch
 
 		private void HandleFingerDown(LeanFinger finger)
 		{
-			if (finger.Index == LeanTouch.HOVER_FINGER_INDEX)
-			{
-				return;
-			}
-
 			if (ElementOverlapped(finger) == true)
 			{
 				downFingers.Add(finger);
@@ -159,27 +154,29 @@ namespace Lean.Touch
 }
 
 #if UNITY_EDITOR
-namespace Lean.Touch.Editor
+namespace Lean.Touch
 {
-	using TARGET = LeanMultiUpdateCanvas;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET))]
-	public class LeanMultiUpdateCanvas_Editor : LeanEditor
+	[CanEditMultipleObjects]
+	[CustomEditor(typeof(LeanMultiUpdateCanvas))]
+	public class LeanMultiUpdateCanvas_Inspector : LeanInspector<LeanMultiUpdateCanvas>
 	{
-		protected override void OnInspector()
+		private bool showUnusedEvents;
+
+		protected override void DrawInspector()
 		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
-
 			Draw("Use");
-			Draw("ignoreIfOff", "If a finger is currently off the current UI element, ignore it?");
+			Draw("IgnoreIfOff", "If a finger is currently off the current UI element, ignore it?");
 
-			Separator();
+			EditorGUILayout.Separator();
 
-			var usedA = Any(tgts, t => t.OnFingers.GetPersistentEventCount() > 0);
-			var usedB = Any(tgts, t => t.OnWorld.GetPersistentEventCount() > 0);
+			var usedA = Any(t => t.OnFingers.GetPersistentEventCount() > 0);
+			var usedB = Any(t => t.OnWorld.GetPersistentEventCount() > 0);
 
-			var showUnusedEvents = DrawFoldout("Show Unused Events", "Show all events?");
+			EditorGUI.BeginDisabledGroup(usedA && usedB);
+				showUnusedEvents = EditorGUILayout.Foldout(showUnusedEvents, "Show Unused Events");
+			EditorGUI.EndDisabledGroup();
+
+			EditorGUILayout.Separator();
 
 			if (usedA == true || showUnusedEvents == true)
 			{

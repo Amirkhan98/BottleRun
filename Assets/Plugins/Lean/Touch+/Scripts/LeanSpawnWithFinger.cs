@@ -1,7 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using Lean.Common;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
 
 namespace Lean.Touch
 {
@@ -20,49 +18,46 @@ namespace Lean.Touch
 		[System.Serializable]
 		public class FingerData : LeanFingerData
 		{
-			public Transform      Clone;
-			public LeanSelectable Selectable;
+			public Transform Clone;
 		}
 
 		/// <summary>The prefab that this component can spawn.</summary>
-		public Transform Prefab { set { prefab = value; } get { return prefab; } } [FSA("Prefab")] [SerializeField] private Transform prefab;
+		[Tooltip("The prefab that this component can spawn.")]
+		public Transform Prefab;
 
 		/// <summary>How should the spawned prefab be rotated?</summary>
-		public RotateType RotateTo { set { rotateTo = value; } get { return rotateTo; } } [FSA("RotateTo")] [SerializeField] private RotateType rotateTo;
+		[Tooltip("How should the spawned prefab be rotated?")]
+		public RotateType RotateTo;
 
 		/// <summary>Hold on to the spawned clone while the spawning finger is still being held?</summary>
-		public bool DragAfterSpawn { set { dragAfterSpawn = value; } get { return dragAfterSpawn; } } [FSA("DragAfterSpawn")] [SerializeField] private bool dragAfterSpawn;
-
-		/// <summary>If the spawned object is dropped on top of the wrong GameObject (e.g. UI), destroy it?</summary>
-		public bool DestroyIfBlocked { set { destroyIfBlocked = value; } get { return destroyIfBlocked; } } [SerializeField] private bool destroyIfBlocked;
-
-		public LeanScreenQuery ScreenQuery = new LeanScreenQuery(LeanScreenQuery.MethodType.Raycast);
-
-		/// <summary>If the specified prefab is selectable, select it when spawned?</summary>
-		public bool SelectOnSpawn { set { selectOnSpawn = value; } get { return selectOnSpawn; } } [SerializeField] private bool selectOnSpawn;
-
-		/// <summary>If you want the spawned component to be a selected with a specific select component, you can specify it here.
-		/// None/null = It will be self selected.</summary>
-		public LeanSelect SelectWith { set { selectWith = value; } get { return selectWith; } } [SerializeField] private LeanSelect selectWith;
-
-		/// <summary>If the selecting finger goes up, deselect the object?</summary>
-		public bool DeselectOnUp { set { deselectOnUp = value; } get { return deselectOnUp; } } [SerializeField] private bool deselectOnUp;
+		[Tooltip("Hold on to the spawned clone while the spawning finger is still being held?")]
+		public bool DragAfterSpawn;
 
 		/// <summary>The conversion method used to find a world point from a screen point.</summary>
+		[Tooltip("The conversion method used to find a world point from a screen point.")]
 		public LeanScreenDepth ScreenDepth = new LeanScreenDepth(LeanScreenDepth.ConversionType.FixedDistance, Physics.DefaultRaycastLayers, 10.0f);
 
+		[Space]
+
 		/// <summary>This allows you to offset the finger position.</summary>
-		public Vector2 PixelOffset { set { pixelOffset = value; } get { return pixelOffset; } } [FSA("PixelOffset")] [SerializeField] private Vector2 pixelOffset;
+		[Tooltip("This allows you to offset the finger position.")]
+		public Vector2 PixelOffset;
 
 		/// <summary>If you want the pixels to scale based on device resolution, then specify the canvas whose scale you want to use here.</summary>
-		public Canvas PixelScale { set { pixelScale = value; } get { return pixelScale; } } [FSA("PixelScale")] [SerializeField] private Canvas pixelScale;
+		[Tooltip("If you want the pixels to scale based on device resolution, then specify the canvas whose scale you want to use here.")]
+		public Canvas PixelScale;
+
+		[Space]
 
 		/// <summary>This allows you to offset the spawned object position.</summary>
-		public Vector3 WorldOffset { set { worldOffset = value; } get { return worldOffset; } } [FSA("WorldOffset")] [SerializeField] private Vector3 worldOffset;
+		[Tooltip("This allows you to offset the spawned object position.")]
+		public Vector3 WorldOffset;
 
 		/// <summary>This allows you transform the WorldOffset to be relative to the specified Transform.</summary>
-		public Transform WorldRelativeTo { set { worldRelativeTo = value; } get { return worldRelativeTo; } } [FSA("WorldRelativeTo")] [SerializeField] private Transform worldRelativeTo;
+		[Tooltip("This allows you transform the WorldOffset to be relative to the specified Transform.")]
+		public Transform WorldRelativeTo;
 
+		[HideInInspector]
 		[SerializeField]
 		private List<FingerData> fingerDatas;
 
@@ -71,66 +66,28 @@ namespace Lean.Touch
 		/// <summary>This will spawn Prefab at the specified finger based on the ScreenDepth setting.</summary>
 		public void Spawn(LeanFinger finger)
 		{
-			if (prefab != null && finger != null)
+			if (Prefab != null && finger != null)
 			{
 				// Spawn and position
-				var clone      = Instantiate(prefab);
-				var fingerData = default(FingerData);
+				var clone = Instantiate(Prefab);
 
 				UpdateSpawnedTransform(finger, clone);
 
 				clone.gameObject.SetActive(true);
 
-				// Drag?
-				if (dragAfterSpawn == true)
+				if (DragAfterSpawn == true)
 				{
-					fingerData = LeanFingerData.FindOrCreate(ref fingerDatas, finger);
+					var fingerData = LeanFingerData.FindOrCreate(ref fingerDatas, finger);
 
 					fingerData.Clone = clone;
 				}
 
 				// Select?
-				if (selectOnSpawn == true)
+				var selectable = clone.GetComponent<LeanSelectable>();
+
+				if (selectable != null)
 				{
-					var selectable         = clone.GetComponent<LeanSelectable>();
-					var selectableByFinger = selectable as LeanSelectableByFinger;
-					var selectWithByFinger = selectWith as LeanSelectByFinger;
-
-					if (selectableByFinger != null)
-					{
-						if (selectWithByFinger != null)
-						{
-							selectWithByFinger.Select(selectableByFinger, finger);
-						}
-						else if (selectWith != null)
-						{
-							selectWith.Select(selectableByFinger);
-						}
-						else
-						{
-							selectableByFinger.SelectSelf(finger);
-						}
-					}
-					else if (selectable != null)
-					{
-						if (selectWithByFinger != null)
-						{
-							selectWithByFinger.Select(selectable, finger);
-						}
-						else if (selectWith != null)
-						{
-							selectWith.Select(selectable);
-						}
-						else
-						{
-							selectable.SelfSelected = true;
-						}
-					}
-
-					if (fingerData != null)
-					{
-						fingerData.Selectable = selectable;
-					}
+					selectable.Select(finger);
 				}
 			}
 		}
@@ -163,32 +120,32 @@ namespace Lean.Touch
 			// Grab screen position of finger, and optionally offset it
 			var screenPoint = finger.ScreenPosition;
 
-			if (pixelScale != null)
+			if (PixelScale != null)
 			{
-				screenPoint += pixelOffset * pixelScale.scaleFactor;
+				screenPoint += PixelOffset * PixelScale.scaleFactor;
 			}
 			else
 			{
-				screenPoint += pixelOffset;
+				screenPoint += PixelOffset;
 			}
 
 			// Converted screen position to world position, and optionally offset it
 			var worldPoint = ScreenDepth.Convert(screenPoint, gameObject, instance);
 
-			if (worldRelativeTo != null)
+			if (WorldRelativeTo != null)
 			{
-				worldPoint += worldRelativeTo.TransformPoint(worldOffset);
+				worldPoint += WorldRelativeTo.TransformPoint(WorldOffset);
 			}
 			else
 			{
-				worldPoint += worldOffset;
+				worldPoint += WorldOffset;
 			}
 
 			// Write position
 			instance.position = worldPoint;
 
 			// Write rotation
-			switch (rotateTo)
+			switch (RotateTo)
 			{
 				case RotateType.ThisTransform:
 				{
@@ -206,83 +163,7 @@ namespace Lean.Touch
 
 		private void HandleFingerUp(LeanFinger finger)
 		{
-			var fingerData = LeanFingerData.Find(fingerDatas, finger);
-
-			if (deselectOnUp == true && fingerData != null && fingerData.Selectable != null)
-			{
-				fingerData.Selectable.Deselect();
-			}
-
-			if (fingerData != null && fingerData.Clone != null)
-			{
-				if (destroyIfBlocked == true)
-				{
-					LeanScreenQuery.ChangeLayers(fingerData.Clone.gameObject, false, true);
-
-					if (ScreenQuery.Query<Component>(gameObject, finger.ScreenPosition) == null)
-					{
-						Destroy(fingerData.Clone.gameObject);
-					}
-
-					LeanScreenQuery.RevertLayers();
-				}
-			}
-
 			LeanFingerData.Remove(fingerDatas, finger, fingerDataPool);
 		}
 	}
 }
-
-#if UNITY_EDITOR
-namespace Lean.Touch.Editor
-{
-	using TARGET = LeanSpawnWithFinger;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET), true)]
-	public class LeanSpawnWithFinger_Editor : LeanEditor
-	{
-		protected override void OnInspector()
-		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
-
-			BeginError(Any(tgts, t => t.Prefab == null));
-				Draw("prefab");
-			EndError();
-			Draw("rotateTo", "How should the spawned prefab be rotated?");
-			Draw("dragAfterSpawn", "Hold on to the spawned clone while the spawning finger is still being held?");
-			if (Any(tgts, t => t.DragAfterSpawn == true))
-			{
-				BeginIndent();
-					Draw("destroyIfBlocked", "If the spawned object is dropped on top of the wrong GameObject (e.g. UI), destroy it?");
-					if (Any(tgts, t => t.DestroyIfBlocked == true))
-					{
-						BeginIndent();
-							Draw("ScreenQuery");
-						EndIndent();
-					}
-				EndIndent();
-			}
-			Draw("selectOnSpawn", "If the specified prefab is selectable, select it when spawned?");
-			if (Any(tgts, t => t.SelectOnSpawn == true))
-			{
-				BeginIndent();
-					Draw("selectWith", "If you want the spawned component to be a selected with a specific select component, you can specify it here.\n\nNone/null = It will be self selected.");
-					Draw("deselectOnUp", "If the selecting finger goes up, deselect the object?");
-				EndIndent();
-			}
-			Draw("ScreenDepth");
-
-			Separator();
-
-			Draw("pixelOffset", "This allows you to offset the finger position.");
-			Draw("pixelScale", "If you want the pixels to scale based on device resolution, then specify the canvas whose scale you want to use here.");
-
-			Separator();
-
-			Draw("worldOffset", "This allows you to offset the spawned object position.");
-			Draw("worldRelativeTo", "This allows you transform the WorldOffset to be relative to the specified Transform.");
-		}
-	}
-}
-#endif

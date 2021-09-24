@@ -1,7 +1,10 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 using Lean.Common;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Lean.Touch
 {
@@ -20,30 +23,32 @@ namespace Lean.Touch
 		// Event signature
 		[System.Serializable] public class SelectableEvent : UnityEvent<LeanSelectable> {}
 
-		/// <summary>The finger must be held for this many seconds.</summary>
-		public float Threshold { set { threshold = value; } get { return threshold; } } [FSA("Threshold")] [SerializeField] private float threshold = 1.0f;
+		[Tooltip("The finger must be held for this many seconds")]
+		public float Threshold = 1.0f;
 
-		/// <summary>When should Seconds be reset to 0?</summary>
-		public ResetType Reset { set { reset = value; } get { return reset; } } [FSA("Reset")] [SerializeField] private ResetType reset = ResetType.OnDeselect;
+		[Tooltip("When should Seconds be reset to 0?")]
+		public ResetType Reset = ResetType.OnDeselect;
 
-		/// <summary>Bypass LeanSelectable.HideWithFinger?</summary>
-		public bool RawSelection { set { rawSelection = value; } get { return rawSelection; } } [FSA("RawSelection")] [SerializeField] private bool rawSelection;
+		[Tooltip("Bypass LeanSelectable.HideWithFinger?")]
+		public bool RawSelection;
 
-		/// <summary>If the selecting finger went up, cancel timer?</summary>
-		public bool RequireFinger { set { requireFinger = value; } get { return requireFinger; } } [FSA("RequireFinger")] [SerializeField] private bool requireFinger;
+		[Tooltip("If the selecting finger went up, cancel timer?")]
+		public bool RequireFinger;
 
 		/// <summary>Called on the first frame the conditions are met.</summary>
-		public SelectableEvent OnSelectableDown { get { if (onSelectableDown == null) onSelectableDown = new SelectableEvent(); return onSelectableDown; } } [FSA("onDown")] [FSA("OnDown")] [SerializeField] private SelectableEvent onSelectableDown;
+		public SelectableEvent OnSelectableDown { get { if (onSelectableDown == null) onSelectableDown = new SelectableEvent(); return onSelectableDown; } } [FormerlySerializedAs("onDown")] [FormerlySerializedAs("OnDown")] [SerializeField] private SelectableEvent onSelectableDown;
 
 		/// <summary>Called on every frame the conditions are met.</summary>
-		public SelectableEvent OnSelectableUpdate { get { if (onSelectableUpdate == null) onSelectableUpdate = new SelectableEvent(); return onSelectableUpdate; } } [FSA("onSelectableSet")] [FSA("onSet")] [FSA("OnSet")] [SerializeField] private SelectableEvent onSelectableUpdate;
+		public SelectableEvent OnSelectableUpdate { get { if (onSelectableUpdate == null) onSelectableUpdate = new SelectableEvent(); return onSelectableUpdate; } } [FormerlySerializedAs("onSelectableSet")] [FormerlySerializedAs("onSet")] [FormerlySerializedAs("OnSet")] [SerializeField] private SelectableEvent onSelectableUpdate;
 
 		/// <summary>Called on the last frame the conditions are met.</summary>
-		public SelectableEvent OnSelectableUp { get { if (onSelectableUp == null) onSelectableUp = new SelectableEvent(); return onSelectableUp; } } [FSA("onUp")] [FSA("OnUp")] [SerializeField] private SelectableEvent onSelectableUp;
+		public SelectableEvent OnSelectableUp { get { if (onSelectableUp == null) onSelectableUp = new SelectableEvent(); return onSelectableUp; } } [FormerlySerializedAs("onUp")] [FormerlySerializedAs("OnUp")] [SerializeField] private SelectableEvent onSelectableUp;
 
+		[HideInInspector]
 		[SerializeField]
 		private bool lastSet;
 
+		[HideInInspector]
 		[SerializeField]
 		private float seconds;
 
@@ -52,15 +57,13 @@ namespace Lean.Touch
 			// See if the timer can be incremented
 			var set = false;
 
-			if (Selectable != null && Selectable.IsSelected == true)
+			if (Selectable != null && Selectable.GetIsSelected(RawSelection) == true)
 			{
-				var selectableByFinger = Selectable as LeanSelectableByFinger;
-
-				if (requireFinger == false || (selectableByFinger != null && selectableByFinger.SelectingFinger != null))
+				if (RequireFinger == false || Selectable.SelectingFinger != null)
 				{
 					seconds += Time.deltaTime;
 
-					if (seconds >= threshold)
+					if (seconds >= Threshold)
 					{
 						set = true;
 					}
@@ -89,9 +92,9 @@ namespace Lean.Touch
 			lastSet = set;
 		}
 
-		protected override void OnSelected()
+		protected override void OnSelect(LeanFinger finger)
 		{
-			if (reset == ResetType.OnSelect)
+			if (Reset == ResetType.OnSelect)
 			{
 				seconds = 0.0f;
 			}
@@ -100,9 +103,9 @@ namespace Lean.Touch
 			lastSet = false;
 		}
 
-		protected override void OnDeselected()
+		protected override void OnDeselect()
 		{
-			if (reset == ResetType.OnDeselect)
+			if (Reset == ResetType.OnDeselect)
 			{
 				seconds = 0.0f;
 			}
@@ -119,30 +122,32 @@ namespace Lean.Touch
 }
 
 #if UNITY_EDITOR
-namespace Lean.Touch.Editor
+namespace Lean.Touch
 {
-	using TARGET = LeanSelectableSelected;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET))]
-	public class LeanSelectableSelected_Editor : LeanEditor
+	[CanEditMultipleObjects]
+	[CustomEditor(typeof(LeanSelectableSelected))]
+	public class LeanSelectableSelected_Inspector : LeanInspector<LeanSelectableSelected>
 	{
-		protected override void OnInspector()
+		private bool showUnusedEvents;
+
+		protected override void DrawInspector()
 		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
+			Draw("Threshold");
+			Draw("Reset");
+			Draw("RawSelection");
+			Draw("RequireFinger");
 
-			Draw("threshold", "The finger must be held for this many seconds.");
-			Draw("reset", "When should Seconds be reset to 0?");
-			Draw("rawSelection", "Bypass LeanSelectable.HideWithFinger?");
-			Draw("requireFinger", "If the selecting finger went up, cancel timer?");
+			EditorGUILayout.Separator();
 
-			Separator();
+			var usedA = Any(t => t.OnSelectableDown.GetPersistentEventCount() > 0);
+			var usedB = Any(t => t.OnSelectableUpdate.GetPersistentEventCount() > 0);
+			var usedC = Any(t => t.OnSelectableUp.GetPersistentEventCount() > 0);
 
-			var usedA = Any(tgts, t => t.OnSelectableDown.GetPersistentEventCount() > 0);
-			var usedB = Any(tgts, t => t.OnSelectableUpdate.GetPersistentEventCount() > 0);
-			var usedC = Any(tgts, t => t.OnSelectableUp.GetPersistentEventCount() > 0);
+			EditorGUI.BeginDisabledGroup(usedA && usedB && usedC);
+				showUnusedEvents = EditorGUILayout.Foldout(showUnusedEvents, "Show Unused Events");
+			EditorGUI.EndDisabledGroup();
 
-			var showUnusedEvents = DrawFoldout("Show Unused Events", "Show all events?");
+			EditorGUILayout.Separator();
 
 			if (usedA == true || showUnusedEvents == true)
 			{

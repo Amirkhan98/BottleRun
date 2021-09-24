@@ -1,6 +1,4 @@
 using UnityEngine;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
-using Lean.Common;
 
 namespace Lean.Touch
 {
@@ -12,24 +10,24 @@ namespace Lean.Touch
 		/// <summary>The method used to find fingers to use with this component. See LeanFingerFilter documentation for more information.</summary>
 		public LeanFingerFilter Use = new LeanFingerFilter(true);
 
-		/// <summary>The camera the translation will be calculated using.
-		/// None/null = MainCamera.</summary>
-		public Camera Camera { set { _camera = value; } get { return _camera; } } [FSA("Camera")] [SerializeField] private Camera _camera;
-
-		/// <summary>The movement speed will be multiplied by this.
-		/// -1 = Inverted Controls.</summary>
-		public float Sensitivity { set { sensitivity = value; } get { return sensitivity; } } [FSA("Sensitivity")] [SerializeField] private float sensitivity = 1.0f;
+		/// <summary>The camera the translation will be calculated using.\n\nNone = MainCamera.</summary>
+		[Tooltip("The camera the translation will be calculated using.\n\nNone = MainCamera.")]
+		public Camera Camera;
 
 		/// <summary>If you want this component to change smoothly over time, then this allows you to control how quick the changes reach their target value.
 		/// -1 = Instantly change.
 		/// 1 = Slowly change.
 		/// 10 = Quickly change.</summary>
-		public float Damping { set { damping = value; } get { return damping; } } [FSA("Damping")] [FSA("Dampening")] [SerializeField] private float damping = -1.0f;
+		[Tooltip("If you want this component to change smoothly over time, then this allows you to control how quick the changes reach their target value.\n\n-1 = Instantly change.\n\n1 = Slowly change.\n\n10 = Quickly change.")]
+		public float Dampening = -1.0f;
 
-		/// <summary>This allows you to control how much momentum is retained when the dragging fingers are all released.
+		/// <summary>This allows you to control how much momenum is retained when the dragging fingers are all released.
 		/// NOTE: This requires <b>Dampening</b> to be above 0.</summary>
-		public float Inertia { set { inertia = value; } get { return inertia; } } [FSA("Inertia")] [SerializeField] [Range(0.0f, 1.0f)] private float inertia;
+		[Tooltip("This allows you to control how much momenum is retained when the dragging fingers are all released.\n\nNOTE: This requires <b>Dampening</b> to be above 0.")]
+		[Range(0.0f, 1.0f)]
+		public float Inertia;
 
+		[HideInInspector]
 		[SerializeField]
 		private Vector3 remainingTranslation;
 
@@ -50,14 +48,12 @@ namespace Lean.Touch
 		{
 			Use.RemoveAllFingers();
 		}
-
 #if UNITY_EDITOR
 		protected virtual void Reset()
 		{
 			Use.UpdateRequiredSelectable(gameObject);
 		}
 #endif
-
 		protected virtual void Awake()
 		{
 			Use.UpdateRequiredSelectable(gameObject);
@@ -69,7 +65,7 @@ namespace Lean.Touch
 			var oldPosition = transform.localPosition;
 
 			// Get the fingers we want to use
-			var fingers = Use.UpdateAndGetFingers();
+			var fingers = Use.GetFingers();
 
 			// Calculate the screenDelta value based on these fingers
 			var screenDelta = LeanGesture.GetScreenDelta(fingers);
@@ -91,7 +87,7 @@ namespace Lean.Touch
 			remainingTranslation += transform.localPosition - oldPosition;
 
 			// Get t value
-			var factor = LeanHelper.GetDampenFactor(Damping, Time.deltaTime);
+			var factor = LeanTouch.GetDampenFactor(Dampening, Time.deltaTime);
 
 			// Dampen remainingDelta
 			var newRemainingTranslation = Vector3.Lerp(remainingTranslation, Vector3.zero, factor);
@@ -99,7 +95,7 @@ namespace Lean.Touch
 			// Shift this transform by the change in delta
 			transform.localPosition = oldPosition + remainingTranslation - newRemainingTranslation;
 
-			if (fingers.Count == 0 && Inertia > 0.0f && Damping > 0.0f)
+			if (fingers.Count == 0 && Inertia > 0.0f && Dampening > 0.0f)
 			{
 				newRemainingTranslation = Vector3.Lerp(newRemainingTranslation, remainingTranslation, Inertia);
 			}
@@ -110,7 +106,7 @@ namespace Lean.Touch
 
 		private void TranslateUI(Vector2 screenDelta)
 		{
-			var camera = this._camera;
+			var camera = Camera;
 
 			if (camera == null)
 			{
@@ -126,7 +122,7 @@ namespace Lean.Touch
 			var screenPoint = RectTransformUtility.WorldToScreenPoint(camera, transform.position);
 
 			// Add the deltaPosition
-			screenPoint += screenDelta * Sensitivity;
+			screenPoint += screenDelta;
 
 			// Convert back to world space
 			var worldPoint = default(Vector3);
@@ -140,7 +136,7 @@ namespace Lean.Touch
 		private void Translate(Vector2 screenDelta)
 		{
 			// Make sure the camera exists
-			var camera = LeanHelper.GetCamera(this._camera, gameObject);
+			var camera = LeanTouch.GetCamera(Camera, gameObject);
 
 			if (camera != null)
 			{
@@ -148,7 +144,7 @@ namespace Lean.Touch
 				var screenPoint = camera.WorldToScreenPoint(transform.position);
 
 				// Add the deltaPosition
-				screenPoint += (Vector3)screenDelta * Sensitivity;
+				screenPoint += (Vector3)screenDelta;
 
 				// Convert back to world space
 				transform.position = camera.ScreenToWorldPoint(screenPoint);
@@ -160,26 +156,3 @@ namespace Lean.Touch
 		}
 	}
 }
-
-#if UNITY_EDITOR
-namespace Lean.Touch.Editor
-{
-	using TARGET = LeanDragTranslate;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET), true)]
-	public class LeanDragTranslate_Editor : LeanEditor
-	{
-		protected override void OnInspector()
-		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
-
-			Draw("Use");
-			Draw("_camera", "The camera the translation will be calculated using.\n\nNone/null = MainCamera.");
-			Draw("sensitivity", "The movement speed will be multiplied by this.\n\n-1 = Inverted Controls.");
-			Draw("damping", "If you want this component to change smoothly over time, then this allows you to control how quick the changes reach their target value.\n\n-1 = Instantly change.\n\n1 = Slowly change.\n\n10 = Quickly change.");
-			Draw("inertia", "This allows you to control how much momentum is retained when the dragging fingers are all released.\n\nNOTE: This requires <b>Damping</b> to be above 0.");
-		}
-	}
-}
-#endif

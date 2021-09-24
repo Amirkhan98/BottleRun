@@ -1,11 +1,11 @@
 using UnityEngine;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
+using Lean.Common;
 
-namespace Lean.Common
+namespace Lean.Touch
 {
 	/// <summary>This component automatically rotates the current GameObject based on movement.</summary>
-	[HelpURL(LeanHelper.PlusHelpUrlPrefix + "LeanRotateToPosition")]
-	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Rotate To Position")]
+	[HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanRotateToPosition")]
+	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Rotate To Position")]
 	public class LeanRotateToPosition : MonoBehaviour
 	{
 		public enum PositionType
@@ -22,50 +22,41 @@ namespace Lean.Common
 			Side2D
 		}
 
-		/// <summary>The <b>Transform</b> that will be rotated.
-		/// None/Null = This GameObject's Transform.</summary>
-		public Transform Target { set { target = value; } get { return target; } } [FSA("Target")] [SerializeField] private Transform target;
-
 		/// <summary>This allows you choose the method used to calculate the position we will rotate toward.
 		/// PreviousPosition = This component will automatically calculate positions based on the <b>Transform.position</b>.
 		/// ManuallySetPosition = You must manually call the <b>SetPosition</b> method to update the rotation.</summary>
-		public PositionType Position { set { position = value; } get { return position; } } [FSA("Position")] [SerializeField] private PositionType position;
+		[Tooltip("This allows you choose the method used to calculate the position we will rotate toward.\n\nPreviousPosition = This component will automatically calculate positions based on the Transform.position.\n\nManuallySetPosition = You must manually call the SetPosition method to update the rotation.")]
+		public PositionType Position;
 
 		/// <summary>This allows you to set the minimum amount of movement required to trigger the rotation to update. This is useful to prevent tiny movements from causing the rotation to change unexpectedly.</summary>
-		public float Threshold { set { threshold = value; } get { return threshold; } } [FSA("Threshold")] [SerializeField] private float threshold = 0.1f;
-
-		/// <summary>If you enable this the rotation will be reversed.</summary>
-		public bool Invert { set { invert = value; } get { return invert; } } [FSA("Invert")] [SerializeField] private bool invert;
+		[Tooltip("This allows you to set the minimum amount of movement required to trigger the rotation to update. This is useful to prevent tiny movements from causing the rotation to change unexpectedly.")]
+		public float Threshold = 0.1f;
 
 		/// <summary>This allows you choose the method used to find the target rotation.</summary>
-		public RotateType RotateTo { set { rotateTo = value; } get { return rotateTo; } } [FSA("RotateTo")] [SerializeField] private RotateType rotateTo;
+		[Tooltip("This allows you choose the method used to find the target rotation.")]
+		public RotateType RotateTo;
 
 		/// <summary>If you want this component to change smoothly over time, then this allows you to control how quick the changes reach their target value.
 		/// -1 = Instantly change.
 		/// 1 = Slowly change.
 		/// 10 = Quickly change.</summary>
-		public float Damping { set { damping = value; } get { return damping; } } [FSA("Dampening")] [FSA("Damping")] [SerializeField] private float damping = 10.0f;
+		[Tooltip("If you want this component to change smoothly over time, then this allows you to control how quick the changes reach their target value.\n\n-1 = Instantly change.\n\n1 = Slowly change.\n\n10 = Quickly change.")]
+		public float Dampening = 10.0f;
 
+		[HideInInspector]
 		[SerializeField]
 		private Vector3 previousPosition;
 
+		[HideInInspector]
 		[SerializeField]
 		private Vector3 previousDelta;
-
-		private Transform FinalTransform
-		{
-			get
-			{
-				return target != null ? target : transform;
-			}
-		}
 
 		/// <summary>If <b>Position</b> is set to <b>ManuallySetPosition</b>, then this method allows you to set the position we will rotate to.</summary>
 		public void SetPosition(Vector3 position)
 		{
-			var currentPosition = FinalTransform.position;
+			var currentPosition = transform.position;
 
-			if (Vector3.Distance(currentPosition, position) > threshold)
+			if (Vector3.Distance(currentPosition, position) > Threshold)
 			{
 				SetDelta(position - currentPosition);
 			}
@@ -84,7 +75,7 @@ namespace Lean.Common
 		/// <summary>If your <b>Transform</b> has teleported, then call this to reset the cached position.</summary>
 		public void ResetPosition()
 		{
-			previousPosition = FinalTransform.position;
+			previousPosition = transform.position;
 		}
 
 		protected virtual void Start()
@@ -99,13 +90,10 @@ namespace Lean.Common
 
 		protected virtual void LateUpdate()
 		{
-			// Cache
-			var finalTransform = FinalTransform;
-
 			// Update position and delta
-			var currentPosition = finalTransform.position;
+			var currentPosition = transform.position;
 
-			if (position == PositionType.PreviousPosition && Vector3.Distance(previousPosition, currentPosition) > threshold)
+			if (Position == PositionType.PreviousPosition && Vector3.Distance(previousPosition, currentPosition) > Threshold)
 			{
 				SetDelta(currentPosition - previousPosition);
 
@@ -113,29 +101,24 @@ namespace Lean.Common
 			}
 
 			// Update rotation
-			var currentRotation = finalTransform.localRotation;
-			var factor          = LeanHelper.GetDampenFactor(damping, Time.deltaTime);
+			var currentRotation = transform.localRotation;
+			var factor          = LeanHelper.DampenFactor(Dampening, Time.deltaTime);
 
 			if (previousDelta.sqrMagnitude > 0.0f)
 			{
-				UpdateRotation(finalTransform, previousDelta);
+				UpdateRotation(previousDelta);
 			}
 
-			finalTransform.localRotation = Quaternion.Slerp(currentRotation, finalTransform.localRotation, factor);
+			transform.localRotation = Quaternion.Slerp(currentRotation, transform.localRotation, factor);
 		}
 
-		private void UpdateRotation(Transform finalTransform, Vector3 vector)
+		private void UpdateRotation(Vector3 vector)
 		{
-			if (invert == true)
-			{
-				vector = -vector;
-			}
-
-			switch (rotateTo)
+			switch (RotateTo)
 			{
 				case RotateType.Forward:
 				{
-					finalTransform.forward = vector;
+					transform.forward = vector;
 				}
 				break;
 
@@ -143,7 +126,7 @@ namespace Lean.Common
 				{
 					var yaw = Mathf.Atan2(vector.x, vector.z) * Mathf.Rad2Deg;
 
-					finalTransform.rotation = Quaternion.Euler(0.0f, yaw, 0.0f);
+					transform.rotation = Quaternion.Euler(0.0f, yaw, 0.0f);
 				}
 				break;
 
@@ -151,34 +134,10 @@ namespace Lean.Common
 				{
 					var roll = Mathf.Atan2(vector.x, vector.y) * Mathf.Rad2Deg;
 
-					finalTransform.rotation = Quaternion.Euler(0.0f, 0.0f, -roll);
+					transform.rotation = Quaternion.Euler(0.0f, 0.0f, -roll);
 				}
 				break;
 			}
 		}
 	}
 }
-
-#if UNITY_EDITOR
-namespace Lean.Common.Editor
-{
-	using TARGET = LeanRotateToPosition;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET))]
-	public class LeanRotateToPosition_Editor : LeanEditor
-	{
-		protected override void OnInspector()
-		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
-
-			Draw("target", "The <b>Transform</b> that will be rotated.\n\nNone/Null = This GameObject's Transform.");
-			Draw("position", "This allows you choose the method used to calculate the position we will rotate toward.\n\nPreviousPosition = This component will automatically calculate positions based on the <b>Transform.position</b>.\n\nManuallySetPosition = You must manually call the <b>SetPosition</b> method to update the rotation.");
-			Draw("threshold", "This allows you to set the minimum amount of movement required to trigger the rotation to update. This is useful to prevent tiny movements from causing the rotation to change unexpectedly.");
-			Draw("invert", "If you enable this the rotation will be reversed.");
-			Draw("rotateTo", "This allows you choose the method used to find the target rotation.");
-			Draw("damping", "If you want this component to change smoothly over time, then this allows you to control how quick the changes reach their target value.\n\n-1 = Instantly change.\n\n1 = Slowly change.\n\n10 = Quickly change.");
-		}
-	}
-}
-#endif

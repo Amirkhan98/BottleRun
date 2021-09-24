@@ -1,92 +1,88 @@
 using UnityEngine;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
 
-namespace Lean.Common
+namespace Lean.Touch
 {
 	/// <summary>This component will constrain the current Transform.rotation values so that its facing direction doesn't deviate too far from the target direction.</summary>
-	[DefaultExecutionOrder(200)]
-	[HelpURL(LeanHelper.PlusHelpUrlPrefix + "LeanConstrainToDirection")]
-	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Constrain To Direction")]
+	[HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanConstrainToDirection")]
+	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Constrain To Direction")]
 	public class LeanConstrainToDirection : MonoBehaviour
 	{
 		/// <summary>This allows you to specify which local direction is considered forward on this GameObject.
 		/// Leave this as the default (0,0,1) if you're not sure.</summary>
-		public Vector3 Forward { set { forward = value; } get { return forward; } } [FSA("Forward")] [SerializeField] private Vector3 forward = Vector3.forward;
+		[Tooltip("This allows you to specify which local direction is considered forward on this GameObject.\n\nLeave this as the default (0,0,1) if you're not sure.")]
+		public Vector3 Forward = Vector3.forward;
+
+		[Space]
 
 		/// <summary>This allows you to specify the target direction you want to constrain to. For example, (0,1,0) is up.</summary>
-		public Vector3 Direction { set { direction = value; } get { return direction; } } [FSA("Direction")] [SerializeField] private Vector3 direction = Vector3.forward;
+		[Tooltip("This allows you to specify the target direction you want to constrain to. For example, (0,1,0) is up.")]
+		public Vector3 Direction = Vector3.forward;
 
 		/// <summary>If you want to constrain the direction relative to a Transform, you can specify it here.</summary>
-		public Transform RelativeTo { set { relativeTo = value; } get { return relativeTo; } } [FSA("relativeTo")] [SerializeField] private Transform relativeTo;
+		[Tooltip("If you want to constrain the direction relative to a Transform, you can specify it here.")]
+		public Transform RelativeTo;
 
 		/// <summary>This allows you to specify the minimum angle delta between the Forward and Direction vectors in degrees.</summary>
-		public float MinAngle { set { minAngle = value; } get { return minAngle; } } [FSA("MinAngle")] [SerializeField] [Range(0.0f, 180.0f)] public float minAngle = 0.0f;
+		[Tooltip("This allows you to specify the minimum angle delta between the Forward and Direction vectors in degrees.")]
+		[Range(0.0f, 180.0f)]
+		public float MinAngle = 0.0f;
 
 		/// <summary>This allows you to specify the maximum angle delta between the Forward and Direction vectors in degrees.</summary>
-		public float MaxAngle { set { maxAngle = value; } get { return maxAngle; } } [FSA("MaxAngle")] [SerializeField] [Range(0.0f, 180.0f)] public float maxAngle = 90.0f;
+		[Tooltip("This allows you to specify the maximum angle delta between the Forward and Direction vectors in degrees.")]
+		[Range(0.0f, 180.0f)]
+		public float MaxAngle = 90.0f;
 
 		protected virtual void LateUpdate()
 		{
-			if (forward != Vector3.zero && direction != Vector3.zero)
+			if (Forward != Vector3.zero && Direction != Vector3.zero)
 			{
-				var dir = direction;
+				var fwd = transform.TransformDirection(Forward);
+				var dir = Direction;
 
-				if (relativeTo != null)
+				if (RelativeTo != null)
 				{
-					dir = relativeTo.TransformDirection(dir);
+					dir = RelativeTo.TransformDirection(dir);
 				}
 
-				var fwd         = transform.TransformDirection(forward);
-				var angle       = Vector3.Angle(dir, fwd);
-				var oldRotation = transform.rotation;
-				var newRotation = oldRotation;
+				var angle = Vector3.Angle(dir, fwd);
 
-				if (angle < minAngle)
+				if (angle < MinAngle)
 				{
-					var fixedFwd = Vector3.RotateTowards(fwd.normalized, -dir.normalized, (minAngle - angle) * Mathf.Deg2Rad, 1.0f);
+					var fixedFwd = Vector3.RotateTowards(fwd.normalized, -dir.normalized, (MinAngle - angle) * Mathf.Deg2Rad, 1.0f);
 
-					newRotation = Quaternion.FromToRotation(fwd, fixedFwd) * oldRotation;
+					transform.rotation = Quaternion.FromToRotation(fwd, fixedFwd) * transform.rotation;
 				}
-				else if (angle > maxAngle)
+				else if (angle > MaxAngle)
 				{
-					var fixedFwd = Vector3.RotateTowards(fwd.normalized, dir.normalized, (angle - maxAngle) * Mathf.Deg2Rad, 1.0f);
+					var fixedFwd = Vector3.RotateTowards(fwd.normalized, dir.normalized, (angle - MaxAngle) * Mathf.Deg2Rad, 1.0f);
 
-					newRotation = Quaternion.FromToRotation(fwd, fixedFwd) * oldRotation;
-				}
-
-				if (Mathf.Approximately(oldRotation.x, newRotation.x) == false ||
-					Mathf.Approximately(oldRotation.y, newRotation.y) == false ||
-					Mathf.Approximately(oldRotation.z, newRotation.z) == false ||
-					Mathf.Approximately(oldRotation.w, newRotation.w) == false)
-				{
-					transform.rotation = newRotation;
+					transform.rotation = Quaternion.FromToRotation(fwd, fixedFwd) * transform.rotation;
 				}
 			}
 		}
-
 #if UNITY_EDITOR
 		protected virtual void OnDrawGizmosSelected()
 		{
-			if (forward != Vector3.zero)
+			if (Forward != Vector3.zero)
 			{
-				var fwd = transform.TransformDirection(forward);
+				var fwd = transform.TransformDirection(Forward);
 
 				Gizmos.DrawLine(transform.position, fwd);
 			}
 
-			if (direction != Vector3.zero)
+			if (Direction != Vector3.zero)
 			{
-				var dir = direction;
+				var dir = Direction;
 
-				if (relativeTo != null)
+				if (RelativeTo != null)
 				{
-					dir = relativeTo.TransformDirection(dir);
+					dir = RelativeTo.TransformDirection(dir);
 				}
 
 				Gizmos.color = new Color(1.0f, 1.0f, 1.0f, 0.2f);
 				
-				DrawCone(dir, minAngle * Mathf.Deg2Rad);
-				DrawCone(dir, maxAngle * Mathf.Deg2Rad);
+				DrawCone(dir, MinAngle * Mathf.Deg2Rad);
+				DrawCone(dir, MaxAngle * Mathf.Deg2Rad);
 			}
 		}
 
@@ -106,26 +102,3 @@ namespace Lean.Common
 #endif
 	}
 }
-
-#if UNITY_EDITOR
-namespace Lean.Common.Editor
-{
-	using TARGET = LeanConstrainToDirection;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET))]
-	public class LeanConstrainToDirection_Editor : LeanEditor
-	{
-		protected override void OnInspector()
-		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
-
-			Draw("forward", "This allows you to specify which local direction is considered forward on this GameObject.\n\nLeave this as the default (0,0,1) if you're not sure.");
-			Draw("direction", "This allows you to specify the target direction you want to constrain to. For example, (0,1,0) is up.");
-			Draw("relativeTo", "If you want to constrain the direction relative to a Transform, you can specify it here.");
-			Draw("minAngle", "This allows you to specify the minimum angle delta between the Forward and Direction vectors in degrees.");
-			Draw("maxAngle", "This allows you to specify the maximum angle delta between the Forward and Direction vectors in degrees.");
-		}
-	}
-}
-#endif

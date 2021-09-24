@@ -1,12 +1,16 @@
 using UnityEngine;
 using UnityEngine.Events;
+using Lean.Common;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
-namespace Lean.Common
+namespace Lean.Touch
 {
 	/// <summary>This component allows you to store the <b>Current</b> position. Once this differs from the <b>Previous</b> position by more than the <b>Threshold</b>, the <b>Previous</b> value will change to match <b>Current</b>, and the <b>OnPosition</b> events will fire with the current position.
 	/// This is useful for making more precise movements when using inaccurate touch inputs.</summary>
-	[HelpURL(LeanHelper.PlusHelpUrlPrefix + "LeanThresholdPosition")]
-	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Threshold Position")]
+	[HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanThresholdPosition")]
+	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Threshold Position")]
 	public class LeanThresholdPosition : MonoBehaviour
 	{
 		[System.Serializable] public class FloatEvent : UnityEvent<float> {}
@@ -14,15 +18,19 @@ namespace Lean.Common
 		[System.Serializable] public class Vector3Event : UnityEvent<Vector3> {}
 
 		/// <summary>The current position.</summary>
+		[Tooltip("The current position.")]
 		public Vector3 Current;
 
 		/// <summary>The previously sent position.</summary>
+		[Tooltip("The previously sent position.")]
 		public Vector3 Previous;
 
 		/// <summary>When any dimension of <b>Current</b> exceeds this, <b>OnPosition___</b> will be called, and <b>Current</b> will be rolled back.</summary>
+		[Tooltip("When any dimension of Value exceeds this, OnPosition___ will be called, and Value will be rolled back.")]
 		public float Threshold = 1.0f;
 
 		/// <summary>If you enable this then the position will step toward the <b>Current</b> value in increments based on the <b>Threshold</b> value. If you disable this then the position will immediately be set to the <b>Current</b> value.</summary>
+		[Tooltip("If you enable this then the position will step toward the Current value in increments based on the Threshold value. If you disable this then the position will immediately be set to the Current value.")]
 		public bool Step;
 
 		public FloatEvent OnPositionX { get { if (onPositionX == null) onPositionX = new FloatEvent(); return onPositionX; } } [SerializeField] private FloatEvent onPositionX;
@@ -134,32 +142,34 @@ namespace Lean.Common
 }
 
 #if UNITY_EDITOR
-namespace Lean.Common.Editor
+namespace Lean.Touch
 {
-	using TARGET = LeanThresholdPosition;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET))]
-	public class LeanThresholdPosition_Editor : LeanEditor
+	[CanEditMultipleObjects]
+	[CustomEditor(typeof(LeanThresholdPosition))]
+	public class LeanThresholdPosition_Inspector : LeanInspector<LeanThresholdPosition>
 	{
-		protected override void OnInspector()
+		private bool showUnusedEvents;
+
+		protected override void DrawInspector()
 		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
+			Draw("Current");
+			Draw("Previous");
+			Draw("Threshold");
+			Draw("Step");
 
-			Draw("Current", "The current position.");
-			Draw("Previous", "The previously sent position.");
-			Draw("Threshold", "When any dimension of Value exceeds this, OnPosition___ will be called, and Value will be rolled back.");
-			Draw("Step", "If you enable this then the position will step toward the Current value in increments based on the Threshold value. If you disable this then the position will immediately be set to the Current value.");
+			EditorGUILayout.Separator();
 
-			Separator();
+			var usedA = Any(t => t.OnPositionX.GetPersistentEventCount() > 0);
+			var usedB = Any(t => t.OnPositionY.GetPersistentEventCount() > 0);
+			var usedC = Any(t => t.OnPositionZ.GetPersistentEventCount() > 0);
+			var usedD = Any(t => t.OnPositionXY.GetPersistentEventCount() > 0);
+			var usedE = Any(t => t.OnPositionXYZ.GetPersistentEventCount() > 0);
 
-			var usedA = Any(tgts, t => t.OnPositionX.GetPersistentEventCount() > 0);
-			var usedB = Any(tgts, t => t.OnPositionY.GetPersistentEventCount() > 0);
-			var usedC = Any(tgts, t => t.OnPositionZ.GetPersistentEventCount() > 0);
-			var usedD = Any(tgts, t => t.OnPositionXY.GetPersistentEventCount() > 0);
-			var usedE = Any(tgts, t => t.OnPositionXYZ.GetPersistentEventCount() > 0);
+			EditorGUI.BeginDisabledGroup(usedA && usedB && usedC && usedD && usedE);
+				showUnusedEvents = EditorGUILayout.Foldout(showUnusedEvents, "Show Unused Events");
+			EditorGUI.EndDisabledGroup();
 
-			var showUnusedEvents = DrawFoldout("Show Unused Events", "Show all events?");
+			EditorGUILayout.Separator();
 
 			if (usedA == true || showUnusedEvents == true)
 			{

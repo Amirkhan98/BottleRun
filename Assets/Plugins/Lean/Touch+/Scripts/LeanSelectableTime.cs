@@ -1,33 +1,26 @@
 using UnityEngine;
-using UnityEngine.Events;
-using Lean.Common;
+using UnityEngine.UI;
 
 namespace Lean.Touch
 {
-	/// <summary>This component counts how many seconds this <b>LeanSelectable</b> has been selected and sends it out via event.</summary>
+	/// <summary>This component counts how many seconds this LeanSelectable has been selected, and optionlly outputs it to UI text.</summary>
 	[HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanSelectableTime")]
 	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Selectable Time")]
 	public class LeanSelectableTime : LeanSelectableBehaviour
 	{
-		[System.Serializable] public class FloatEvent : UnityEvent<float> {}
+		/// <summary>This allows you to output Seconds to UI text.</summary>
+		[Tooltip("This allows you to output Seconds to UI text.")]
+		public Text Display;
 
-		public enum SendType
-		{
-			WhileSelected,
-			WhileSelectedAndWhenDeselected,
-			Always
-		}
+		/// <summary>The format of the display string, where {0} is seconds float.</summary>
+		[Tooltip("The format of the display string, where {0} is seconds float.")]
+		public string DisplayFormat = "Seconds = {0}";
 
-		/// <summary>This allows you to control when the events will be invoked.
-		/// WhileSelected = Every frame while this object is selected.
-		/// WhileSelectedAndWhenDeselected = Every frame while this object is selected, and the first frame it gets deselected.
-		/// Always = Every frame, regardless of the selection.</summary>
-		public SendType Send { set { send = value; } get { return send; } } [SerializeField] private SendType send;
+		/// <summary>The text to display when Seconds is exactly 0.</summary>
+		[Tooltip("The text to display when Seconds is exactly 0.")]
+		public string DisplayZero;
 
-		/// <summary>Based on the <b>Send</b> setting, this event will be invoked.
-		/// Float = Seconds selected.</summary>
-		public FloatEvent OnSeconds { get { if (onSeconds == null) onSeconds = new FloatEvent(); return onSeconds;  } } [SerializeField] private FloatEvent onSeconds;
-
+		[HideInInspector]
 		[SerializeField]
 		private float seconds;
 
@@ -37,47 +30,22 @@ namespace Lean.Touch
 			{
 				seconds += Time.deltaTime;
 			}
-			else if (seconds > 0.0f)
+			else
 			{
 				seconds = 0.0f;
+			}
 
-				if (send == SendType.WhileSelected)
+			if (Display != null)
+			{
+				if (seconds == 0.0f)
 				{
-					return;
+					Display.text = DisplayZero;
+				}
+				else
+				{
+					Display.text = string.Format(DisplayFormat, seconds);
 				}
 			}
-			else if (send != SendType.Always)
-			{
-				return;
-			}
-
-			if (onSeconds != null)
-			{
-				onSeconds.Invoke(seconds);
-			}
 		}
 	}
 }
-
-#if UNITY_EDITOR
-namespace Lean.Touch.Editor
-{
-	using TARGET = LeanSelectableTime;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET))]
-	public class LeanPlane_Editor : LeanEditor
-	{
-		protected override void OnInspector()
-		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
-
-			Draw("send", "This allows you to control when the events will be invoked.\n\nWhileSelected = Every frame while this object is selected.\n\nWhileSelectedAndWhenDeselected = Every frame while this object is selected, and the first frame it gets deselected.\n\nAlways = Every frame, regardless of the selection.");
-			
-			Separator();
-			
-			Draw("onSeconds");
-		}
-	}
-}
-#endif

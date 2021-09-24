@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
-using Lean.Common;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Lean.Touch
 {
@@ -10,50 +11,32 @@ namespace Lean.Touch
 	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Finger Flick")]
 	public class LeanFingerFlick : LeanSwipeBase
 	{
-		[System.Serializable]
-		public class FingerData : LeanFingerData
-		{
-			public bool Flicked;
-		}
-
-		public enum CheckType
-		{
-			Default,
-			IgnoreAge,
-			Multiple
-		}
+		public float Interval = -1.0f;
 
 		/// <summary>Ignore fingers with StartedOverGui?</summary>
-		public bool IgnoreStartedOverGui { set { ignoreStartedOverGui = value; } get { return ignoreStartedOverGui; } } [FSA("IgnoreStartedOverGui")] [SerializeField] private bool ignoreStartedOverGui = true;
+		[Tooltip("Ignore fingers with StartedOverGui?")]
+		public bool IgnoreStartedOverGui = true;
 
-		/// <summary>Ignore fingers with OverGui?</summary>
-		public bool IgnoreIsOverGui { set { ignoreIsOverGui = value; } get { return ignoreIsOverGui; } } [FSA("IgnoreIsOverGui")] [SerializeField] private bool ignoreIsOverGui;
+		/// <summary>Ignore fingers with IsOverGui?</summary>
+		[Tooltip("Ignore fingers with IsOverGui?")]
+		public bool IgnoreIsOverGui;
 
-		/// <summary>If the specified object is set and isn't selected, then this component will do nothing.</summary>
-		public LeanSelectable RequiredSelectable { set { requiredSelectable = value; } get { return requiredSelectable; } } [FSA("RequiredSelectable")] [SerializeField] private LeanSelectable requiredSelectable;
+		/// <summary>Do nothing if this LeanSelectable isn't selected?</summary>
+		[Tooltip("Do nothing if this LeanSelectable isn't selected?")]
+		public LeanSelectable RequiredSelectable;
 
-		/// <summary>This allows you to choose how the flick will be detected.
-		/// Default = Detects one flick within the current <b>TapThreshold</b> time.
-		/// IgnoreAge = You can hold the finger for any duration before flicking.
-		/// Multiple = You can stop moving the finger for <b>TapThreshold</b> seconds and perform additional flicks.</summary>
-		public CheckType Check { set { check = value; } get { return check; } } [FSA("Check")] [SerializeField] private CheckType check;
-
-		// Additional finger data
-		[SerializeField]
-		private List<FingerData> fingerDatas;
-
+		private List<LeanFinger> fingers = new List<LeanFinger>();
 #if UNITY_EDITOR
 		protected virtual void Reset()
 		{
-			requiredSelectable = GetComponentInParent<LeanSelectable>();
+			RequiredSelectable = GetComponentInParent<LeanSelectable>();
 		}
 #endif
-
 		protected virtual void Awake()
 		{
-			if (requiredSelectable == null)
+			if (RequiredSelectable == null)
 			{
-				requiredSelectable = GetComponentInParent<LeanSelectable>();
+				RequiredSelectable = GetComponentInParent<LeanSelectable>();
 			}
 		}
 
@@ -68,106 +51,95 @@ namespace Lean.Touch
 			LeanTouch.OnFingerDown -= HandleFingerDown;
 			LeanTouch.OnFingerUp   -= HandleFingerUp;
 
-			LeanFingerData.RemoveAll(fingerDatas);
+			fingers.Clear();
 		}
 
 		protected virtual void Update()
 		{
-			if (fingerDatas != null)
+			for (var i = fingers.Count - 1; i >= 0; i--)
 			{
-				for (var i = fingerDatas.Count - 1; i >= 0; i--)
+				var finger     = fingers[i];
+				var screenFrom = default(Vector2);
+				var screenTo   = default(Vector2);
+
+				if (TestFinger(finger, ref screenFrom, ref screenTo) == true)
 				{
-					var fingerData = fingerDatas[i];
-					var finger     = fingerData.Finger;
-					var screenFrom = finger.GetSnapshotScreenPosition(finger.Age - LeanTouch.CurrentTapThreshold);
-					var screenTo   = finger.ScreenPosition;
+					fingers.RemoveAt(i);
 
-					if (Vector2.Distance(screenFrom, screenTo) > LeanTouch.CurrentSwipeThreshold / LeanTouch.ScalingFactor)
-					{
-						if (fingerData.Flicked == false && TestFinger(finger, screenFrom, screenTo) == true)
-						{
-							fingerData.Flicked = true;
-
-							HandleFingerSwipe(finger, screenFrom, screenTo);
-
-							// If multi-flicks aren't allowed, remove the finger
-							if (check != CheckType.Multiple)
-							{
-								LeanFingerData.Remove(fingerDatas, finger);
-							}
-						}
-					}
-					else
-					{
-						fingerData.Flicked = false;
-					}
+					HandleFingerSwipe(finger, screenFrom, screenTo);
 				}
 			}
 		}
 
 		private void HandleFingerDown(LeanFinger finger)
 		{
-			if (finger.Index == LeanTouch.HOVER_FINGER_INDEX)
-			{
-				return;
-			}
-
-			var data = LeanFingerData.FindOrCreate(ref fingerDatas, finger);
-
-			data.Flicked = false;
+			fingers.Add(finger);
 		}
 
 		private void HandleFingerUp(LeanFinger finger)
 		{
-			LeanFingerData.Remove(fingerDatas, finger);
+			fingers.Remove(finger);
 		}
 
-		private bool TestFinger(LeanFinger finger, Vector2 screenFrom, Vector2 screenTo)
+		private bool TestFinger(LeanFinger finger, ref Vector2 screenFrom, ref Vector2 screenTo)
 		{
-			if (ignoreStartedOverGui == true && finger.StartedOverGui == true)
+			if (IgnoreStartedOverGui == true && finger.StartedOverGui == true)
 			{
 				return false;
 			}
 
-			if (ignoreIsOverGui == true && finger.IsOverGui == true)
+			if (IgnoreIsOverGui == true && finger.IsOverGui == true)
 			{
 				return false;
 			}
 
-			if (requiredSelectable != null && requiredSelectable.IsSelected == false)
+			if (RequiredSelectable != null && RequiredSelectable.IsSelectedBy(finger) == false)
 			{
 				return false;
 			}
 
-			if (check == CheckType.Default && finger.Age >= LeanTouch.CurrentTapThreshold)
+			if (finger.Age >= LeanTouch.CurrentTapThreshold)
 			{
 				return false;
 			}
 
-			return AngleIsValid(screenTo - screenFrom);
+			var scalingFactor = LeanTouch.ScalingFactor;
+			var sqrThreshold  = LeanTouch.CurrentSwipeThreshold / scalingFactor; sqrThreshold *= sqrThreshold;
+
+			screenTo = finger.ScreenPosition;
+
+			for (var i = finger.Snapshots.Count - 1; i >= 0; i--)
+			{
+				screenFrom = finger.Snapshots[i].ScreenPosition;
+
+				var screenDelta = screenTo - screenFrom;
+
+				// Valid distance and angle?
+				if (screenDelta.sqrMagnitude >= sqrThreshold && AngleIsValid(screenDelta) == true)
+				{
+					return true;
+				}
+			}
+
+			return false;
 		}
 	}
 }
 
 #if UNITY_EDITOR
-namespace Lean.Touch.Editor
+namespace Lean.Touch
 {
-	using TARGET = LeanFingerFlick;
-
-	[UnityEditor.CanEditMultipleObjects]
-	[UnityEditor.CustomEditor(typeof(TARGET))]
-	public class LeanFingerFlick_Editor : LeanSwipeBase_Editor
+	[CanEditMultipleObjects]
+	[CustomEditor(typeof(LeanFingerFlick))]
+	public class LeanFingerFlick_Inspector : LeanSwipeBase_Inspector<LeanFingerFlick>
 	{
-		protected override void OnInspector()
+		protected override void DrawInspector()
 		{
-			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
+			Draw("IgnoreStartedOverGui");
+			Draw("IgnoreIsOverGui");
+			Draw("RequiredSelectable");
 
-			Draw("ignoreStartedOverGui", "Ignore fingers with StartedOverGui?");
-			Draw("ignoreIsOverGui", "Ignore fingers with OverGui?");
-			Draw("requiredSelectable", "If the specified object is set and isn't selected, then this component will do nothing.");
-			Draw("check", "This allows you to choose how the flick will be detected.\n\nDefault = Detects one flick within the current TapThreshold time.\n\nIgnoreAge = You can hold the finger for any duration before flicking.\n\nMultiple = You can stop moving the finger for TapThreshold seconds and perform additional flicks.");
-
-			base.OnInspector();
+			base.DrawInspector();
 		}
 	}
 }

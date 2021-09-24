@@ -6,7 +6,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using Lean.Common;
-using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Lean.Touch
 {
@@ -20,34 +22,19 @@ namespace Lean.Touch
 	[AddComponentMenu(ComponentPathPrefix + "Touch")]
 	public partial class LeanTouch : MonoBehaviour
 	{
-		public const string ComponentPathPrefix = "Lean/Touch/Lean ";
+		public const string ComponentPathPrefix = LeanHelper.ComponentPathPrefix + "Touch/Lean ";
 
 		public const string HelpUrlPrefix = "https://carloswilkes.github.io/Documentation/LeanTouch#";
 
 		public const string PlusHelpUrlPrefix = "https://carloswilkes.github.io/Documentation/LeanTouchPlus#";
 
-		public const int MOUSE_FINGER_INDEX = -1;
-
-		public const int HOVER_FINGER_INDEX = -42;
-
-		private const int DEFAULT_REFERENCE_DPI = 200;
-
-		private const int DEFAULT_GUI_LAYERS = 1 << 5;
-
-		private const float DEFAULT_TAP_THRESHOLD = 0.2f;
-
-		private const float DEFAULT_SWIPE_THRESHOLD = 100.0f;
-
-		private const float DEFAULT_RECORD_LIMIT = 10.0f;
-
 		/// <summary>This contains all the active and enabled LeanTouch instances</summary>
 		public static List<LeanTouch> Instances = new List<LeanTouch>();
 
-		/// <summary>This list contains all fingers currently touching the screen (or have just stopped touching the screen).
-		/// NOTE: This list includes simulated fingers, as well as the mouse hover finger.</summary>
+		/// <summary>This list contains all currently active fingers (including simulated ones)</summary>
 		public static List<LeanFinger> Fingers = new List<LeanFinger>(10);
 
-		/// <summary>This list contains all fingers that were once touching the screen. This is used to manage finger tapping, as well as 'inactive' fingers that are so old they're no longer eligible for tapping.</summary>
+		/// <summary>This list contains all currently inactive fingers (this allows for pooling and tapping)</summary>
 		public static List<LeanFinger> InactiveFingers = new List<LeanFinger>(10);
 
 		/// <summary>This gets fired when a finger begins touching the screen (LeanFinger = The current finger)</summary>
@@ -59,10 +46,10 @@ namespace Lean.Touch
 		/// <summary>This gets fired when a finger stops touching the screen (LeanFinger = The current finger)</summary>
 		public static event System.Action<LeanFinger> OnFingerUp;
 
-		/// <summary>This gets fired when a finger has been touching the screen for longer than <b>TapThreshold</b> seconds, causing it to be ineligible for the tap and swipe events.</summary>
+		/// <summary>This gets fired when a finger ages past the TapThreshold, causing it to be ineligible for the tap and swipe events (LeanFinger = The current finger)</summary>
 		public static event System.Action<LeanFinger> OnFingerOld;
 
-		/// <summary>This gets fired when a finger taps the screen (this is when a finger begins and stops touching the screen within the 'TapThreshold' time).</summary>
+		/// <summary>This gets fired when a finger taps the screen (this is when a finger begins and stops touching the screen within the 'TapThreshold' time) (LeanFinger = The current finger)</summary>
 		public static event System.Action<LeanFinger> OnFingerTap;
 
 		/// <summary>This gets fired when a finger swipes the screen (this is when a finger begins and stops touching the screen within the 'TapThreshold' time, and also moves more than the 'SwipeThreshold' distance) (LeanFinger = The current finger)</summary>
@@ -71,38 +58,39 @@ namespace Lean.Touch
 		/// <summary>This gets fired every frame at least one finger is touching the screen (List = Fingers).</summary>
 		public static event System.Action<List<LeanFinger>> OnGesture;
 
-		/// <summary>This gets fired after a finger has been touching the screen for longer than <b>TapThreshold</b> seconds, making it ineligible for a swipe.</summary>
+		/// <summary>This gets fired after a finger has stopped touching the screen for more than TapThreshold seconds, and is removed from both the active and inactive finger lists.</summary>
 		public static event System.Action<LeanFinger> OnFingerExpired;
 
-		/// <summary>This gets fired the frame after a finger went up, </summary>
+		/// <summary>This gets fired after a finger has stopped touching the screen, and is removed from both the active finger list.</summary>
 		public static event System.Action<LeanFinger> OnFingerInactive;
 
-		/// <summary>This will be invoked when it's time to simulate fingers. You can call the <b>AddFinger</b> method to simulate them.</summary>
-		public event System.Action OnSimulateFingers;
-
 		/// <summary>This allows you to set how many seconds are required between a finger down/up for a tap to be registered.</summary>
-		public float TapThreshold { set { tapThreshold = value; } get { return tapThreshold; } } [FSA("TapThreshold")] [SerializeField] private float tapThreshold = DEFAULT_TAP_THRESHOLD;
+		[Tooltip("This allows you to set how many seconds are required between a finger down/up for a tap to be registered.")]
+		public float TapThreshold = DefaultTapThreshold;
+
+		public const float DefaultTapThreshold = 0.2f;
 
 		public static float CurrentTapThreshold
 		{
 			get
 			{
-				return Instances.Count > 0 ? Instances[0].tapThreshold : DEFAULT_TAP_THRESHOLD;
+				return Instances.Count > 0 ? Instances[0].TapThreshold : DefaultTapThreshold;
 			}
 		}
 
 		/// <summary>This allows you to set how many pixels of movement (relative to the ReferenceDpi) are required within the TapThreshold for a swipe to be triggered.</summary>
-		public float SwipeThreshold { set { swipeThreshold = value; } get { return swipeThreshold; } } [FSA("SwipeThreshold")] [SerializeField] private float swipeThreshold = DEFAULT_SWIPE_THRESHOLD;
+		[Tooltip("This allows you to set how many pixels of movement (relative to the ReferenceDpi) are required within the TapThreshold for a swipe to be triggered.")]
+		public float SwipeThreshold = DefaultSwipeThreshold;
 
+		public const float DefaultSwipeThreshold = 100.0f;
 
 		public static float CurrentSwipeThreshold
 		{
 			get
 			{
-				return Instances.Count > 0 ? Instances[0].swipeThreshold : DEFAULT_SWIPE_THRESHOLD;
+				return Instances.Count > 0 ? Instances[0].SwipeThreshold : DefaultSwipeThreshold;
 			}
 		}
-
 #if LEAN_ALLOW_RECLAIM
 		/// <summary>This allows you to set how many pixels (relative to the ReferenceDpi) away from a previous finger the new touching finger must be for it to be reclaimed. This is useful on platforms that give incorrect finger ID data.</summary>
 		[Tooltip("This allows you to set how many pixels (relative to the ReferenceDpi) away from a previous finger the new touching finger must be for it to be reclaimed. This is useful on platforms that give incorrect finger ID data.")]
@@ -118,51 +106,66 @@ namespace Lean.Touch
 			}
 		}
 #endif
-
 		/// <summary>This allows you to set the default DPI you want the input scaling to be based on.</summary>
-		public int ReferenceDpi { set { referenceDpi = value; } get { return referenceDpi; } } [FSA("ReferenceDpi")] [SerializeField] private int referenceDpi = DEFAULT_REFERENCE_DPI;
+		[Tooltip("This allows you to set the default DPI you want the input scaling to be based on.")]
+		public int ReferenceDpi = DefaultReferenceDpi;
+
+		public const int DefaultReferenceDpi = 200;
 
 		public static int CurrentReferenceDpi
 		{
 			get
 			{
-				return Instances.Count > 0 ? Instances[0].referenceDpi : DEFAULT_REFERENCE_DPI;
+				return Instances.Count > 0 ? Instances[0].ReferenceDpi : DefaultReferenceDpi;
 			}
 		}
 
 		/// <summary>This allows you to set which layers your GUI is on, so it can be ignored by each finger.</summary>
-		public LayerMask GuiLayers { set { guiLayers = value; } get { return guiLayers; } } [FSA("GuiLayers")] [SerializeField] private LayerMask guiLayers = (LayerMask)DEFAULT_GUI_LAYERS;
+		[Tooltip("This allows you to set which layers your GUI is on, so it can be ignored by each finger.")]
+		public LayerMask GuiLayers = 1 << 5;
 
 		public static LayerMask CurrentGuiLayers
 		{
 			get
 			{
-				return Instances.Count > 0 ? Instances[0].guiLayers : (LayerMask)DEFAULT_GUI_LAYERS;
+				return Instances.Count > 0 ? Instances[0].GuiLayers : (LayerMask)Physics.DefaultRaycastLayers;
 			}
 		}
 
-		/// <summary>If you disable this then lean touch will act as if you stopped touching the screen.</summary>
-		public bool UseTouch { set { useTouch = value; } get { return useTouch; } } [SerializeField] private bool useTouch = true;
-
-		/// <summary>Should the mouse hover position be stored as a finger?
-		/// NOTE: It will be given a finger <b>Index</b> of HOVER_FINGER_INDEX = -42.</summary>
-		public bool UseHover { set { useHover = value; } get { return useHover; } } [SerializeField] private bool useHover = true;
-
-		/// <summary>Should any mouse button press be stored as a finger?
-		/// NOTE: It will be given a finger <b>Index</b> of MOUSE_FINGER_INDEX = -1.</summary>
-		public bool UseMouse { set { useMouse = value; } get { return useMouse; } } [SerializeField] private bool useMouse = true;
-
-		/// <summary>Should components hooked into the <b>OnSimulateFingers</b> event be used? (e.g. LeanTouchSimulator)</summary>
-		public bool UseSimulator { set { useSimulator = value; } get { return useSimulator; } } [SerializeField] private bool useSimulator = true;
-
-		/// <summary>Should each finger record snapshots of their screen positions?</summary>
-		public bool RecordFingers { set { recordFingers = value; } get { return recordFingers; } } [FSA("RecordFingers")] [SerializeField] private bool recordFingers = true;
+		/// <summary>Should each fnger record snapshots of their screen positions?</summary>
+		[Tooltip("Should each fnger record snapshots of their screen positions?")]
+		public bool RecordFingers = true;
 
 		/// <summary>This allows you to set the amount of pixels a finger must move for another snapshot to be stored.</summary>
-		public float RecordThreshold { set { recordThreshold = value; } get { return recordThreshold; } } [FSA("RecordThreshold")] [SerializeField] private float recordThreshold = 5.0f;
+		[Tooltip("This allows you to set the amount of pixels a finger must move for another snapshot to be stored.")]
+		public float RecordThreshold = 5.0f;
 
 		/// <summary>This allows you to set the maximum amount of seconds that can be recorded, 0 = unlimited.</summary>
-		public float RecordLimit { set { recordLimit = value; } get { return recordLimit; } } [FSA("RecordLimit")] [SerializeField] private float recordLimit = DEFAULT_RECORD_LIMIT;
+		[Tooltip("This allows you to set the maximum amount of seconds that can be recorded, 0 = unlimited.")]
+		public float RecordLimit = 10.0f;
+
+		/// <summary>This allows you to simulate multi touch inputs on devices that don't support them (e.g. desktop).</summary>
+		[Tooltip("This allows you to simulate multi touch inputs on devices that don't support them (e.g. desktop).")]
+		public bool SimulateMultiFingers = true;
+
+		/// <summary>This allows you to set which key is required to simulate multi key twisting.</summary>
+		[Tooltip("This allows you to set which key is required to simulate multi key twisting.")]
+		public KeyCode PinchTwistKey = KeyCode.LeftControl;
+
+		/// <summary>This allows you to set which key is required to change the pivot point of the pinch twist gesture.</summary>
+		[Tooltip("This allows you to set which key is required to change the pivot point of the pinch twist gesture.")]
+		public KeyCode MovePivotKey = KeyCode.LeftAlt;
+
+		/// <summary>This allows you to set which key is required to simulate multi key dragging.</summary>
+		[Tooltip("This allows you to set which key is required to simulate multi key dragging.")]
+		public KeyCode MultiDragKey = KeyCode.LeftAlt;
+
+		/// <summary>This allows you to set which texture will be used to show the simulated fingers.</summary>
+		[Tooltip("This allows you to set which texture will be used to show the simulated fingers.")]
+		public Texture2D FingerTexture;
+
+		// The current pivot (0,0 = bottom left, 1,1 = top right)
+		private static Vector2 pivot = new Vector2(0.5f, 0.5f);
 
 		// Used to find if the GUI is in use
 		private static List<RaycastResult> tempRaycastResults = new List<RaycastResult>(10);
@@ -218,7 +221,7 @@ namespace Lean.Touch
 					return 1.0f;
 				}
 
-				// Return reciprocal for easy multiplication
+				// Return recpirocal for easy multiplication
 				return 1.0f / size;
 			}
 		}
@@ -235,9 +238,9 @@ namespace Lean.Touch
 				}
 
 				// New GUI in use?
-				foreach (var finger in Fingers)
+				for (var i = Fingers.Count - 1; i >= 0; i--)
 				{
-					if (finger.StartedOverGui == true)
+					if (Fingers[i].StartedOverGui == true)
 					{
 						return true;
 					}
@@ -245,6 +248,41 @@ namespace Lean.Touch
 
 				return false;
 			}
+		}
+
+		// If currentCamera is null, this will return the camera attached to gameObject, or return Camera.main
+		public static Camera GetCamera(Camera currentCamera, GameObject gameObject = null)
+		{
+			if (currentCamera == null)
+			{
+				if (gameObject != null)
+				{
+					currentCamera = gameObject.GetComponent<Camera>();
+				}
+
+				if (currentCamera == null)
+				{
+					currentCamera = Camera.main;
+				}
+			}
+
+			return currentCamera;
+		}
+
+		// Return the framerate independent damping factor (-1 = instant)
+		public static float GetDampenFactor(float dampening, float deltaTime)
+		{
+			if (dampening < 0.0f)
+			{
+				return 1.0f;
+			}
+
+			if (Application.isPlaying == false)
+			{
+				return 1.0f;
+			}
+
+			return 1.0f - Mathf.Exp(-dampening * deltaTime);
 		}
 
 		/// <summary>This will return true if the specified screen point is over any GUI elements.</summary>
@@ -320,14 +358,16 @@ namespace Lean.Touch
 
 		/// <summary>This allows you to filter all the fingers based on the specified requirements.
 		/// NOTE: If ignoreGuiFingers is set, Fingers will be filtered to remove any with StartedOverGui.
-		/// NOTE: If requiredFingerCount is greater than 0, this method will return null if the finger count doesn't match.
+		/// NOTE: If requiredFingerCount is greather than 0, this method will return null if the finger count doesn't match.
 		/// NOTE: If requiredSelectable is set, and its SelectingFinger isn't null, it will return just that finger.</summary>
-		public static List<LeanFinger> GetFingers(bool ignoreIfStartedOverGui, bool ignoreIfOverGui, int requiredFingerCount = 0, bool ignoreHoverFinger = true)
+		public static List<LeanFinger> GetFingers(bool ignoreIfStartedOverGui, bool ignoreIfOverGui, int requiredFingerCount = 0)
 		{
 			filteredFingers.Clear();
 
-			foreach (var finger in Fingers)
+			for (var i = 0; i < Fingers.Count; i++)
 			{
+				var finger = Fingers[i];
+
 				// Ignore?
 				if (ignoreIfStartedOverGui == true && finger.StartedOverGui == true)
 				{
@@ -335,11 +375,6 @@ namespace Lean.Touch
 				}
 
 				if (ignoreIfOverGui == true && finger.IsOverGui == true)
-				{
-					continue;
-				}
-
-				if (ignoreHoverFinger == true && finger.Index == HOVER_FINGER_INDEX)
 				{
 					continue;
 				}
@@ -389,14 +424,23 @@ namespace Lean.Touch
 				OnFingerTap(simulatedTapFinger);
 			}
 		}
-
-		/// <summary>You can call this method if you want to stop all finger events. You can then disable this component to prevent new ones from updating.</summary>
-		public void Clear()
+#if UNITY_EDITOR
+		protected virtual void Reset()
 		{
-			UpdateFingers(0.001f, false);
-			UpdateFingers(1.0f, false);
-		}
+			// Set the finger texture?
+			if (FingerTexture == null)
+			{
+				var guids = AssetDatabase.FindAssets("FingerVisualization t:texture2d");
 
+				if (guids.Length > 0)
+				{
+					var path = AssetDatabase.GUIDToAssetPath(guids[0]);
+
+					FingerTexture = AssetDatabase.LoadMainAssetAtPath(path) as Texture2D;
+				}
+			}
+		}
+#endif
 		protected virtual void OnEnable()
 		{
 			Instances.Add(this);
@@ -415,44 +459,58 @@ namespace Lean.Touch
 				return;
 			}
 #endif
-
 			// Only run the update methods if this is the first instance (i.e. if your scene has more than one LeanTouch component, only use the first)
 			if (Instances[0] == this)
 			{
-				UpdateFingers(Time.unscaledDeltaTime, true);
+				// Prepare old finger data for new information
+				BeginFingers();
+
+				// Poll current touch + mouse data and convert it to fingers
+				PollFingers();
+
+				// Process any no longer used fingers
+				EndFingers();
+
+				// Update events based on new finger data
+				UpdateEvents();
 			}
 		}
 
-		private void UpdateFingers(float deltaTime, bool poll)
+		protected virtual void OnGUI()
 		{
-			// Prepare old finger data for new information
-			BeginFingers(deltaTime);
-
-			// Poll current touch + mouse data and convert it to fingers
-			if (poll == true)
+			// Show simulated multi fingers?
+			if (FingerTexture != null && Fingers.Count > 1)
 			{
-				PollFingers();
+				for (var i = Fingers.Count - 1; i >= 0; i--)
+				{
+					var finger = Fingers[i];
+
+					// Simulated fingers have a negative index
+					if (finger.Index < 0)
+					{
+						var screenPosition = finger.ScreenPosition;
+						var screenRect     = new Rect(0, 0, FingerTexture.width, FingerTexture.height);
+
+						screenRect.center = new Vector2(screenPosition.x, Screen.height - screenPosition.y);
+
+						GUI.DrawTexture(screenRect, FingerTexture);
+					}
+				}
 			}
-
-			// Process any no longer used fingers
-			EndFingers(deltaTime);
-
-			// Update events based on new finger data
-			UpdateEvents();
 		}
 
 		// Update all Fingers and InactiveFingers so they're ready for the new frame
-		private void BeginFingers(float deltaTime)
+		private void BeginFingers()
 		{
 			// Age inactive fingers
 			for (var i = InactiveFingers.Count - 1; i >= 0; i--)
 			{
 				var inactiveFinger = InactiveFingers[i];
 
-				inactiveFinger.Age += deltaTime;
+				inactiveFinger.Age += Time.unscaledDeltaTime;
 
 				// Just expired?
-				if (inactiveFinger.Expired == false && inactiveFinger.Age > tapThreshold)
+				if (inactiveFinger.Expired == false && inactiveFinger.Age > TapThreshold)
 				{
 					inactiveFinger.Expired = true;
 
@@ -490,39 +548,22 @@ namespace Lean.Touch
 					finger.Swipe = false;
 				}
 			}
-
-			// Store all active fingers (these are later removed in AddFinger)
-			missingFingers.Clear();
-
-			foreach (var finger in Fingers)
-			{
-				missingFingers.Add(finger);
-			}
 		}
 
 		// Update all Fingers based on the new finger data
-		private void EndFingers(float deltaTime)
+		private void EndFingers()
 		{
-			// Force missing fingers to go up (there normally shouldn't be any)
-			tempFingers.Clear();
-
-			tempFingers.AddRange(missingFingers);
-
-			foreach (var finger in tempFingers)
+			for (var i = Fingers.Count - 1; i >= 0; i--)
 			{
-				AddFinger(finger.Index, finger.ScreenPosition, finger.Pressure, false);
-			}
+				var finger = Fingers[i];
 
-			// Update fingers
-			foreach (var finger in Fingers)
-			{
 				// Up?
 				if (finger.Up == true)
 				{
 					// Tap or Swipe?
-					if (finger.Age <= tapThreshold)
+					if (finger.Age <= TapThreshold)
 					{
-						if (finger.SwipeScreenDelta.magnitude * ScalingFactor < swipeThreshold)
+						if (finger.SwipeScreenDelta.magnitude * ScalingFactor < SwipeThreshold)
 						{
 							finger.Tap       = true;
 							finger.TapCount += 1;
@@ -542,10 +583,10 @@ namespace Lean.Touch
 				else if (finger.Down == false)
 				{
 					// Age it
-					finger.Age += deltaTime;
+					finger.Age += Time.unscaledDeltaTime;
 
 					// Too old?
-					if (finger.Age > tapThreshold && finger.Old == false)
+					if (finger.Age > TapThreshold && finger.Old == false)
 					{
 						finger.Old = true;
 
@@ -555,16 +596,11 @@ namespace Lean.Touch
 			}
 		}
 
-		// This allows us to track if Unity incorrectly removes fingers without first indicating they went up
-		private static HashSet<LeanFinger> missingFingers = new HashSet<LeanFinger>();
-
-		private static List<LeanFinger> tempFingers = new List<LeanFinger>();
-
 		// Read new hardware finger data
 		private void PollFingers()
 		{
-			// Submit real fingers?
-			if (useTouch == true && LeanInput.GetTouchCount() > 0)
+			// Update real fingers
+			if (LeanInput.GetTouchCount() > 0)
 			{
 				for (var i = 0; i < LeanInput.GetTouchCount(); i++)
 				{
@@ -575,19 +611,8 @@ namespace Lean.Touch
 					AddFinger(id, position, pressure, set);
 				}
 			}
-
-			// Submit mouse hover as finger?
-			if (useHover == true && LeanInput.GetMouseExists() == true)
-			{
-				var mousePosition = LeanInput.GetMousePosition();
-				var hoverFinger   = AddFinger(HOVER_FINGER_INDEX, mousePosition, 0.0f, true);
-
-				hoverFinger.StartedOverGui = false;
-				hoverFinger.LastSet        = true;
-			}
-
-			// Submit mouse buttons as finger?
-			if (useMouse == true && LeanInput.GetMouseExists() == true)
+			// If there are no real touches, simulate some from the mouse?
+			else if (LeanInput.GetMouseExists() == true)
 			{
 				var mouseSet = false;
 				var mouseUp  = false;
@@ -605,15 +630,31 @@ namespace Lean.Touch
 					// Is the mouse within the screen?
 					//if (new Rect(0, 0, Screen.width, Screen.height).Contains(mousePosition) == true)
 					{
-						AddFinger(MOUSE_FINGER_INDEX, mousePosition, 1.0f, mouseSet);
+						AddFinger(-1, mousePosition, 1.0f, mouseSet);
+
+						// Simulate pinch & twist?
+						if (SimulateMultiFingers == true && LeanInput.GetKeyboardExists() == true)
+						{
+							if (LeanInput.GetPressed(MovePivotKey) == true)
+							{
+								pivot.x = mousePosition.x / Screen.width;
+								pivot.y = mousePosition.y / Screen.height;
+							}
+
+							if (LeanInput.GetPressed(PinchTwistKey) == true)
+							{
+								var center = new Vector2(Screen.width * pivot.x, Screen.height * pivot.y);
+
+								AddFinger(-2, center - (mousePosition - center), 1.0f, mouseSet);
+							}
+							// Simulate multi drag?
+							else if (LeanInput.GetPressed(MultiDragKey) == true)
+							{
+								AddFinger(-2, mousePosition, 1.0f, mouseSet);
+							}
+						}
 					}
 				}
-			}
-
-			// Simulate other fingers?
-			if (useSimulator == true)
-			{
-				if (OnSimulateFingers != null) OnSimulateFingers.Invoke();
 			}
 		}
 
@@ -645,17 +686,12 @@ namespace Lean.Touch
 		}
 
 		// Add a finger based on index, or return the existing one
-		public LeanFinger AddFinger(int index, Vector2 screenPosition, float pressure, bool set)
+		private LeanFinger AddFinger(int index, Vector2 screenPosition, float pressure, bool set)
 		{
 			var finger = FindFinger(index);
 
-			// Finger is already active, so remove it from the missing collection
-			if (finger != null)
-			{
-				missingFingers.Remove(finger);
-			}
-			// No finger found? Find or create it
-			else
+			// No finger found?
+			if (finger == null)
 			{
 				// If a finger goes up but hasn't been registered yet then it will mess up the event flow, so skip it (this shouldn't normally occur).
 				if (set == false)
@@ -671,7 +707,7 @@ namespace Lean.Touch
 					finger = InactiveFingers[inactiveIndex]; InactiveFingers.RemoveAt(inactiveIndex);
 
 					// Inactive for too long?
-					if (finger.Age > tapThreshold)
+					if (finger.Age > TapThreshold)
 					{
 						finger.TapCount = 0;
 					}
@@ -691,7 +727,6 @@ namespace Lean.Touch
 					// Before we create a new finger, try reclaiming one in case the finger ID was given incorrectly
 					finger = ReclaimFinger(index, screenPosition);
 #endif
-
 					// Create new finger?
 					if (finger == null)
 					{
@@ -714,33 +749,23 @@ namespace Lean.Touch
 			finger.Pressure       = pressure;
 
 			// Record?
-			if (recordFingers == true)
+			if (RecordFingers == true)
 			{
 				// Too many snapshots?
-				if (recordLimit > 0.0f)
+				if (RecordLimit > 0.0f)
 				{
-					if (finger.SnapshotDuration > recordLimit)
+					if (finger.SnapshotDuration > RecordLimit)
 					{
-						var removeCount = LeanSnapshot.GetLowerIndex(finger.Snapshots, finger.Age - recordLimit);
-
-						finger.ClearSnapshots(removeCount);
-					}
-				}
-				// Make sure the hover finger doesn't record forever
-				else if (finger.Index == HOVER_FINGER_INDEX)
-				{
-					if (finger.SnapshotDuration > DEFAULT_RECORD_LIMIT)
-					{
-						var removeCount = LeanSnapshot.GetLowerIndex(finger.Snapshots, finger.Age - DEFAULT_RECORD_LIMIT);
+						var removeCount = LeanSnapshot.GetLowerIndex(finger.Snapshots, finger.Age - RecordLimit);
 
 						finger.ClearSnapshots(removeCount);
 					}
 				}
 
 				// Record snapshot?
-				if (recordThreshold > 0.0f)
+				if (RecordThreshold > 0.0f)
 				{
-					if (finger.Snapshots.Count == 0 || finger.LastSnapshotScreenDelta.magnitude >= recordThreshold)
+					if (finger.Snapshots.Count == 0 || finger.LastSnapshotScreenDelta.magnitude >= RecordThreshold)
 					{
 						finger.RecordSnapshot();
 					}
@@ -757,8 +782,10 @@ namespace Lean.Touch
 		// Find the finger with the specified index, or return null
 		private LeanFinger FindFinger(int index)
 		{
-			foreach (var finger in Fingers)
+			for (var i = Fingers.Count - 1; i>= 0; i--)
 			{
+				var finger = Fingers[i];
+
 				if (finger.Index == index)
 				{
 					return finger;
@@ -767,7 +794,6 @@ namespace Lean.Touch
 
 			return null;
 		}
-
 #if LEAN_ALLOW_RECLAIM
 		// Some platforms may give unexpected finger ID information, override it?
 		private LeanFinger ReclaimFinger(int index, Vector2 screenPosition)
@@ -791,7 +817,6 @@ namespace Lean.Touch
 			return null;
 		}
 #endif
-
 		/// Find the index of the inactive finger with the specified index, or return -1
 		private int FindInactiveFingerIndex(int index)
 		{
@@ -809,21 +834,14 @@ namespace Lean.Touch
 }
 
 #if UNITY_EDITOR
-namespace Lean.Touch.Editor
+namespace Lean.Touch
 {
-	using UnityEditor;
-	using TARGET = LeanTouch;
-
-	[UnityEditor.CustomEditor(typeof(TARGET))]
-	public class LeanTouch_Editor : LeanEditor
+	[CustomEditor(typeof(LeanTouch))]
+	public class LeanTouch_Editor : Editor
 	{
 		private static List<LeanFinger> allFingers = new List<LeanFinger>();
 
 		private static GUIStyle fadingLabel;
-
-		public static event System.Action<TARGET> OnExtendInspector;
-
-		[System.NonSerialized] TARGET tgt; [System.NonSerialized] TARGET[] tgts;
 
 		[MenuItem("GameObject/Lean/Touch", false, 1)]
 		public static void CreateTouch()
@@ -838,72 +856,70 @@ namespace Lean.Touch.Editor
 		}
 
 		// Draw the whole inspector
-		protected override void OnInspector()
+		public override void OnInspectorGUI()
 		{
-			GetTargets(out tgt, out tgts);
-
 			if (LeanTouch.Instances.Count > 1)
 			{
-				Warning("There is more than one active and enabled LeanTouch...");
+				EditorGUILayout.HelpBox("There is more than one active and enabled LeanTouch...", MessageType.Warning);
 
-				Separator();
+				EditorGUILayout.Separator();
 			}
 
 			var touch = (LeanTouch)target;
 
-			Separator();
+			EditorGUILayout.Separator();
 
 			DrawSettings(touch);
 
-			Separator();
-
-			if (OnExtendInspector != null)
-			{
-				OnExtendInspector.Invoke(tgt);
-			}
-
-			Separator();
+			EditorGUILayout.Separator();
 
 			DrawFingers(touch);
 
-			Separator();
+			EditorGUILayout.Separator();
 
 			Repaint();
 		}
 
 		private void DrawSettings(LeanTouch touch)
 		{
-			Draw("tapThreshold");
-			Draw("swipeThreshold");
+			DrawDefault("TapThreshold");
+			DrawDefault("SwipeThreshold");
 #if LEAN_ALLOW_RECLAIM
 			DrawDefault("ReclaimThreshold");
 #endif
-			Draw("referenceDpi");
-			Draw("guiLayers");
+			DrawDefault("ReferenceDpi");
+			DrawDefault("GuiLayers");
 
-			Separator();
+			EditorGUILayout.Separator();
 
-			Draw("useTouch", "If you disable this then lean touch will act as if you stopped touching the screen.");
-			Draw("useHover", "Should the mouse hover position be stored as a finger?\n\nNOTE: It will be given a finger <b>Index</b> of HOVER_FINGER_INDEX = -42.");
-			Draw("useMouse", "Should any mouse button press be stored as a finger?\n\nNOTE: It will be given a finger <b>Index</b> of MOUSE_FINGER_INDEX = -1.");
-			Draw("useSimulator", "Should components hooked into the <b>OnSimulateFingers</b> event be used? (e.g. LeanTouchSimulator)");
-
-			Separator();
-
-			Draw("recordFingers");
+			DrawDefault("RecordFingers");
 			
 			if (touch.RecordFingers == true)
 			{
-				BeginIndent();
-					Draw("recordThreshold");
-					Draw("recordLimit");
-				EndIndent();
+				EditorGUI.indentLevel++;
+					DrawDefault("RecordThreshold");
+					DrawDefault("RecordLimit");
+				EditorGUI.indentLevel--;
+			}
+
+			EditorGUILayout.Separator();
+
+			DrawDefault("SimulateMultiFingers");
+
+			if (touch.SimulateMultiFingers == true)
+			{
+				EditorGUI.indentLevel++;
+					DrawDefault("PinchTwistKey");
+					DrawDefault("MovePivotKey");
+					DrawDefault("MultiDragKey");
+					DrawDefault("FingerTexture");
+				EditorGUI.indentLevel--;
 			}
 		}
 
 		private void DrawFingers(LeanTouch touch)
 		{
-			EditorGUILayout.LabelField(new GUIContent("Fingers", "Index - State - Taps - X, Y - Age"), EditorStyles.boldLabel);
+			EditorGUILayout.LabelField("Fingers", EditorStyles.boldLabel);
 
 			allFingers.Clear();
 			allFingers.AddRange(LeanTouch.Fingers);
@@ -919,15 +935,21 @@ namespace Lean.Touch.Editor
 				if (style.normal.textColor.a > 0.0f)
 				{
 					var screenPosition = finger.ScreenPosition;
-					var state          = "UPDATE";
 
-					if (finger.Down     == true ) state = "DOWN";
-					if (finger.Up       == true ) state = "UP";
-					if (finger.IsActive == false) state = "INACTIVE";
-					if (finger.Expired  == true ) state = "EXPIRED";
-
-					EditorGUILayout.LabelField(finger.Index + " - " + state + " - " + finger.TapCount + "  + " + Mathf.FloorToInt(screenPosition.x) + ", " + Mathf.FloorToInt(screenPosition.y) + ") - " + finger.Age.ToString("0.0"), style);
+					EditorGUILayout.LabelField("#" + finger.Index + " x " + finger.TapCount + " (" + Mathf.FloorToInt(screenPosition.x) + ", " + Mathf.FloorToInt(screenPosition.y) + ") - " + finger.Age.ToString("0.0"), style);
 				}
+			}
+		}
+
+		private void DrawDefault(string name)
+		{
+			EditorGUI.BeginChangeCheck();
+
+			EditorGUILayout.PropertyField(serializedObject.FindProperty(name));
+
+			if (EditorGUI.EndChangeCheck() == true)
+			{
+				serializedObject.ApplyModifiedProperties();
 			}
 		}
 
