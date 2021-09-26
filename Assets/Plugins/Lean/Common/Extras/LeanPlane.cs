@@ -1,36 +1,30 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-namespace Lean.Touch
+namespace Lean.Common
 {
 	/// <summary>This component stores information about a 3D plane. By default this plane lays on the XY axis, or faces the Z axis.</summary>
-	[HelpURL(LeanTouch.HelpUrlPrefix + "LeanPlane")]
-	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Plane")]
+	[HelpURL(LeanHelper.HelpUrlPrefix + "LeanPlane")]
+	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Plane")]
 	public class LeanPlane : MonoBehaviour
 	{
 		/// <summary>Should the plane be clamped on the x axis?</summary>
-		[Tooltip("Should the plane be clamped on the x axis?")]
 		public bool ClampX;
 
 		public float MinX;
 
 		public float MaxX;
 
-		[Space]
 		/// <summary>Should the plane be clamped on the y axis?</summary>
-		[Tooltip("Should the plane be clamped on the y axis?")]
 		public bool ClampY;
 
 		public float MinY;
 
 		public float MaxY;
 
-		[Space]
 		/// <summary>The distance between each position snap on the x axis.</summary>
-		[Tooltip("The distance between each position snap on the x axis.")]
 		public float SnapX;
 
 		/// <summary>The distance between each position snap on the x axis.</summary>
-		[Tooltip("The distance between each position snap on the x axis.")]
 		public float SnapY;
 
 		public Vector3 GetClosest(Vector3 position, float offset = 0.0f)
@@ -69,8 +63,8 @@ namespace Lean.Touch
 
 		public bool TryRaycast(Ray ray, ref Vector3 hit, float offset = 0.0f, bool getClosest = true)
 		{
-			var point    = transform.position;
 			var normal   = transform.forward;
+			var point    = transform.position + normal * offset;
 			var distance = default(float);
 
 			if (RayToPlane(point, normal, ray, ref distance) == true)
@@ -88,15 +82,15 @@ namespace Lean.Touch
 			return false;
 		}
 
-		public Vector3 GetClosest(Ray ray)
+		public Vector3 GetClosest(Ray ray, float offset = 0.0f)
 		{
-			var point    = transform.position;
 			var normal   = transform.forward;
+			var point    = transform.position + normal * offset;
 			var distance = default(float);
 
 			if (RayToPlane(point, normal, ray, ref distance) == true)
 			{
-				return GetClosest(ray.GetPoint(distance));
+				return GetClosest(ray.GetPoint(distance), offset);
 			}
 
 			return point;
@@ -158,3 +152,47 @@ namespace Lean.Touch
 		}
 	}
 }
+
+#if UNITY_EDITOR
+namespace Lean.Common.Editor
+{
+	using TARGET = LeanPlane;
+
+	[UnityEditor.CanEditMultipleObjects]
+	[UnityEditor.CustomEditor(typeof(TARGET))]
+	public class LeanPlane_Editor : LeanEditor
+	{
+		protected override void OnInspector()
+		{
+			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
+
+			Draw("ClampX", "Should the plane be clamped on the x axis?");
+
+			if (Any(tgts, t => t.ClampX == true))
+			{
+				BeginIndent();
+					Draw("MinX", "", "Min");
+					Draw("MaxX", "", "Max");
+				EndIndent();
+
+				Separator();
+			}
+
+			Draw("ClampY", "Should the plane be clamped on the y axis?");
+
+			if (Any(tgts, t => t.ClampX == true))
+			{
+				BeginIndent();
+					Draw("MinY", "", "Min");
+					Draw("MaxY", "", "Max");
+				EndIndent();
+
+				Separator();
+			}
+
+			Draw("SnapX", "The distance between each position snap on the x axis.");
+			Draw("SnapY", "The distance between each position snap on the y axis.");
+		}
+	}
+}
+#endif

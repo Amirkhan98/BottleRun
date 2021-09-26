@@ -1,32 +1,25 @@
 using UnityEngine;
 using UnityEngine.Events;
-using Lean.Common;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
-namespace Lean.Touch
+namespace Lean.Common
 {
-	/// <summary>This component allows you to accumilate delta changes until they reach a threshold delta, and then output them.
+	/// <summary>This component allows you to accumulate delta changes until they reach a threshold delta, and then output them.
 	/// This is useful for making more precise movements when using inaccurate touch inputs.</summary>
-	[HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanThresholdDelta")]
-	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Threshold Delta")]
+	[HelpURL(LeanHelper.PlusHelpUrlPrefix + "LeanThresholdDelta")]
+	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Threshold Delta")]
 	public class LeanThresholdDelta : MonoBehaviour
 	{
 		[System.Serializable] public class FloatEvent : UnityEvent<float> {}
 		[System.Serializable] public class Vector2Event : UnityEvent<Vector2> {}
 		[System.Serializable] public class Vector3Event : UnityEvent<Vector3> {}
 
-		/// <summary>The current accumilated delta.</summary>
-		[Tooltip("The current accumilated delta.")]
+		/// <summary>The current accumulated delta.</summary>
 		public Vector3 Current;
 
 		/// <summary>When any dimension of <b>Current</b> exceeds this, <b>OnDelta___</b> will be called, and <b>Current</b> will be rolled back.</summary>
-		[Tooltip("When any dimension of Value exceeds this, OnDelta___ will be called, and Value will be rolled back.")]
 		public float Threshold = 1.0f;
 
 		/// <summary>If you enable this then the delta will step in increments based on the <b>Threshold</b> value. If you disable this then the position will immediately be set to the <b>Current</b> value.</summary>
-		[Tooltip("If you enable this then the delta will step in increments based on the Threshold value. If you disable this then the position will immediately be set to the Current value.")]
 		public bool Step;
 
 		public FloatEvent OnDeltaX { get { if (onDeltaX == null) onDeltaX = new FloatEvent(); return onDeltaX; } } [SerializeField] private FloatEvent onDeltaX;
@@ -137,33 +130,31 @@ namespace Lean.Touch
 }
 
 #if UNITY_EDITOR
-namespace Lean.Touch
+namespace Lean.Common.Editor
 {
-	[CanEditMultipleObjects]
-	[CustomEditor(typeof(LeanThresholdDelta))]
-	public class LeanThresholdDelta_Inspector : LeanInspector<LeanThresholdDelta>
+	using TARGET = LeanThresholdDelta;
+
+	[UnityEditor.CanEditMultipleObjects]
+	[UnityEditor.CustomEditor(typeof(TARGET))]
+	public class LeanThresholdDelta_Editor : LeanEditor
 	{
-		private bool showUnusedEvents;
-
-		protected override void DrawInspector()
+		protected override void OnInspector()
 		{
-			Draw("Current");
-			Draw("Threshold");
-			Draw("Step");
+			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
 
-			EditorGUILayout.Separator();
+			Draw("Current", "The current accumulated delta.");
+			Draw("Threshold", "When any dimension of Value exceeds this, OnDelta___ will be called, and Value will be rolled back.");
+			Draw("Step", "If you enable this then the delta will step in increments based on the Threshold value. If you disable this then the position will immediately be set to the Current value.");
 
-			var usedA = Any(t => t.OnDeltaX.GetPersistentEventCount() > 0);
-			var usedB = Any(t => t.OnDeltaY.GetPersistentEventCount() > 0);
-			var usedC = Any(t => t.OnDeltaZ.GetPersistentEventCount() > 0);
-			var usedD = Any(t => t.OnDeltaXY.GetPersistentEventCount() > 0);
-			var usedE = Any(t => t.OnDeltaXYZ.GetPersistentEventCount() > 0);
+			Separator();
 
-			EditorGUI.BeginDisabledGroup(usedA && usedB && usedC && usedD && usedE);
-				showUnusedEvents = EditorGUILayout.Foldout(showUnusedEvents, "Show Unused Events");
-			EditorGUI.EndDisabledGroup();
+			var usedA = Any(tgts, t => t.OnDeltaX.GetPersistentEventCount() > 0);
+			var usedB = Any(tgts, t => t.OnDeltaY.GetPersistentEventCount() > 0);
+			var usedC = Any(tgts, t => t.OnDeltaZ.GetPersistentEventCount() > 0);
+			var usedD = Any(tgts, t => t.OnDeltaXY.GetPersistentEventCount() > 0);
+			var usedE = Any(tgts, t => t.OnDeltaXYZ.GetPersistentEventCount() > 0);
 
-			EditorGUILayout.Separator();
+			var showUnusedEvents = DrawFoldout("Show Unused Events", "Show all events?");
 
 			if (usedA == true || showUnusedEvents == true)
 			{

@@ -1,10 +1,12 @@
 using UnityEngine;
+using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
 
-namespace Lean.Touch
+namespace Lean.Common
 {
 	/// <summary>This component will constrain the current transform.localScale to the specified range.</summary>
-	[HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanConstrainScale")]
-	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Constrain Scale")]
+	[DefaultExecutionOrder(200)]
+	[HelpURL(LeanHelper.PlusHelpUrlPrefix + "LeanConstrainScale")]
+	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Constrain Scale")]
 	public class LeanConstrainScale : MonoBehaviour
 	{
 		/// <summary>Should each axis be checked separately? If not, the relative x/y/z values will be maintained.</summary>
@@ -12,39 +14,36 @@ namespace Lean.Touch
 		//public bool Independent;
 
 		/// <summary>Should there be a minimum transform.localScale?</summary>
-		[Tooltip("Should there be a minimum transform.localScale?")]
-		public bool Minimum;
+		public bool Minimum { set { minimum = value; } get { return minimum; } } [FSA("Minimum")] [SerializeField] private bool minimum;
 
 		/// <summary>The minimum transform.localScale value.</summary>
-		[Tooltip("The minimum transform.localScale value.")]
-		public Vector3 MinimumScale = Vector3.one;
+		public Vector3 MinimumScale { set { minimumScale = value; } get { return minimumScale; } } [FSA("MinimumScale")] [SerializeField] private Vector3 minimumScale = Vector3.one;
 
 		/// <summary>Should there be a maximum transform.localScale?</summary>
-		[Tooltip("Should there be a maximum transform.localScale?")]
-		public bool Maximum;
+		public bool Maximum { set { maximum = value; } get { return maximum; } } [FSA("Maximum")] [SerializeField] private bool maximum;
 
 		/// <summary>The maximum transform.localScale value.</summary>
-		[Tooltip("The maximum transform.localScale value.")]
-		public Vector3 MaximumScale = Vector3.one;
+		public Vector3 MaximumScale { set { maximumScale = value; } get { return maximumScale; } } [FSA("MaximumScale")] [SerializeField] private Vector3 maximumScale = Vector3.one;
 
 		protected virtual void LateUpdate()
 		{
-			var scale = transform.localScale;
+			var oldScale = transform.localScale;
+			var newScale = oldScale;
 
 			//if (Independent == true)
 			{
-				if (Minimum == true)
+				if (minimum == true)
 				{
-					scale.x = Mathf.Max(scale.x, MinimumScale.x);
-					scale.y = Mathf.Max(scale.y, MinimumScale.y);
-					scale.z = Mathf.Max(scale.z, MinimumScale.z);
+					newScale.x = Mathf.Max(newScale.x, minimumScale.x);
+					newScale.y = Mathf.Max(newScale.y, minimumScale.y);
+					newScale.z = Mathf.Max(newScale.z, minimumScale.z);
 				}
 
-				if (Maximum == true)
+				if (maximum == true)
 				{
-					scale.x = Mathf.Min(scale.x, MaximumScale.x);
-					scale.y = Mathf.Min(scale.y, MaximumScale.y);
-					scale.z = Mathf.Min(scale.z, MaximumScale.z);
+					newScale.x = Mathf.Min(newScale.x, maximumScale.x);
+					newScale.y = Mathf.Min(newScale.y, maximumScale.y);
+					newScale.z = Mathf.Min(newScale.z, maximumScale.z);
 				}
 			}
 			/*
@@ -69,7 +68,44 @@ namespace Lean.Touch
 			}
 			*/
 
-			transform.localScale = scale;
+			if (Mathf.Approximately(oldScale.x, newScale.x) == false ||
+				Mathf.Approximately(oldScale.y, newScale.y) == false ||
+				Mathf.Approximately(oldScale.z, newScale.z) == false)
+			{
+				transform.localScale = newScale;
+			}
 		}
 	}
 }
+
+#if UNITY_EDITOR
+namespace Lean.Common.Editor
+{
+	using TARGET = LeanConstrainScale;
+
+	[UnityEditor.CanEditMultipleObjects]
+	[UnityEditor.CustomEditor(typeof(TARGET))]
+	public class LeanConstrainScale_Editor : LeanEditor
+	{
+		protected override void OnInspector()
+		{
+			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
+
+			Draw("minimum", "Should there be a minimum transform.localScale?");
+			if (Any(tgts, t => t.Minimum == true))
+			{
+				BeginIndent();
+					Draw("minimumScale", "Should there be a minimum transform.localScale?", "Scale");
+				EndIndent();
+			}
+			Draw("maximum", "Should there be a maximum transform.localScale?");
+			if (Any(tgts, t => t.Maximum == true))
+			{
+				BeginIndent();
+					Draw("maximumScale", "Should there be a maximum transform.localScale?", "Scale");
+				EndIndent();
+			}
+		}
+	}
+}
+#endif

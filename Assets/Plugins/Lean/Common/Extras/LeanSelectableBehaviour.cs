@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Lean.Touch
+namespace Lean.Common
 {
 	/// <summary>This is the base class for all components that need to implement some kind of special logic when selected. You can do this manually without this class, but this makes it much easier.
 	/// NOTE: This component will register and unregister the associated LeanSelectable in OnEnable and OnDisable.</summary>
@@ -43,9 +43,8 @@ namespace Lean.Touch
 				{
 					selectable = newSelectable;
 
-					selectable.OnSelect.AddListener(OnSelect);
-					selectable.OnSelectUp.AddListener(OnSelectUp);
-					selectable.OnDeselect.AddListener(OnDeselect);
+					selectable.OnSelected.AddListener(OnSelected);
+					selectable.OnDeselected.AddListener(OnDeselected);
 				}
 			}
 		}
@@ -56,9 +55,8 @@ namespace Lean.Touch
 		{
 			if (selectable != null)
 			{
-				selectable.OnSelect.RemoveListener(OnSelect);
-				selectable.OnSelectUp.RemoveListener(OnSelectUp);
-				selectable.OnDeselect.RemoveListener(OnDeselect);
+				selectable.OnSelected.RemoveListener(OnSelected);
+				selectable.OnDeselected.RemoveListener(OnDeselected);
 
 				selectable = null;
 			}
@@ -82,18 +80,13 @@ namespace Lean.Touch
 			Unregister();
 		}
 
-		/// <summary>Called when selection begins (finger = the finger that selected this).</summary>
-		protected virtual void OnSelect(LeanFinger finger)
+		/// <summary>Called when selection begins.</summary>
+		protected virtual void OnSelected()
 		{
 		}
 
-		/// <summary>Called when the selecting finger goes up (finger = the finger that selected this).</summary>
-		protected virtual void OnSelectUp(LeanFinger finger)
-		{
-		}
-
-		/// <summary>Called when this is deselected, if OnSelectUp hasn't been called yet, it will get called first.</summary>
-		protected virtual void OnDeselect()
+		/// <summary>Called when this is deselected.</summary>
+		protected virtual void OnDeselected()
 		{
 		}
 	}

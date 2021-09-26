@@ -1,51 +1,46 @@
 using UnityEngine;
+using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
 
-namespace Lean.Touch
+namespace Lean.Common
 {
 	/// <summary>This component causes the current Transform to chase the specified position.</summary>
-	[HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanChase")]
-	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Chase")]
+	[HelpURL(LeanHelper.PlusHelpUrlPrefix + "LeanChase")]
+	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Chase")]
 	public class LeanChase : MonoBehaviour
 	{
 		/// <summary>The transform that will be chased.</summary>
-		[Tooltip("The transform that will be chased.")]
-		public Transform Destination;
+		public Transform Destination { set { destination = value; } get { return destination; } } [FSA("Destination")] public Transform destination;
 
 		/// <summary>If Target is set, then this allows you to set the offset in local space.</summary>
-		[Tooltip("If Target is set, then this allows you to set the offset in local space.")]
-		public Vector3 DestinationOffset;
-
-		[Space]
+		public Vector3 DestinationOffset { set { destinationOffset = value; } get { return destinationOffset; } } [FSA("DestinationOffset")] [SerializeField] protected Vector3 destinationOffset;
 
 		/// <summary>The world space position that will be followed.
 		/// NOTE: If Destination is set, then this value will be overridden.</summary>
-		[Tooltip("The world space position that will be followed.\n\nNOTE: If Destination is set, then this value will be overridden.")]
-		public Vector3 Position;
+		public Vector3 Position { set { position = value; } get { return position; } } [FSA("Position")] [SerializeField] protected Vector3 position;
 
 		/// <summary>The world space offset that will be followed.</summary>
-		[Tooltip("The world space offset that will be followed.")]
-		public Vector3 Offset;
+		public Vector3 Offset { set { offset = value; } get { return offset; } } [FSA("Offset")] [SerializeField] protected Vector3 offset;
 
-		[Space]
-
-		/// <summary>If you want this component to change smoothly over time, then this allows you to control how quick the changes reach their target value.
+		/// <summary>This allows you to control how quickly this Transform moves to the target position.
 		/// -1 = Instantly change.
+		/// 0 = No change.
 		/// 1 = Slowly change.
 		/// 10 = Quickly change.</summary>
-		[Tooltip("If you want this component to change smoothly over time, then this allows you to control how quick the changes reach their target value.\n\n-1 = Instantly change.\n\n1 = Slowly change.\n\n10 = Quickly change.")]
-		public float Dampening = -1.0f;
+		public float Damping { set { damping = value; } get { return damping; } } [FSA("Dampening")] [FSA("Damping")] [SerializeField] private float damping = -1.0f;
+
+		/// <summary>This allows you to control how quickly this Transform linearly moves to the target position.
+		/// 0 = No linear movement.
+		/// 1 = One linear position per second.</summary>
+		public float Linear { set { linear = value; } get { return linear; } } [FSA("Linear")] [SerializeField] private float linear;
 
 		/// <summary>Ignore Z for 2D?</summary>
-		[Tooltip("Ignore Z for 2D?")]
-		public bool IgnoreZ;
+		public bool IgnoreZ { set { ignoreZ = value; } get { return ignoreZ; } } [FSA("IgnoreZ")] [SerializeField] protected bool ignoreZ;
 
 		/// <summary>Should the chase keep updating, even if you haven't called the SetPosition method this frame?</summary>
-		[Tooltip("Should the chase keep updating, even if you haven't called the SetPosition method this frame?")]
-		public bool Continuous;
+		public bool Continuous { set { continuous = value; } get { return continuous; } } [FSA("Continuous")] [SerializeField] protected bool continuous;
 
 		/// <summary>Automatically set the Position value to the transform.position in Start?</summary>
-		[Tooltip("Automatically set the Position value to the transform.position in Start?")]
-		public bool SetPositionOnStart = true;
+		public bool SetPositionOnStart { set { setPositionOnStart = value; } get { return setPositionOnStart; } } [FSA("SetPositionOnStart")] [SerializeField] private bool setPositionOnStart = true;
 
 		[System.NonSerialized]
 		protected bool positionSet;
@@ -53,63 +48,54 @@ namespace Lean.Touch
 		/// <summary>This method will override the Position value based on the specified value.</summary>
 		public virtual void SetPosition(Vector3 newPosition)
 		{
-			Destination = null;
-			Position    = newPosition;
+			destination = null;
+			position    = newPosition;
 			positionSet = true;
 		}
 
-		/// <summary>This method will override the Position value based on the center point of all selected objects, if at least one exists.</summary>
-		[ContextMenu("Set Position Selection")]
-		public void SetPositionSelection()
+		/// <summary>This method will immediately move this Transform to the target position.</summary>
+		[ContextMenu("Snap To Position")]
+		public void SnapToPosition()
 		{
-			var center = default(Vector3);
-			var count  = 0;
-
-			foreach (var selectable in LeanSelectable.Instances)
-			{
-				if (selectable.IsSelected == true)
-				{
-					center += selectable.transform.position;
-					count  += 1;
-				}
-			}
-
-			if (count > 0)
-			{
-				SetPosition(center / count);
-			}
+			UpdatePosition(-1.0f, 0.0f);
 		}
 
 		protected virtual void Start()
 		{
-			if (SetPositionOnStart == true)
+			if (setPositionOnStart == true)
 			{
-				Position = transform.position;
+				position = transform.position;
 			}
 		}
 
 		protected virtual void Update()
 		{
-			if (positionSet == true || Continuous == true)
+			UpdatePosition(damping, linear);
+		}
+
+		protected virtual void UpdatePosition(float damping, float linear)
+		{
+			if (positionSet == true || continuous == true)
 			{
-				if (Destination != null)
+				if (destination != null)
 				{
-					Position = Destination.TransformPoint(DestinationOffset);
+					position = destination.TransformPoint(destinationOffset);
 				}
 
 				var currentPosition = transform.position;
-				var targetPosition  = Position + Offset;
+				var targetPosition  = position + offset;
 
-				if (IgnoreZ == true)
+				if (ignoreZ == true)
 				{
 					targetPosition.z = currentPosition.z;
 				}
 
 				// Get t value
-				var factor = LeanTouch.GetDampenFactor(Dampening, Time.deltaTime);
+				var factor = LeanHelper.GetDampenFactor(damping, Time.deltaTime);
 
-				// Lerp the current values to the target ones
+				// Move current value to the target one
 				currentPosition = Vector3.Lerp(currentPosition, targetPosition, factor);
+				currentPosition = Vector3.MoveTowards(currentPosition, targetPosition, linear * Time.deltaTime);
 
 				// Apply new point
 				transform.position = currentPosition;
@@ -119,3 +105,36 @@ namespace Lean.Touch
 		}
 	}
 }
+
+#if UNITY_EDITOR
+namespace Lean.Common.Editor
+{
+	using TARGET = LeanChase;
+
+	[UnityEditor.CanEditMultipleObjects]
+	[UnityEditor.CustomEditor(typeof(TARGET))]
+	public class LeanChase_Editor : LeanEditor
+	{
+		protected override void OnInspector()
+		{
+			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
+
+			Draw("destination", "The transform that will be chased.");
+			Draw("destinationOffset", "If Target is set, then this allows you to set the offset in local space.");
+
+			Separator();
+
+			Draw("position", "The world space position that will be followed.\n\nNOTE: If Destination is set, then this value will be overridden.");
+			Draw("offset", "The world space offset that will be followed.");
+
+			Separator();
+
+			Draw("damping", "This allows you to control how quickly this Transform moves to the target position.\n\n-1 = Instantly change.\n\n0 = No change.\n\n1 = Slowly change.\n\n10 = Quickly change.");
+			Draw("linear", "This allows you to control how quickly this Transform linearly moves to the target position.\n\n0 = No linear movement.\n\n1 = One linear position per second.");
+			Draw("ignoreZ", "Ignore Z for 2D?");
+			Draw("continuous", "Should the chase keep updating, even if you haven't called the SetPosition method this frame?");
+			Draw("setPositionOnStart", "Automatically set the Position value to the transform.position in Start?");
+		}
+	}
+}
+#endif

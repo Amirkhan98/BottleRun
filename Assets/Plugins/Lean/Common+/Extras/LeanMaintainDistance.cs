@@ -1,85 +1,69 @@
 using UnityEngine;
+using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
 
-namespace Lean.Touch
+namespace Lean.Common
 {
 	/// <summary>This component keeps the current GameObject the specified distance away from its parent.</summary>
 	[ExecuteInEditMode]
-	[HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanMaintainDistance")]
-	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Maintain Distance")]
+	[HelpURL(LeanHelper.PlusHelpUrlPrefix + "LeanMaintainDistance")]
+	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Maintain Distance")]
 	public class LeanMaintainDistance : MonoBehaviour
 	{
 		/// <summary>The direction of the distance separation.
 		/// 0,0,0 = Use current direction.</summary>
-		[Tooltip("The direction of the distance separation.\n\n0,0,0 = Use current direction.")]
-		public Vector3 Direction;
+		public Vector3 Direction { set { direction = value; } get { return direction; } } [FSA("Direction")] [SerializeField] private Vector3 direction;
 
 		/// <summary>The coordinate space for the Direction values.</summary>
-		[Tooltip("The coordinate space for the Direction values.")]
-		public Space DirectionSpace = Space.Self;
+		public Space DirectionSpace { set { directionSpace = value; } get { return directionSpace; } } [FSA("DirectionSpace")] [SerializeField] private Space directionSpace = Space.Self;
 
 		/// <summary>The distance we want to be from the parent in world space.</summary>
-		[Tooltip("The distance we want to be from the parent in world space.")]
-		public float Distance = 10.0f;
+		public float Distance { set { distance = value; } get { return distance; } } [FSA("Distance")] [SerializeField] private float distance = 10.0f;
 
 		/// <summary>If you want this component to change smoothly over time, then this allows you to control how quick the changes reach their target value.
 		/// -1 = Instantly change.
 		/// 1 = Slowly change.
 		/// 10 = Quickly change.</summary>
-		[Tooltip("If you want this component to change smoothly over time, then this allows you to control how quick the changes reach their target value.\n\n-1 = Instantly change.\n\n1 = Slowly change.\n\n10 = Quickly change.")]
-		public float Dampening = 3.0f;
-
-		[Space]
+		public float Damping { set { damping = value; } get { return damping; } } [FSA("Dampening")] [FSA("Damping")] [SerializeField] private float damping = 3.0f;
 
 		/// <summary>Should the distance value be clamped?</summary>
-		[Tooltip("Should the distance value be clamped?")]
-		[UnityEngine.Serialization.FormerlySerializedAs("DistanceClamp")]
-		public bool Clamp;
+		public bool Clamp { set { clamp = value; } get { return clamp; } } [FSA("DistanceClamp")] [FSA("Clamp")] [SerializeField] private bool clamp;
 
 		/// <summary>The minimum distance.</summary>
-		[Tooltip("The minimum distance.")]
-		[UnityEngine.Serialization.FormerlySerializedAs("DistanceMin")]
-		public float ClampMin = 1.0f;
+		public float ClampMin { set { clampMin = value; } get { return clampMin; } } [FSA("DistanceMin")] [FSA("ClampMin")] [SerializeField] private float clampMin = 1.0f;
 
 		/// <summary>The maximum distance.</summary>
-		[Tooltip("The maximum distance.")]
-		[UnityEngine.Serialization.FormerlySerializedAs("DistanceMax")]
-		public float ClampMax = 100.0f;
-
-		[Space]
+		public float ClampMax { set { clampMax = value; } get { return clampMax; } } [FSA("DistanceMax")] [FSA("ClampMax")] [SerializeField] private float clampMax = 100.0f;
 
 		/// <summary>The layers we should collide against.</summary>
-		[Tooltip("The layers we should collide against.")]
-		public LayerMask CollisionLayers;
+		public LayerMask CollisionLayers { set { collisionLayers = value; } get { return collisionLayers; } } [FSA("CollisionLayers")] [SerializeField] private LayerMask collisionLayers;
 
 		/// <summary>The radius of the collision.</summary>
-		[Tooltip("The radius of the collision.")]
-		public float CollisionRadius = 0.1f;
+		public float CollisionRadius { set { collisionRadius = value; } get { return collisionRadius; } } [FSA("CollisionRadius")] [SerializeField] private float collisionRadius = 0.1f;
 
-		[HideInInspector]
 		[SerializeField]
 		private float currentDistance;
 
 		/// <summary>This method allows you to increment the Distance value by the specified value.</summary>
 		public void AddDistance(float value)
 		{
-			Distance += value;
+			distance += value;
 		}
 
 		/// <summary>This method allows you to multiply the Distance value by the specified value.</summary>
 		public void MultiplyDistance(float value)
 		{
-			Distance *= value;
+			distance *= value;
 		}
 
 		protected virtual void Start()
 		{
-			currentDistance = Distance;
+			currentDistance = distance;
 		}
 
 		protected virtual void LateUpdate()
 		{
 			var worldOrigin    = transform.parent != null ? transform.parent.position : Vector3.zero;
-			var worldDirection = Direction;
+			var worldDirection = direction;
 
 			// Get a valid normalized direction
 			if (worldDirection.sqrMagnitude == 0.0f)
@@ -91,7 +75,7 @@ namespace Lean.Touch
 					worldDirection = Random.onUnitSphere;
 				}
 			}
-			else if (DirectionSpace == Space.Self)
+			else if (directionSpace == Space.Self)
 			{
 				worldDirection = transform.TransformDirection(worldDirection);
 			}
@@ -99,38 +83,65 @@ namespace Lean.Touch
 			worldDirection = worldDirection.normalized;
 
 			// Limit distance to min/max values?
-			if (Clamp == true)
+			if (clamp == true)
 			{
-				Distance = Mathf.Clamp(Distance, ClampMin, ClampMax);
+				distance = Mathf.Clamp(distance, clampMin, clampMax);
 			}
 
 			// Collide against stuff?
-			if (CollisionLayers != 0)
+			if (collisionLayers != 0)
 			{
 				var hit    = default(RaycastHit);
-				var pointA = worldOrigin + worldDirection * ClampMin;
-				var pointB = worldOrigin + worldDirection * ClampMax;
+				var pointA = worldOrigin + worldDirection * clampMin;
+				var pointB = worldOrigin + worldDirection * clampMax;
 
-				if (Physics.SphereCast(pointA, CollisionRadius, worldDirection, out hit, Vector3.Distance(pointA, pointB), CollisionLayers) == true)
+				if (Physics.SphereCast(pointA, collisionRadius, worldDirection, out hit, Vector3.Distance(pointA, pointB), collisionLayers) == true)
 				{
-					var newDistance = hit.distance + ClampMin;
+					var newDistance = hit.distance + clampMin;
 
 					// Only update if the distance is closer, else the camera can glue to walls behind it
-					if (newDistance < Distance)
+					if (newDistance < distance)
 					{
-						Distance = newDistance;
+						distance = newDistance;
 					}
 				}
 			}
 
 			// Get t value
-			var factor = LeanTouch.GetDampenFactor(Dampening, Time.deltaTime);
+			var factor = LeanHelper.GetDampenFactor(damping, Time.deltaTime);
 
 			// Lerp the current value to the target one
-			currentDistance = Mathf.Lerp(currentDistance, Distance, factor);
+			currentDistance = Mathf.Lerp(currentDistance, distance, factor);
 
 			// Set the position
 			transform.position = worldOrigin + worldDirection * currentDistance;
 		}
 	}
 }
+
+#if UNITY_EDITOR
+namespace Lean.Common.Editor
+{
+	using TARGET = LeanMaintainDistance;
+
+	[UnityEditor.CanEditMultipleObjects]
+	[UnityEditor.CustomEditor(typeof(TARGET), true)]
+	public class LeanMaintainDistance_Editor : LeanEditor
+	{
+		protected override void OnInspector()
+		{
+			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
+
+			Draw("direction", "The direction of the distance separation.\n\n0,0,0 = Use current direction.");
+			Draw("directionSpace", "The coordinate space for the Direction values.");
+			Draw("distance", "The distance we want to be from the parent in world space.");
+			Draw("damping", "If you want this component to change smoothly over time, then this allows you to control how quick the changes reach their target value.\n\n-1 = Instantly change.\n\n1 = Slowly change.\n\n10 = Quickly change.");
+			Draw("clamp", "Should the distance value be clamped?");
+			Draw("clampMin", "The minimum distance.");
+			Draw("clampMax", "The maximum distance.");
+			Draw("collisionLayers", "The layers we should collide against.");
+			Draw("collisionRadius", "The radius of the collision.");
+		}
+	}
+}
+#endif

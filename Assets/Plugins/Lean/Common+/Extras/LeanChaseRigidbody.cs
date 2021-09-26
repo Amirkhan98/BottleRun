@@ -1,18 +1,18 @@
 using UnityEngine;
 
-namespace Lean.Touch
+namespace Lean.Common
 {
 	/// <summary>This component causes the current Rigidbody to chase the specified position.</summary>
 	[RequireComponent(typeof(Rigidbody))]
-	[HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanChaseRigidbody")]
-	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Chase Rigidbody")]
+	[HelpURL(LeanHelper.PlusHelpUrlPrefix + "LeanChaseRigidbody")]
+	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Chase Rigidbody")]
 	public class LeanChaseRigidbody : LeanChase
 	{
 		/*
 		public bool Rotation;
 
 		[Tooltip("How sharp the position value changes update (-1 = instant)")]
-		public float RotationDampening = -1.0f;
+		public float RotationDamping = -1.0f;
 		*/
 
 		[System.NonSerialized]
@@ -34,19 +34,19 @@ namespace Lean.Touch
 			cachedRigidbody = GetComponent<Rigidbody>();
 		}
 
-		protected virtual void FixedUpdate()
+		protected override void UpdatePosition(float damping, float linear)
 		{
-			if (positionSet == true || Continuous == true)
+			if (positionSet == true || continuous == true)
 			{
-				if (Destination != null)
+				if (destination != null)
 				{
-					Position = Destination.TransformPoint(DestinationOffset);
+					position = destination.TransformPoint(destinationOffset);
 				}
 
 				var currentPosition = transform.position;
-				var targetPosition  = Position + Offset;
+				var targetPosition  = position + offset;
 
-				if (IgnoreZ == true)
+				if (ignoreZ == true)
 				{
 					targetPosition.z = currentPosition.z;
 				}
@@ -55,9 +55,11 @@ namespace Lean.Touch
 				var velocity  = direction / Time.fixedDeltaTime;
 
 				// Apply the velocity
-				velocity *= LeanTouch.GetDampenFactor(Dampening, Time.fixedDeltaTime);
+				velocity *= LeanHelper.GetDampenFactor(damping, Time.fixedDeltaTime);
+				velocity  = Vector3.MoveTowards(velocity, Vector3.zero, linear * Time.fixedDeltaTime);
 
 				cachedRigidbody.velocity = velocity;
+				Debug.Log(velocity);
 
 				/*
 				if (Rotation == true && direction != Vector3.zero)
@@ -68,7 +70,7 @@ namespace Lean.Touch
 					var delta           = Mathf.DeltaAngle(angle, angleB);
 					var angularVelocity = delta / Time.fixedDeltaTime;
 
-					angularVelocity *= LeanTouch.GetDampenFactor(RotationDampening, Time.fixedDeltaTime);
+					angularVelocity *= LeanHelper.GetDampenFactor(RotationDamping, Time.fixedDeltaTime);
 
 					//cachedRigidbody.angularVelocity = angularVelocity;
 				}
@@ -77,7 +79,7 @@ namespace Lean.Touch
 			}
 		}
 
-		protected override void Update()
+		protected virtual void LateUpdate()
 		{
 			if (fixedUpdateCalled == true)
 			{
@@ -87,3 +89,19 @@ namespace Lean.Touch
 		}
 	}
 }
+
+#if UNITY_EDITOR
+namespace Lean.Common.Editor
+{
+	using UnityEditor;
+
+	[CustomEditor(typeof(LeanChaseRigidbody))]
+	public class LeanChaseRigidbody_Editor : LeanChase_Editor
+	{
+		protected override void OnInspector()
+		{
+			base.OnInspector();
+		}
+	}
+}
+#endif

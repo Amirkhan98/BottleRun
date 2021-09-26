@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-namespace Lean.Touch
+namespace Lean.Common
 {
 	/// <summary>This component stores a list of points that form a path.</summary>
 	[ExecuteInEditMode]
-	[HelpURL(LeanTouch.HelpUrlPrefix + "LeanPath")]
-	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Path")]
+	[HelpURL(LeanHelper.HelpUrlPrefix + "LeanPath")]
+	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Path")]
 	public class LeanPath : MonoBehaviour
 	{
 		/// <summary>The points along the path.</summary>

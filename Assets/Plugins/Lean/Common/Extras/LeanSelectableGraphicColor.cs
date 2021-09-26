@@ -1,51 +1,69 @@
 using UnityEngine;
 using UnityEngine.UI;
+using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
 
-namespace Lean.Touch
+namespace Lean.Common
 {
 	/// <summary>This component allows you to change the color of the Graphic (e.g. Image) attached to the current GameObject when selected.</summary>
+	[ExecuteInEditMode]
 	[RequireComponent(typeof(Graphic))]
-	[HelpURL(LeanTouch.HelpUrlPrefix + "LeanSelectableGraphicColor")]
-	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Selectable Graphic Color")]
+	[HelpURL(LeanHelper.HelpUrlPrefix + "LeanSelectableGraphicColor")]
+	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Selectable Graphic Color")]
 	public class LeanSelectableGraphicColor : LeanSelectableBehaviour
 	{
-		/// <summary>Automatically read the DefaultColor from the Renderer.material?</summary>
-		[Tooltip("Automatically read the DefaultColor from the Renderer.material?")]
-		public bool AutoGetDefaultColor;
+		/// <summary>The default color given to the SpriteRenderer.</summary>
+		public Color DefaultColor { set { defaultColor = value; UpdateColor(); } get { return defaultColor; } } [FSA("DefaultColor")] [SerializeField] private Color defaultColor = Color.white;
 
-		/// <summary>The default color given to the Renderer.material.</summary>
-		[Tooltip("The default color given to the Renderer.material.")]
-		public Color DefaultColor = Color.white;
+		/// <summary>The color given to the SpriteRenderer when selected.</summary>
+		public Color SelectedColor { set { selectedColor = value; UpdateColor(); } get { return selectedColor; } } [FSA("SelectedColor")] [SerializeField] private Color selectedColor = Color.green;
 
-		/// <summary>The color given to the Renderer.material when selected.</summary>
-		[Tooltip("The color given to the Renderer.material when selected.")]
-		public Color SelectedColor = Color.green;
+		[System.NonSerialized]
+		private Graphic cachedGraphic;
 
-		protected virtual void Awake()
+		protected override void OnSelected()
 		{
-			if (AutoGetDefaultColor == true)
-			{
-				var graphic = GetComponent<Graphic>();
-
-				DefaultColor = graphic.color;
-			}
+			UpdateColor();
 		}
 
-		protected override void OnSelect(LeanFinger finger)
+		protected override void OnDeselected()
 		{
-			ChangeColor(SelectedColor);
+			UpdateColor();
 		}
 
-		protected override void OnDeselect()
+		public void UpdateColor()
 		{
-			ChangeColor(DefaultColor);
-		}
+			if (cachedGraphic == null) cachedGraphic = GetComponent<Graphic>();
 
-		private void ChangeColor(Color color)
-		{
-			var graphic = GetComponent<Graphic>();
+			var color = Selectable != null && Selectable.IsSelected == true ? selectedColor : defaultColor;
 
-			graphic.color = color;
+			cachedGraphic.color = color;
 		}
 	}
 }
+
+#if UNITY_EDITOR
+namespace Lean.Common.Editor
+{
+	using TARGET = LeanSelectableGraphicColor;
+
+	[UnityEditor.CanEditMultipleObjects]
+	[UnityEditor.CustomEditor(typeof(TARGET))]
+	public class LeanSelectableGraphicColor_Editor : LeanEditor
+	{
+		protected override void OnInspector()
+		{
+			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
+
+			var updateColor = false;
+
+			Draw("defaultColor", ref updateColor, "The default color given to the SpriteRenderer.");
+			Draw("selectedColor", ref updateColor, "The color given to the SpriteRenderer when selected.");
+
+			if (updateColor == true)
+			{
+				Each(tgts, t => t.UpdateColor(), true);
+			}
+		}
+	}
+}
+#endif

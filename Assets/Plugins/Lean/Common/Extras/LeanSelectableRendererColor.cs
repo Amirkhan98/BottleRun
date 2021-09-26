@@ -1,72 +1,87 @@
 using UnityEngine;
+using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
 
-namespace Lean.Touch
+namespace Lean.Common
 {
 	/// <summary>This component allows you to change the color of the Renderer (e.g. MeshRenderer) attached to the current GameObject when selected.</summary>
+	[ExecuteInEditMode]
 	[RequireComponent(typeof(Renderer))]
-	[HelpURL(LeanTouch.HelpUrlPrefix + "LeanSelectableRendererColor")]
-	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Selectable Renderer Color")]
+	[HelpURL(LeanHelper.HelpUrlPrefix + "LeanSelectableRendererColor")]
+	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Selectable Renderer Color")]
 	public class LeanSelectableRendererColor : LeanSelectableBehaviour
 	{
-		/// <summary>Automatically read the DefaultColor from the material?</summary>
-		[Tooltip("Automatically read the DefaultColor from the material?")]
-		public bool AutoGetDefaultColor;
+		/// <summary>The default color given to the SpriteRenderer.</summary>
+		public Color DefaultColor { set { defaultColor = value; UpdateColor(); } get { return defaultColor; } } [FSA("DefaultColor")] [SerializeField] private Color defaultColor = Color.white;
 
-		/// <summary>The default color given to the materials.</summary>
-		[Tooltip("The default color given to the materials.")]
-		public Color DefaultColor = Color.white;
-
-		/// <summary>The color given to the materials when selected.</summary>
-		[Tooltip("The color given to the materials when selected.")]
-		public Color SelectedColor = Color.green;
-
-		/// <summary>Should the materials get cloned at the start?</summary>
-		[Tooltip("Should the materials get cloned at the start?")]
-		public bool CloneMaterials = true;
+		/// <summary>The color given to the SpriteRenderer when selected.</summary>
+		public Color SelectedColor { set { selectedColor = value; UpdateColor(); } get { return selectedColor; } } [FSA("SelectedColor")] [SerializeField] private Color selectedColor = Color.green;
 
 		[System.NonSerialized]
 		private Renderer cachedRenderer;
 
-		protected virtual void Awake()
+		[System.NonSerialized]
+		private MaterialPropertyBlock properties;
+
+		protected override void OnSelected()
+		{
+			UpdateColor();
+		}
+
+		protected override void OnDeselected()
+		{
+			UpdateColor();
+		}
+
+		protected override void Start()
+		{
+			base.Start();
+
+			UpdateColor();
+		}
+
+		public void UpdateColor()
 		{
 			if (cachedRenderer == null) cachedRenderer = GetComponent<Renderer>();
 
-			if (AutoGetDefaultColor == true)
-			{
-				var material0 = cachedRenderer.sharedMaterial;
+			var color = Selectable != null && Selectable.IsSelected == true ? selectedColor : defaultColor;
 
-				if (material0 != null)
-				{
-					DefaultColor = material0.color;
-				}
+			if (properties == null)
+			{
+				properties = new MaterialPropertyBlock();
 			}
 
-			if (CloneMaterials == true)
+			cachedRenderer.GetPropertyBlock(properties);
+
+			properties.SetColor("_Color", color);
+
+			cachedRenderer.SetPropertyBlock(properties);
+		}
+	}
+}
+
+#if UNITY_EDITOR
+namespace Lean.Common.Editor
+{
+	using TARGET = LeanSelectableRendererColor;
+
+	[UnityEditor.CanEditMultipleObjects]
+	[UnityEditor.CustomEditor(typeof(TARGET))]
+	public class LeanSelectableRendererColor_Editor : LeanEditor
+	{
+		protected override void OnInspector()
+		{
+			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
+
+			var updateColor = false;
+
+			Draw("defaultColor", ref updateColor, "The default color given to the SpriteRenderer.");
+			Draw("selectedColor", ref updateColor, "The color given to the SpriteRenderer when selected.");
+
+			if (updateColor == true)
 			{
-				cachedRenderer.sharedMaterials = cachedRenderer.materials;
-			}
-		}
-
-		protected override void OnSelect(LeanFinger finger)
-		{
-			ChangeColor(SelectedColor);
-		}
-
-		protected override void OnDeselect()
-		{
-			ChangeColor(DefaultColor);
-		}
-
-		private void ChangeColor(Color color)
-		{
-			if (cachedRenderer == null) cachedRenderer = GetComponent<Renderer>();
-
-			var materials = cachedRenderer.sharedMaterials;
-
-			for (var i = materials.Length - 1; i >= 0; i--)
-			{
-				materials[i].color = color;
+				Each(tgts, t => t.UpdateColor(), true);
 			}
 		}
 	}
 }
+#endif

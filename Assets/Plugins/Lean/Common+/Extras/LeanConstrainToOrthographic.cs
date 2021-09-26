@@ -1,41 +1,43 @@
 using UnityEngine;
+using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
 
-namespace Lean.Touch
+namespace Lean.Common
 {
 	/// <summary>This component will constrain the current <b>transform.position</b> to the specified <b>LeanPlane</b> shape.</summary>
-	[HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanConstrainToOrthographic")]
-	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Constrain To Orthographic")]
+	[DefaultExecutionOrder(200)]
+	[HelpURL(LeanHelper.HelpUrlPrefix + "LeanConstrainToOrthographic")]
+	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Constrain To Orthographic")]
 	public class LeanConstrainToOrthographic : MonoBehaviour
 	{
-		[Tooltip("The camera whose orthographic size will be used.")]
-		public Camera Camera;
+		/// <summary>The camera whose orthographic size will be used.</summary>
+		public Camera Camera { set { _camera = value; } get { return _camera; } } [FSA("Camera")] [SerializeField] private Camera _camera;
 
-		[Tooltip("The plane this transform will be constrained to")]
-		public LeanPlane Plane;
+		/// <summary>The plane this transform will be constrained to.</summary>
+		public LeanPlane Plane { set { plane = value; } get { return plane; } } [FSA("Plane")] [SerializeField] private LeanPlane plane;
 
 		protected virtual void LateUpdate()
 		{
 			// Make sure the camera exists
-			var camera = LeanTouch.GetCamera(Camera, gameObject);
+			var camera = LeanHelper.GetCamera(_camera, gameObject);
 
 			if (camera != null)
 			{
-				if (Plane != null)
+				if (plane != null)
 				{
-					var ray = Camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
+					var ray = _camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0.0f));
 					var hit = default(Vector3);
 
-					if (Plane.TryRaycast(ray, ref hit, 0.0f, false) == true)
+					if (plane.TryRaycast(ray, ref hit, 0.0f, false) == true)
 					{
-						var delta   = transform.position - hit;
-						var local   = Plane.transform.InverseTransformPoint(hit);
-						var snapped = local;
-						var size    = new Vector2(Camera.orthographicSize * Camera.aspect, Camera.orthographicSize);
+						var oldPosition = transform.position;
+						var local       = plane.transform.InverseTransformPoint(hit);
+						var snapped     = local;
+						var size        = new Vector2(_camera.orthographicSize * _camera.aspect, _camera.orthographicSize);
 
-						if (Plane.ClampX == true)
+						if (plane.ClampX == true)
 						{
-							var min = Plane.MinX + size.x;
-							var max = Plane.MaxX - size.x;
+							var min = plane.MinX + size.x;
+							var max = plane.MaxX - size.x;
 
 							if (min > max)
 							{
@@ -47,10 +49,10 @@ namespace Lean.Touch
 							}
 						}
 
-						if (Plane.ClampY == true)
+						if (plane.ClampY == true)
 						{
-							var min = Plane.MinY + size.y;
-							var max = Plane.MaxY - size.y;
+							var min = plane.MinY + size.y;
+							var max = plane.MaxY - size.y;
 
 							if (min > max)
 							{
@@ -64,7 +66,15 @@ namespace Lean.Touch
 
 						if (local != snapped)
 						{
-							transform.position = Plane.transform.TransformPoint(snapped) + delta;
+							var delta       = oldPosition - hit;
+							var newPosition = plane.transform.TransformPoint(snapped) + delta;
+
+							if (Mathf.Approximately(oldPosition.x, newPosition.x) == false ||
+								Mathf.Approximately(oldPosition.y, newPosition.y) == false ||
+								Mathf.Approximately(oldPosition.z, newPosition.z) == false)
+							{
+								transform.position = newPosition;
+							}
 						}
 					}
 				}
@@ -76,3 +86,23 @@ namespace Lean.Touch
 		}
 	}
 }
+
+#if UNITY_EDITOR
+namespace Lean.Common.Editor
+{
+	using TARGET = LeanConstrainToOrthographic;
+
+	[UnityEditor.CanEditMultipleObjects]
+	[UnityEditor.CustomEditor(typeof(TARGET))]
+	public class LeanConstrainToOrthographic_Editor : LeanEditor
+	{
+		protected override void OnInspector()
+		{
+			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
+
+			Draw("_camera", "The camera whose orthographic size will be used.");
+			Draw("plane", "The plane this transform will be constrained to.");
+		}
+	}
+}
+#endif

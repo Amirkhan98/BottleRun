@@ -54,7 +54,7 @@ LightmapSettings:
     m_EnableBakedLightmaps: 1
     m_EnableRealtimeLightmaps: 0
   m_LightmapEditorSettings:
-    serializedVersion: 10
+    serializedVersion: 12
     m_Resolution: 1
     m_BakeResolution: 50
     m_AtlasSize: 1024
@@ -62,6 +62,7 @@ LightmapSettings:
     m_AOMaxDistance: 1
     m_CompAOExponent: 0
     m_CompAOExponentDirect: 0
+    m_ExtractAmbientOcclusion: 0
     m_Padding: 2
     m_LightmapParameters: {fileID: 0}
     m_LightmapsBakeMode: 1
@@ -76,10 +77,16 @@ LightmapSettings:
     m_PVRDirectSampleCount: 32
     m_PVRSampleCount: 500
     m_PVRBounces: 2
+    m_PVREnvironmentSampleCount: 500
+    m_PVREnvironmentReferencePointCount: 2048
+    m_PVRFilteringMode: 0
+    m_PVRDenoiserTypeDirect: 0
+    m_PVRDenoiserTypeIndirect: 0
+    m_PVRDenoiserTypeAO: 0
     m_PVRFilterTypeDirect: 0
     m_PVRFilterTypeIndirect: 0
     m_PVRFilterTypeAO: 0
-    m_PVRFilteringMode: 0
+    m_PVREnvironmentMIS: 0
     m_PVRCulling: 1
     m_PVRFilteringGaussRadiusDirect: 1
     m_PVRFilteringGaussRadiusIndirect: 5
@@ -87,7 +94,9 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaDirect: 0.5
     m_PVRFilteringAtrousPositionSigmaIndirect: 2
     m_PVRFilteringAtrousPositionSigmaAO: 1
-    m_ShowResolutionOverlay: 1
+    m_ExportTrainingData: 0
+    m_TrainingDataDestination: TrainingData
+    m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
   m_UseShadowmask: 0
 --- !u!196 &5
@@ -170,27 +179,23 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 0
     Distance: 0
-  Prefab: {fileID: 3998082982416662446}
-  MaxTrails: -1
-  FadeTime: 0.25
-  StartColor: {r: 1, g: 1, b: 1, a: 1}
-  EndColor: {r: 1, g: 1, b: 1, a: 1}
+  prefab: {fileID: 3998082982416662446}
+  maxTrails: -1
+  fadeTime: 0.25
+  startColor: {r: 1, g: 1, b: 1, a: 1}
+  endColor: {r: 1, g: 1, b: 1, a: 1}
   fingerDatas: []
-  WidthScale: 5
-  LengthMin: -1
-  LengthMax: 5
-  StartAtOrigin: 1
-  Invert: 0
+  widthScale: 5
+  lengthMin: -1
+  lengthMax: 5
+  startAtOrigin: 1
+  invert: 0
   onReleasedFrom:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedDelta:
     m_PersistentCalls:
       m_Calls:
@@ -205,13 +210,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedFromTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &5230724
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -224,15 +225,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f22370ad318397a4db51eee9f01555ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Target: {fileID: 1762206068}
-  Space: 0
-  DirectionA: {x: 1, y: 0, z: 0}
-  DirectionB: {x: 0, y: 1, z: 0}
-  Multiplier: 0.075
-  Dampening: -1
-  Inertia: 0
-  ScaleByTime: 0
-  ResetVelocityInUpdate: 0
+  target: {fileID: 1762206068}
+  space: 0
+  directionA: {x: 1, y: 0, z: 0}
+  directionB: {x: 0, y: 1, z: 0}
+  multiplier: 0.075
+  damping: 10
+  scaleByTime: 0
+  inertia: 0
+  resetVelocityInUpdate: 0
   remainingDelta: {x: 0, y: 0, z: 0}
   controlling: 0
 --- !u!1 &152056467
@@ -264,7 +265,7 @@ Transform:
   m_Children:
   - {fileID: 3945522570799199246}
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &154944132
 GameObject:
@@ -315,30 +316,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83dcd8dace8b7fe449d796b980cb121d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DeselectOnUp: 1
-  HideWithFinger: 0
-  IsolateSelectingFingers: 0
-  onSelect:
+  selfSelected: 0
+  onSelected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectSet:
+  onDeselected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectUp:
+  use: 0
+  onSelectedFinger:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onDeselect:
+  onSelectedFingerUp:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  isSelected: 0
 --- !u!114 &154944135
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -351,10 +342,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2baa936f016a9a14e86ac8ea42211f4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AutoGetDefaultColor: 0
-  DefaultColor: {r: 1, g: 1, b: 1, a: 1}
-  SelectedColor: {r: 0, g: 1, b: 0, a: 1}
-  CloneMaterials: 1
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!54 &154944136
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -398,6 +387,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -409,6 +399,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -487,27 +478,23 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 0
     Distance: 0
-  Prefab: {fileID: 3998082982416662446}
-  MaxTrails: -1
-  FadeTime: 0.25
-  StartColor: {r: 1, g: 1, b: 1, a: 1}
-  EndColor: {r: 1, g: 1, b: 1, a: 1}
+  prefab: {fileID: 3998082982416662446}
+  maxTrails: -1
+  fadeTime: 0.25
+  startColor: {r: 1, g: 1, b: 1, a: 1}
+  endColor: {r: 1, g: 1, b: 1, a: 1}
   fingerDatas: []
-  WidthScale: 5
-  LengthMin: -1
-  LengthMax: 5
-  StartAtOrigin: 1
-  Invert: 0
+  widthScale: 5
+  lengthMin: -1
+  lengthMax: 5
+  startAtOrigin: 1
+  invert: 0
   onReleasedFrom:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedDelta:
     m_PersistentCalls:
       m_Calls:
@@ -522,13 +509,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedFromTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &230192596
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -541,15 +524,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f22370ad318397a4db51eee9f01555ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Target: {fileID: 1719352960}
-  Space: 0
-  DirectionA: {x: 1, y: 0, z: 0}
-  DirectionB: {x: 0, y: 1, z: 0}
-  Multiplier: 0.075
-  Dampening: -1
-  Inertia: 0
-  ScaleByTime: 0
-  ResetVelocityInUpdate: 0
+  target: {fileID: 1719352960}
+  space: 0
+  directionA: {x: 1, y: 0, z: 0}
+  directionB: {x: 0, y: 1, z: 0}
+  multiplier: 0.075
+  damping: 10
+  scaleByTime: 0
+  inertia: 0
+  resetVelocityInUpdate: 0
   remainingDelta: {x: 0, y: 0, z: 0}
   controlling: 0
 --- !u!1 &244051168
@@ -610,27 +593,23 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 0
     Distance: 0
-  Prefab: {fileID: 3998082982416662446}
-  MaxTrails: -1
-  FadeTime: 0.25
-  StartColor: {r: 1, g: 1, b: 1, a: 1}
-  EndColor: {r: 1, g: 1, b: 1, a: 1}
+  prefab: {fileID: 3998082982416662446}
+  maxTrails: -1
+  fadeTime: 0.25
+  startColor: {r: 1, g: 1, b: 1, a: 1}
+  endColor: {r: 1, g: 1, b: 1, a: 1}
   fingerDatas: []
-  WidthScale: 5
-  LengthMin: -1
-  LengthMax: 5
-  StartAtOrigin: 1
-  Invert: 0
+  widthScale: 5
+  lengthMin: -1
+  lengthMax: 5
+  startAtOrigin: 1
+  invert: 0
   onReleasedFrom:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedDelta:
     m_PersistentCalls:
       m_Calls:
@@ -645,13 +624,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedFromTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &244051171
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -664,138 +639,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f22370ad318397a4db51eee9f01555ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Target: {fileID: 1638745553}
-  Space: 0
-  DirectionA: {x: 1, y: 0, z: 0}
-  DirectionB: {x: 0, y: 1, z: 0}
-  Multiplier: 0.075
-  Dampening: -1
-  Inertia: 0
-  ScaleByTime: 0
-  ResetVelocityInUpdate: 0
+  target: {fileID: 1638745553}
+  space: 0
+  directionA: {x: 1, y: 0, z: 0}
+  directionB: {x: 0, y: 1, z: 0}
+  multiplier: 0.075
+  damping: 10
+  scaleByTime: 0
+  inertia: 0
+  resetVelocityInUpdate: 0
   remainingDelta: {x: 0, y: 0, z: 0}
   controlling: 0
---- !u!1001 &327501001
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 1739507247}
-    m_Modifications:
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_Pivot.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_Pivot.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 90
-      objectReference: {fileID: 0}
-    - target: {fileID: 114488136977983880, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_Text
-      value: Draw
-      objectReference: {fileID: 0}
-    - target: {fileID: 114132525533413592, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_Text
-      value: 'Drag
-
-        Ctrl + Drag'
-      objectReference: {fileID: 0}
-    - target: {fileID: 114762770026509900, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_Text
-      value: =
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: b06e85cdb86ff204aa4c8e276668b4c4, type: 3}
 --- !u!1 &440992367
 GameObject:
   m_ObjectHideFlags: 0
@@ -854,27 +708,23 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 0
     Distance: 0
-  Prefab: {fileID: 3998082982416662446}
-  MaxTrails: -1
-  FadeTime: 0.25
-  StartColor: {r: 1, g: 1, b: 1, a: 1}
-  EndColor: {r: 1, g: 1, b: 1, a: 1}
+  prefab: {fileID: 3998082982416662446}
+  maxTrails: -1
+  fadeTime: 0.25
+  startColor: {r: 1, g: 1, b: 1, a: 1}
+  endColor: {r: 1, g: 1, b: 1, a: 1}
   fingerDatas: []
-  WidthScale: 5
-  LengthMin: -1
-  LengthMax: 5
-  StartAtOrigin: 1
-  Invert: 0
+  widthScale: 5
+  lengthMin: -1
+  lengthMax: 5
+  startAtOrigin: 1
+  invert: 0
   onReleasedFrom:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedDelta:
     m_PersistentCalls:
       m_Calls:
@@ -889,13 +739,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedFromTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &440992370
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -908,15 +754,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f22370ad318397a4db51eee9f01555ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Target: {fileID: 154944132}
-  Space: 0
-  DirectionA: {x: 1, y: 0, z: 0}
-  DirectionB: {x: 0, y: 1, z: 0}
-  Multiplier: 0.075
-  Dampening: -1
-  Inertia: 0
-  ScaleByTime: 0
-  ResetVelocityInUpdate: 0
+  target: {fileID: 154944132}
+  space: 0
+  directionA: {x: 1, y: 0, z: 0}
+  directionB: {x: 0, y: 1, z: 0}
+  multiplier: 0.075
+  damping: 10
+  scaleByTime: 0
+  inertia: 0
+  resetVelocityInUpdate: 0
   remainingDelta: {x: 0, y: 0, z: 0}
   controlling: 0
 --- !u!1 &476396444
@@ -977,27 +823,23 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 0
     Distance: 0
-  Prefab: {fileID: 3998082982416662446}
-  MaxTrails: -1
-  FadeTime: 0.25
-  StartColor: {r: 1, g: 1, b: 1, a: 1}
-  EndColor: {r: 1, g: 1, b: 1, a: 1}
+  prefab: {fileID: 3998082982416662446}
+  maxTrails: -1
+  fadeTime: 0.25
+  startColor: {r: 1, g: 1, b: 1, a: 1}
+  endColor: {r: 1, g: 1, b: 1, a: 1}
   fingerDatas: []
-  WidthScale: 5
-  LengthMin: -1
-  LengthMax: 5
-  StartAtOrigin: 1
-  Invert: 0
+  widthScale: 5
+  lengthMin: -1
+  lengthMax: 5
+  startAtOrigin: 1
+  invert: 0
   onReleasedFrom:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedDelta:
     m_PersistentCalls:
       m_Calls:
@@ -1012,13 +854,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedFromTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &476396447
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1031,146 +869,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f22370ad318397a4db51eee9f01555ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Target: {fileID: 1899539479}
-  Space: 0
-  DirectionA: {x: 1, y: 0, z: 0}
-  DirectionB: {x: 0, y: 1, z: 0}
-  Multiplier: 0.075
-  Dampening: -1
-  Inertia: 0
-  ScaleByTime: 0
-  ResetVelocityInUpdate: 0
+  target: {fileID: 1899539479}
+  space: 0
+  directionA: {x: 1, y: 0, z: 0}
+  directionB: {x: 0, y: 1, z: 0}
+  multiplier: 0.075
+  damping: 10
+  scaleByTime: 0
+  inertia: 0
+  resetVelocityInUpdate: 0
   remainingDelta: {x: 0, y: 0, z: 0}
   controlling: 0
---- !u!4 &557872753 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4841569577363848, guid: ddc14764c794fbe42b78a9a3872e95ce,
-    type: 3}
-  m_PrefabInstance: {fileID: 1275792053}
-  m_PrefabAsset: {fileID: 0}
---- !u!1001 &701374231
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 1739507247}
-    m_Modifications:
-    - target: {fileID: 1394701761897472, guid: b06e85cdb86ff204aa4c8e276668b4c4, type: 3}
-      propertyPath: m_Name
-      value: InfoInWorld
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_Pivot.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_Pivot.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 90
-      objectReference: {fileID: 0}
-    - target: {fileID: 114488136977983880, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_Text
-      value: Select
-      objectReference: {fileID: 0}
-    - target: {fileID: 114132525533413592, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_Text
-      value: Press
-      objectReference: {fileID: 0}
-    - target: {fileID: 114762770026509900, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_Text
-      value: =
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: b06e85cdb86ff204aa4c8e276668b4c4, type: 3}
 --- !u!1 &702186496
 GameObject:
   m_ObjectHideFlags: 0
@@ -1210,7 +919,7 @@ Transform:
   - {fileID: 1044783962}
   - {fileID: 1762206069}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &721048740
 GameObject:
@@ -1270,27 +979,23 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 0
     Distance: 0
-  Prefab: {fileID: 3998082982416662446}
-  MaxTrails: -1
-  FadeTime: 0.25
-  StartColor: {r: 1, g: 1, b: 1, a: 1}
-  EndColor: {r: 1, g: 1, b: 1, a: 1}
+  prefab: {fileID: 3998082982416662446}
+  maxTrails: -1
+  fadeTime: 0.25
+  startColor: {r: 1, g: 1, b: 1, a: 1}
+  endColor: {r: 1, g: 1, b: 1, a: 1}
   fingerDatas: []
-  WidthScale: 5
-  LengthMin: -1
-  LengthMax: 5
-  StartAtOrigin: 1
-  Invert: 0
+  widthScale: 5
+  lengthMin: -1
+  lengthMax: 5
+  startAtOrigin: 1
+  invert: 0
   onReleasedFrom:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedDelta:
     m_PersistentCalls:
       m_Calls:
@@ -1305,13 +1010,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedFromTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &721048743
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1324,205 +1025,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f22370ad318397a4db51eee9f01555ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Target: {fileID: 1670253847}
-  Space: 0
-  DirectionA: {x: 1, y: 0, z: 0}
-  DirectionB: {x: 0, y: 1, z: 0}
-  Multiplier: 0.075
-  Dampening: -1
-  Inertia: 0
-  ScaleByTime: 0
-  ResetVelocityInUpdate: 0
+  target: {fileID: 1670253847}
+  space: 0
+  directionA: {x: 1, y: 0, z: 0}
+  directionB: {x: 0, y: 1, z: 0}
+  multiplier: 0.075
+  damping: 10
+  scaleByTime: 0
+  inertia: 0
+  resetVelocityInUpdate: 0
   remainingDelta: {x: 0, y: 0, z: 0}
   controlling: 0
---- !u!1001 &746924020
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[0].Points.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[1].Points.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[2].Points.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[0].Points.Array.data[0].x
-      value: -10
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[0].Points.Array.data[1].x
-      value: -7
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[0].Points.Array.data[1].z
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[0].Points.Array.data[0].z
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[0].Points.Array.data[2].x
-      value: -7
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[0].Points.Array.data[2].z
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[1].Points.Array.data[0].x
-      value: -7
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[1].Points.Array.data[0].z
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[1].Points.Array.data[1].x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[1].Points.Array.data[1].z
-      value: -5
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[1].Points.Array.data[2].x
-      value: -7
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[1].Points.Array.data[2].z
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[1].Points.Array.data[3].x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[1].Points.Array.data[3].z
-      value: -5
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[2].Points.Array.data[0].x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[2].Points.Array.data[0].z
-      value: -11
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[2].Points.Array.data[1].x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[2].Points.Array.data[1].z
-      value: -9
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[2].Points.Array.data[2].x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[2].Points.Array.data[2].z
-      value: -9
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[2].Points.Array.data[3].x
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 114729068528628788, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: Paths.Array.data[2].Points.Array.data[3].z
-      value: -7
-      objectReference: {fileID: 0}
-    - target: {fileID: 33567929015735742, guid: 45a078c8c70061e438942146f4695f2e,
-        type: 3}
-      propertyPath: m_Mesh
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 4230022635446840, guid: 45a078c8c70061e438942146f4695f2e, type: 3}
-      propertyPath: m_RootOrder
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4317965330308978, guid: 45a078c8c70061e438942146f4695f2e, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4317965330308978, guid: 45a078c8c70061e438942146f4695f2e, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4317965330308978, guid: 45a078c8c70061e438942146f4695f2e, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4317965330308978, guid: 45a078c8c70061e438942146f4695f2e, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4317965330308978, guid: 45a078c8c70061e438942146f4695f2e, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4317965330308978, guid: 45a078c8c70061e438942146f4695f2e, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4317965330308978, guid: 45a078c8c70061e438942146f4695f2e, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4317965330308978, guid: 45a078c8c70061e438942146f4695f2e, type: 3}
-      propertyPath: m_RootOrder
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4317965330308978, guid: 45a078c8c70061e438942146f4695f2e, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4483075258271058, guid: 45a078c8c70061e438942146f4695f2e, type: 3}
-      propertyPath: m_RootOrder
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 45a078c8c70061e438942146f4695f2e, type: 3}
 --- !u!1 &1044783961
 GameObject:
   m_ObjectHideFlags: 0
@@ -1553,7 +1066,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1044783961}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.06, y: 6.3, z: 0}
+  m_LocalPosition: {x: -2, y: 0.9, z: 0}
   m_LocalScale: {x: 2.32289, y: 2.32289, z: 2.32289}
   m_Children:
   - {fileID: 1739173405}
@@ -1572,30 +1085,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83dcd8dace8b7fe449d796b980cb121d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DeselectOnUp: 1
-  HideWithFinger: 0
-  IsolateSelectingFingers: 0
-  onSelect:
+  selfSelected: 0
+  onSelected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectSet:
+  onDeselected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectUp:
+  use: 0
+  onSelectedFinger:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onDeselect:
+  onSelectedFingerUp:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  isSelected: 0
 --- !u!114 &1044783964
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1608,10 +1111,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2baa936f016a9a14e86ac8ea42211f4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AutoGetDefaultColor: 0
-  DefaultColor: {r: 1, g: 1, b: 1, a: 1}
-  SelectedColor: {r: 0, g: 1, b: 0, a: 1}
-  CloneMaterials: 1
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!54 &1044783965
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1655,6 +1156,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1666,6 +1168,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -1744,27 +1247,23 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 0
     Distance: 0
-  Prefab: {fileID: 3998082982416662446}
-  MaxTrails: -1
-  FadeTime: 0.25
-  StartColor: {r: 1, g: 1, b: 1, a: 1}
-  EndColor: {r: 1, g: 1, b: 1, a: 1}
+  prefab: {fileID: 3998082982416662446}
+  maxTrails: -1
+  fadeTime: 0.25
+  startColor: {r: 1, g: 1, b: 1, a: 1}
+  endColor: {r: 1, g: 1, b: 1, a: 1}
   fingerDatas: []
-  WidthScale: 5
-  LengthMin: -1
-  LengthMax: 5
-  StartAtOrigin: 1
-  Invert: 0
+  widthScale: 5
+  lengthMin: -1
+  lengthMax: 5
+  startAtOrigin: 1
+  invert: 0
   onReleasedFrom:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedDelta:
     m_PersistentCalls:
       m_Calls:
@@ -1779,13 +1278,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedFromTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &1081292747
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1798,15 +1293,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f22370ad318397a4db51eee9f01555ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Target: {fileID: 1624353843}
-  Space: 0
-  DirectionA: {x: 1, y: 0, z: 0}
-  DirectionB: {x: 0, y: 1, z: 0}
-  Multiplier: 0.075
-  Dampening: -1
-  Inertia: 0
-  ScaleByTime: 0
-  ResetVelocityInUpdate: 0
+  target: {fileID: 1624353843}
+  space: 0
+  directionA: {x: 1, y: 0, z: 0}
+  directionB: {x: 0, y: 1, z: 0}
+  multiplier: 0.075
+  damping: 10
+  scaleByTime: 0
+  inertia: 0
+  resetVelocityInUpdate: 0
   remainingDelta: {x: 0, y: 0, z: 0}
   controlling: 0
 --- !u!1001 &1166631932
@@ -1816,9 +1311,37 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 11438438, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
+      propertyPath: m_Text
+      value: 'This shows you how the <color=#0FF>LeanDragLine</color> can be used
+        to draw a line under each finger.
+
+        NOTE: This feature requires the
+        <color=#0FF>LeanFinger.RecordFingers</color> setting to be enabled.'
+      objectReference: {fileID: 0}
+    - target: {fileID: 22410238, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22410238, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22410238, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22410238, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 22410238, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 22438504, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 22438504, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1846,10 +1369,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 22438504, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 22438504, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
-      propertyPath: m_RootOrder
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 22438504, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
@@ -1892,14 +1411,6 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 11438438, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
-      propertyPath: m_Text
-      value: 'This shows you how the <color=#0FF>LeanDragLine</color> can be used
-        to draw a line under each finger.
-
-        NOTE: This feature requires the <color=#0FF>LeanFinger.RecordFingers</color>
-        setting to be enabled.'
-      objectReference: {fileID: 0}
     - target: {fileID: 22480264, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
       propertyPath: m_AnchorMin.y
       value: 0
@@ -1922,101 +1433,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 22480264, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 22410238, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 22410238, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 22410238, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 22410238, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 22410238, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224363055373148510, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
-        type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224363055373148510, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
-        type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 225251752922884782, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
-        type: 3}
-      propertyPath: m_Alpha
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 225251752922884782, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
-        type: 3}
-      propertyPath: m_Interactable
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 225251752922884782, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
-        type: 3}
-      propertyPath: m_BlocksRaycasts
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 225261064821389912, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
-        type: 3}
-      propertyPath: m_Alpha
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 225261064821389912, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
-        type: 3}
-      propertyPath: m_Interactable
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 225261064821389912, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
-        type: 3}
-      propertyPath: m_BlocksRaycasts
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224494468789392064, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
-        type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224494468789392064, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
-        type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224494468789392064, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224494468789392064, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
-        type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224494468789392064, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
-        type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224494468789392064, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
-        type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224356063559649096, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
-        type: 3}
-      propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114457744909205792, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
@@ -2025,6 +1441,98 @@ PrefabInstance:
       value: This shows you how the <color=#0FF>Select 3D</color> and <color=#0FF>Target
         3D / Throw</color> demo scenes can be combined, allowing you to throw objects
         under the finger with a strength indicator.
+      objectReference: {fileID: 0}
+    - target: {fileID: 224356063559649096, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224363055373148510, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224363055373148510, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224494468789392064, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
+        type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224494468789392064, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224494468789392064, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224494468789392064, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224494468789392064, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
+        type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224494468789392064, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
+        type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 225251752922884782, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
+        type: 3}
+      propertyPath: m_Alpha
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 225251752922884782, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
+        type: 3}
+      propertyPath: m_Interactable
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 225251752922884782, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
+        type: 3}
+      propertyPath: m_BlocksRaycasts
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 225261064821389912, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
+        type: 3}
+      propertyPath: m_Alpha
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 225261064821389912, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
+        type: 3}
+      propertyPath: m_Interactable
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 225261064821389912, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
+        type: 3}
+      propertyPath: m_BlocksRaycasts
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1907904612675879445, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
+        type: 3}
+      propertyPath: m_Text
+      value: 'Drag Sphere = Draw Line
+
+        Release = Throw'
+      objectReference: {fileID: 0}
+    - target: {fileID: 3842902602399203594, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3842902602399203594, guid: 8df6337a574cdad4bb6ec66cc50c6c2b,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8df6337a574cdad4bb6ec66cc50c6c2b, type: 3}
@@ -2077,30 +1585,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83dcd8dace8b7fe449d796b980cb121d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DeselectOnUp: 1
-  HideWithFinger: 0
-  IsolateSelectingFingers: 0
-  onSelect:
+  selfSelected: 0
+  onSelected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectSet:
+  onDeselected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectUp:
+  use: 0
+  onSelectedFinger:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onDeselect:
+  onSelectedFingerUp:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  isSelected: 0
 --- !u!114 &1173461408
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2113,10 +1611,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2baa936f016a9a14e86ac8ea42211f4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AutoGetDefaultColor: 0
-  DefaultColor: {r: 1, g: 1, b: 1, a: 1}
-  SelectedColor: {r: 0, g: 1, b: 0, a: 1}
-  CloneMaterials: 1
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!54 &1173461409
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2160,6 +1656,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -2171,6 +1668,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -2191,105 +1689,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1173461405}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &1202831618
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1202831621}
-  - component: {fileID: 1202831620}
-  - component: {fileID: 1202831619}
-  m_Layer: 0
-  m_Name: Down To Select (3D)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1202831619
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1202831618}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bbb097c07812299498915a0a3e793843, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  IgnoreStartedOverGui: 1
-  RequiredSelectable: {fileID: 0}
-  onFinger:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1202831620}
-        m_MethodName: SelectScreenPosition
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_TypeName: Lean.Touch.LeanFingerDown+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  ScreenDepth:
-    Conversion: 0
-    Camera: {fileID: 0}
-    Object: {fileID: 0}
-    Layers:
-      serializedVersion: 2
-      m_Bits: 0
-    Distance: 0
-  onPosition:
-    m_PersistentCalls:
-      m_Calls: []
-    m_TypeName: Lean.Touch.LeanFingerDown+Vector3Event, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
---- !u!114 &1202831620
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1202831618}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 479d695282ba6cf4ba3ab3c4848f05e8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SelectUsing: 0
-  SelectUsingAlt: -1
-  SelectUsingAltAlt: -1
-  LayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967291
-  Camera: {fileID: 0}
-  MaxSelectables: 0
-  Search: 0
-  Reselect: 0
-  AutoDeselect: 0
-  MaxScreenDistance: 50
---- !u!4 &1202831621
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1202831618}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 6
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1252145019
 GameObject:
   m_ObjectHideFlags: 0
@@ -2348,27 +1747,23 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 0
     Distance: 0
-  Prefab: {fileID: 3998082982416662446}
-  MaxTrails: -1
-  FadeTime: 0.25
-  StartColor: {r: 1, g: 1, b: 1, a: 1}
-  EndColor: {r: 1, g: 1, b: 1, a: 1}
+  prefab: {fileID: 3998082982416662446}
+  maxTrails: -1
+  fadeTime: 0.25
+  startColor: {r: 1, g: 1, b: 1, a: 1}
+  endColor: {r: 1, g: 1, b: 1, a: 1}
   fingerDatas: []
-  WidthScale: 5
-  LengthMin: -1
-  LengthMax: 5
-  StartAtOrigin: 1
-  Invert: 0
+  widthScale: 5
+  lengthMin: -1
+  lengthMax: 5
+  startAtOrigin: 1
+  invert: 0
   onReleasedFrom:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedDelta:
     m_PersistentCalls:
       m_Calls:
@@ -2383,13 +1778,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedFromTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &1252145022
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2402,58 +1793,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f22370ad318397a4db51eee9f01555ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Target: {fileID: 1173461405}
-  Space: 0
-  DirectionA: {x: 1, y: 0, z: 0}
-  DirectionB: {x: 0, y: 1, z: 0}
-  Multiplier: 0.075
-  Dampening: -1
-  Inertia: 0
-  ScaleByTime: 0
-  ResetVelocityInUpdate: 0
+  target: {fileID: 1173461405}
+  space: 0
+  directionA: {x: 1, y: 0, z: 0}
+  directionB: {x: 0, y: 1, z: 0}
+  multiplier: 0.075
+  damping: 10
+  scaleByTime: 0
+  inertia: 0
+  resetVelocityInUpdate: 0
   remainingDelta: {x: 0, y: 0, z: 0}
   controlling: 0
---- !u!1001 &1275792053
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 2112639111}
-    m_Modifications:
-    - target: {fileID: 4841569577363848, guid: ddc14764c794fbe42b78a9a3872e95ce, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4841569577363848, guid: ddc14764c794fbe42b78a9a3872e95ce, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4841569577363848, guid: ddc14764c794fbe42b78a9a3872e95ce, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4841569577363848, guid: ddc14764c794fbe42b78a9a3872e95ce, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4841569577363848, guid: ddc14764c794fbe42b78a9a3872e95ce, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4841569577363848, guid: ddc14764c794fbe42b78a9a3872e95ce, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4841569577363848, guid: ddc14764c794fbe42b78a9a3872e95ce, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4841569577363848, guid: ddc14764c794fbe42b78a9a3872e95ce, type: 3}
-      propertyPath: m_RootOrder
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: ddc14764c794fbe42b78a9a3872e95ce, type: 3}
 --- !u!1 &1281500153
 GameObject:
   m_ObjectHideFlags: 0
@@ -2512,27 +1862,23 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 0
     Distance: 0
-  Prefab: {fileID: 3998082982416662446}
-  MaxTrails: -1
-  FadeTime: 0.25
-  StartColor: {r: 1, g: 1, b: 1, a: 1}
-  EndColor: {r: 1, g: 1, b: 1, a: 1}
+  prefab: {fileID: 3998082982416662446}
+  maxTrails: -1
+  fadeTime: 0.25
+  startColor: {r: 1, g: 1, b: 1, a: 1}
+  endColor: {r: 1, g: 1, b: 1, a: 1}
   fingerDatas: []
-  WidthScale: 5
-  LengthMin: -1
-  LengthMax: 5
-  StartAtOrigin: 1
-  Invert: 0
+  widthScale: 5
+  lengthMin: -1
+  lengthMax: 5
+  startAtOrigin: 1
+  invert: 0
   onReleasedFrom:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedDelta:
     m_PersistentCalls:
       m_Calls:
@@ -2547,13 +1893,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedFromTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &1281500156
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2566,15 +1908,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f22370ad318397a4db51eee9f01555ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Target: {fileID: 1597001250}
-  Space: 0
-  DirectionA: {x: 1, y: 0, z: 0}
-  DirectionB: {x: 0, y: 1, z: 0}
-  Multiplier: 0.075
-  Dampening: -1
-  Inertia: 0
-  ScaleByTime: 0
-  ResetVelocityInUpdate: 0
+  target: {fileID: 1597001250}
+  space: 0
+  directionA: {x: 1, y: 0, z: 0}
+  directionB: {x: 0, y: 1, z: 0}
+  multiplier: 0.075
+  damping: 10
+  scaleByTime: 0
+  inertia: 0
+  resetVelocityInUpdate: 0
   remainingDelta: {x: 0, y: 0, z: 0}
   controlling: 0
 --- !u!1 &1451389729
@@ -2635,27 +1977,23 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 0
     Distance: 0
-  Prefab: {fileID: 3998082982416662446}
-  MaxTrails: -1
-  FadeTime: 0.25
-  StartColor: {r: 1, g: 1, b: 1, a: 1}
-  EndColor: {r: 1, g: 1, b: 1, a: 1}
+  prefab: {fileID: 3998082982416662446}
+  maxTrails: -1
+  fadeTime: 0.25
+  startColor: {r: 1, g: 1, b: 1, a: 1}
+  endColor: {r: 1, g: 1, b: 1, a: 1}
   fingerDatas: []
-  WidthScale: 5
-  LengthMin: -1
-  LengthMax: 5
-  StartAtOrigin: 1
-  Invert: 0
+  widthScale: 5
+  lengthMin: -1
+  lengthMax: 5
+  startAtOrigin: 1
+  invert: 0
   onReleasedFrom:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedDelta:
     m_PersistentCalls:
       m_Calls:
@@ -2670,13 +2008,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedFromTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &1451389732
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2689,15 +2023,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f22370ad318397a4db51eee9f01555ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Target: {fileID: 1651389938}
-  Space: 0
-  DirectionA: {x: 1, y: 0, z: 0}
-  DirectionB: {x: 0, y: 1, z: 0}
-  Multiplier: 0.075
-  Dampening: -1
-  Inertia: 0
-  ScaleByTime: 0
-  ResetVelocityInUpdate: 0
+  target: {fileID: 1651389938}
+  space: 0
+  directionA: {x: 1, y: 0, z: 0}
+  directionB: {x: 0, y: 1, z: 0}
+  multiplier: 0.075
+  damping: 10
+  scaleByTime: 0
+  inertia: 0
+  resetVelocityInUpdate: 0
   remainingDelta: {x: 0, y: 0, z: 0}
   controlling: 0
 --- !u!1 &1597001250
@@ -2749,30 +2083,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83dcd8dace8b7fe449d796b980cb121d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DeselectOnUp: 1
-  HideWithFinger: 0
-  IsolateSelectingFingers: 0
-  onSelect:
+  selfSelected: 0
+  onSelected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectSet:
+  onDeselected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectUp:
+  use: 0
+  onSelectedFinger:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onDeselect:
+  onSelectedFingerUp:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  isSelected: 0
 --- !u!114 &1597001253
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2785,10 +2109,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2baa936f016a9a14e86ac8ea42211f4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AutoGetDefaultColor: 0
-  DefaultColor: {r: 1, g: 1, b: 1, a: 1}
-  SelectedColor: {r: 0, g: 1, b: 0, a: 1}
-  CloneMaterials: 1
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!54 &1597001254
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2832,6 +2154,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -2843,6 +2166,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -2912,30 +2236,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83dcd8dace8b7fe449d796b980cb121d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DeselectOnUp: 1
-  HideWithFinger: 0
-  IsolateSelectingFingers: 0
-  onSelect:
+  selfSelected: 0
+  onSelected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectSet:
+  onDeselected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectUp:
+  use: 0
+  onSelectedFinger:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onDeselect:
+  onSelectedFingerUp:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  isSelected: 0
 --- !u!114 &1624353846
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2948,10 +2262,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2baa936f016a9a14e86ac8ea42211f4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AutoGetDefaultColor: 0
-  DefaultColor: {r: 1, g: 1, b: 1, a: 1}
-  SelectedColor: {r: 0, g: 1, b: 0, a: 1}
-  CloneMaterials: 1
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!54 &1624353847
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2995,6 +2307,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -3006,6 +2319,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -3091,10 +2405,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2baa936f016a9a14e86ac8ea42211f4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AutoGetDefaultColor: 0
-  DefaultColor: {r: 1, g: 1, b: 1, a: 1}
-  SelectedColor: {r: 0, g: 1, b: 0, a: 1}
-  CloneMaterials: 1
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!114 &1638745558
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3107,30 +2419,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83dcd8dace8b7fe449d796b980cb121d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DeselectOnUp: 1
-  HideWithFinger: 0
-  IsolateSelectingFingers: 0
-  onSelect:
+  selfSelected: 0
+  onSelected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectSet:
+  onDeselected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectUp:
+  use: 0
+  onSelectedFinger:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onDeselect:
+  onSelectedFingerUp:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  isSelected: 0
 --- !u!135 &1638745559
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -3158,6 +2460,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -3169,6 +2472,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -3189,129 +2493,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1638745553}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1001 &1645057141
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 1739507247}
-    m_Modifications:
-    - target: {fileID: 1394701761897472, guid: b06e85cdb86ff204aa4c8e276668b4c4, type: 3}
-      propertyPath: m_Name
-      value: InfoInWorld
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -3
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_Pivot.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_Pivot.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 224619526920325552, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 90
-      objectReference: {fileID: 0}
-    - target: {fileID: 114488136977983880, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_Text
-      value: Throw
-      objectReference: {fileID: 0}
-    - target: {fileID: 114132525533413592, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_Text
-      value: Release
-      objectReference: {fileID: 0}
-    - target: {fileID: 114762770026509900, guid: b06e85cdb86ff204aa4c8e276668b4c4,
-        type: 3}
-      propertyPath: m_Text
-      value: =
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: b06e85cdb86ff204aa4c8e276668b4c4, type: 3}
 --- !u!1 &1650081524
 GameObject:
   m_ObjectHideFlags: 0
@@ -3322,6 +2503,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1650081526}
   - component: {fileID: 1650081525}
+  - component: {fileID: 1650081527}
   m_Layer: 0
   m_Name: LeanTouch
   m_TagString: Untagged
@@ -3341,20 +2523,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fc98219a83dff145947365dc914d06e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TapThreshold: 0.5
-  SwipeThreshold: 50
-  ReferenceDpi: 200
-  GuiLayers:
+  tapThreshold: 0.5
+  swipeThreshold: 50
+  referenceDpi: 200
+  guiLayers:
     serializedVersion: 2
-    m_Bits: 4294967295
-  RecordFingers: 1
-  RecordThreshold: 5
-  RecordLimit: 5
-  SimulateMultiFingers: 1
-  PinchTwistKey: 306
-  MovePivotKey: 308
-  MultiDragKey: 308
-  FingerTexture: {fileID: 2800000, guid: 25c48be3a87ea0f489a6d41c9c9a2194, type: 3}
+    m_Bits: 32
+  useTouch: 1
+  useHover: 1
+  useMouse: 1
+  useSimulator: 1
+  recordFingers: 1
+  recordThreshold: 5
+  recordLimit: 5
 --- !u!4 &1650081526
 Transform:
   m_ObjectHideFlags: 0
@@ -3367,8 +2548,24 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1650081527
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1650081524}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 801d0d506e4503f4cb8729e3868bb030, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pinchTwistKey: 306
+  movePivotKey: 308
+  multiDragKey: 308
+  fingerTexture: {fileID: 2800000, guid: 25c48be3a87ea0f489a6d41c9c9a2194, type: 3}
 --- !u!1 &1651389938
 GameObject:
   m_ObjectHideFlags: 0
@@ -3418,30 +2615,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83dcd8dace8b7fe449d796b980cb121d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DeselectOnUp: 1
-  HideWithFinger: 0
-  IsolateSelectingFingers: 0
-  onSelect:
+  selfSelected: 0
+  onSelected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectSet:
+  onDeselected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectUp:
+  use: 0
+  onSelectedFinger:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onDeselect:
+  onSelectedFingerUp:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  isSelected: 0
 --- !u!114 &1651389941
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3454,10 +2641,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2baa936f016a9a14e86ac8ea42211f4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AutoGetDefaultColor: 0
-  DefaultColor: {r: 1, g: 1, b: 1, a: 1}
-  SelectedColor: {r: 0, g: 1, b: 0, a: 1}
-  CloneMaterials: 1
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!54 &1651389942
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3501,6 +2686,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -3512,6 +2698,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -3562,7 +2749,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1670253847}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 7.28, y: -0.01, z: 0}
+  m_LocalPosition: {x: 7.4, y: -1.2, z: 0}
   m_LocalScale: {x: 3.8822856, y: 3.8822856, z: 3.8822856}
   m_Children:
   - {fileID: 721048741}
@@ -3581,30 +2768,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83dcd8dace8b7fe449d796b980cb121d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DeselectOnUp: 1
-  HideWithFinger: 0
-  IsolateSelectingFingers: 0
-  onSelect:
+  selfSelected: 0
+  onSelected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectSet:
+  onDeselected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectUp:
+  use: 0
+  onSelectedFinger:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onDeselect:
+  onSelectedFingerUp:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  isSelected: 0
 --- !u!114 &1670253850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3617,10 +2794,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2baa936f016a9a14e86ac8ea42211f4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AutoGetDefaultColor: 0
-  DefaultColor: {r: 1, g: 1, b: 1, a: 1}
-  SelectedColor: {r: 0, g: 1, b: 0, a: 1}
-  CloneMaterials: 1
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!54 &1670253851
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3664,6 +2839,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -3675,6 +2851,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -3744,30 +2921,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83dcd8dace8b7fe449d796b980cb121d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DeselectOnUp: 1
-  HideWithFinger: 0
-  IsolateSelectingFingers: 0
-  onSelect:
+  selfSelected: 0
+  onSelected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectSet:
+  onDeselected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectUp:
+  use: 0
+  onSelectedFinger:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onDeselect:
+  onSelectedFingerUp:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  isSelected: 0
 --- !u!114 &1719352963
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3780,10 +2947,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2baa936f016a9a14e86ac8ea42211f4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AutoGetDefaultColor: 0
-  DefaultColor: {r: 1, g: 1, b: 1, a: 1}
-  SelectedColor: {r: 0, g: 1, b: 0, a: 1}
-  CloneMaterials: 1
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!54 &1719352964
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -3827,6 +2992,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -3838,6 +3004,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -3916,27 +3083,23 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 0
     Distance: 0
-  Prefab: {fileID: 3998082982416662446}
-  MaxTrails: -1
-  FadeTime: 0.25
-  StartColor: {r: 1, g: 1, b: 1, a: 1}
-  EndColor: {r: 1, g: 1, b: 1, a: 1}
+  prefab: {fileID: 3998082982416662446}
+  maxTrails: -1
+  fadeTime: 0.25
+  startColor: {r: 1, g: 1, b: 1, a: 1}
+  endColor: {r: 1, g: 1, b: 1, a: 1}
   fingerDatas: []
-  WidthScale: 5
-  LengthMin: -1
-  LengthMax: 5
-  StartAtOrigin: 1
-  Invert: 0
+  widthScale: 5
+  lengthMin: -1
+  lengthMax: 5
+  startAtOrigin: 1
+  invert: 0
   onReleasedFrom:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedDelta:
     m_PersistentCalls:
       m_Calls:
@@ -3951,13 +3114,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
   onReleasedFromTo:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanDragLine+Vector3Vector3Event, LeanTouchPlus, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
 --- !u!114 &1739173407
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3970,23 +3129,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f22370ad318397a4db51eee9f01555ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Target: {fileID: 1044783961}
-  Space: 0
-  DirectionA: {x: 1, y: 0, z: 0}
-  DirectionB: {x: 0, y: 1, z: 0}
-  Multiplier: 0.075
-  Dampening: -1
-  Inertia: 0
-  ScaleByTime: 0
-  ResetVelocityInUpdate: 0
+  target: {fileID: 1044783961}
+  space: 0
+  directionA: {x: 1, y: 0, z: 0}
+  directionB: {x: 0, y: 1, z: 0}
+  multiplier: 0.075
+  damping: 10
+  scaleByTime: 0
+  inertia: 0
+  resetVelocityInUpdate: 0
   remainingDelta: {x: 0, y: 0, z: 0}
   controlling: 0
---- !u!4 &1739507247 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4230022635446840, guid: 45a078c8c70061e438942146f4695f2e,
-    type: 3}
-  m_PrefabInstance: {fileID: 746924020}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1762206068
 GameObject:
   m_ObjectHideFlags: 0
@@ -4017,7 +3170,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1762206068}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.89, y: 5.65, z: 0}
+  m_LocalPosition: {x: 1.5, y: 1.5, z: 0}
   m_LocalScale: {x: 1.4673694, y: 1.4673694, z: 1.4673694}
   m_Children:
   - {fileID: 5230722}
@@ -4036,30 +3189,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83dcd8dace8b7fe449d796b980cb121d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DeselectOnUp: 1
-  HideWithFinger: 0
-  IsolateSelectingFingers: 0
-  onSelect:
+  selfSelected: 0
+  onSelected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectSet:
+  onDeselected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectUp:
+  use: 0
+  onSelectedFinger:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onDeselect:
+  onSelectedFingerUp:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  isSelected: 0
 --- !u!114 &1762206071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4072,10 +3215,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2baa936f016a9a14e86ac8ea42211f4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AutoGetDefaultColor: 0
-  DefaultColor: {r: 1, g: 1, b: 1, a: 1}
-  SelectedColor: {r: 0, g: 1, b: 0, a: 1}
-  CloneMaterials: 1
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!54 &1762206072
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4119,6 +3260,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -4130,6 +3272,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -4150,7 +3293,7 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1762206068}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &1785649532
+--- !u!1 &1797057360
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4158,63 +3301,110 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1785649536}
-  - component: {fileID: 1785649535}
-  - component: {fileID: 1785649534}
+  - component: {fileID: 1797057364}
+  - component: {fileID: 1797057363}
+  - component: {fileID: 1797057362}
   m_Layer: 0
-  m_Name: EventSystem
+  m_Name: Press To Select
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1785649534
+--- !u!114 &1797057362
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1785649532}
+  m_GameObject: {fileID: 1797057360}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1077351063, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+  m_Script: {fileID: 11500000, guid: 479d695282ba6cf4ba3ab3c4848f05e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_HorizontalAxis: Horizontal
-  m_VerticalAxis: Vertical
-  m_SubmitButton: Submit
-  m_CancelButton: Cancel
-  m_InputActionsPerSecond: 10
-  m_RepeatDelay: 0.5
-  m_ForceModuleActive: 0
---- !u!114 &1785649535
+  deselectWithNothing: 0
+  limit: 0
+  maxSelectables: 0
+  reselect: 3
+  selectables: []
+  onSelected:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeselected:
+    m_PersistentCalls:
+      m_Calls: []
+  onNothing:
+    m_PersistentCalls:
+      m_Calls: []
+  ScreenQuery:
+    Method: 0
+    Layers:
+      serializedVersion: 2
+      m_Bits: 4294967291
+    Search: 1
+    RequiredTag: 
+    Camera: {fileID: 0}
+    Distance: 50
+  deselectWithFingers: 1
+  onSelectedFinger:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1797057363
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1785649532}
+  m_GameObject: {fileID: 1797057360}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -619905303, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+  m_Script: {fileID: 11500000, guid: bbb097c07812299498915a0a3e793843, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_FirstSelected: {fileID: 0}
-  m_sendNavigationEvents: 1
-  m_DragThreshold: 5
---- !u!4 &1785649536
+  ignoreStartedOverGui: 1
+  requiredSelectable: {fileID: 0}
+  onFinger:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1797057362}
+        m_MethodName: SelectScreenPosition
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  ScreenDepth:
+    Conversion: 1
+    Camera: {fileID: 0}
+    Object: {fileID: 0}
+    Layers:
+      serializedVersion: 2
+      m_Bits: 4294967291
+    Distance: 0
+  onWorld:
+    m_PersistentCalls:
+      m_Calls: []
+  onScreen:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!4 &1797057364
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1785649532}
+  m_GameObject: {fileID: 1797057360}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1899539479
 GameObject:
@@ -4246,7 +3436,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1899539479}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 6.3, y: 5.24, z: 0}
+  m_LocalPosition: {x: 6, y: 2.89, z: 0}
   m_LocalScale: {x: 2.9513245, y: 2.9513245, z: 2.9513245}
   m_Children:
   - {fileID: 476396445}
@@ -4265,30 +3455,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83dcd8dace8b7fe449d796b980cb121d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DeselectOnUp: 1
-  HideWithFinger: 0
-  IsolateSelectingFingers: 0
-  onSelect:
+  selfSelected: 0
+  onSelected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectSet:
+  onDeselected:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onSelectUp:
+  use: 0
+  onSelectedFinger:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: Lean.Touch.LeanSelectable+LeanFingerEvent, LeanTouch, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  onDeselect:
+  onSelectedFingerUp:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
-  isSelected: 0
 --- !u!114 &1899539482
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4301,10 +3481,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2baa936f016a9a14e86ac8ea42211f4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AutoGetDefaultColor: 0
-  DefaultColor: {r: 1, g: 1, b: 1, a: 1}
-  SelectedColor: {r: 0, g: 1, b: 0, a: 1}
-  CloneMaterials: 1
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!54 &1899539483
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4348,6 +3526,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -4359,6 +3538,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -4417,9 +3597,10 @@ Camera:
   m_ClearFlags: 1
   m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0.019607844}
   m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
-  m_GateFitMode: 2
   m_FocalLength: 50
   m_NormalizedViewPortRect:
     serializedVersion: 2
@@ -4457,10 +3638,9 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 557872753}
+  m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &3945522570799199246
 Transform:
@@ -4507,6 +3687,7 @@ LineRenderer:
   m_MotionVectors: 0
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -4518,6 +3699,7 @@ LineRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0

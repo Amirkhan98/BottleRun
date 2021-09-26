@@ -1,78 +1,69 @@
 using UnityEngine;
+using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
 
-namespace Lean.Touch
+namespace Lean.Common
 {
 	/// <summary>This component allows you to translate the specified Rigidbody2D when you call methods like <b>TranslateA</b>, which can be done from events.</summary>
-	[HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanManualTranslateRigidbody2D")]
-	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Manual Translate Rigidbody2D")]
+	[HelpURL(LeanHelper.PlusHelpUrlPrefix + "LeanManualTranslateRigidbody2D")]
+	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Manual Translate Rigidbody2D")]
 	public class LeanManualTranslateRigidbody2D : MonoBehaviour
 	{
 		/// <summary>If you want this component to work on a different GameObject, then specify it here. This can be used to improve organization if your GameObject already has many components.</summary>
-		[Tooltip("If you want this component to work on a different GameObject, then specify it here. This can be used to improve organization if your GameObject already has many components.")]
-		public GameObject Target;
+		public GameObject Target { set { target = value; } get { return target; } } [FSA("Target")] [SerializeField] private GameObject target;
 
 		/// <summary>This allows you to set the coordinate space the translation will use.</summary>
-		[Tooltip("This allows you to set the coordinate space the translation will use.")]
-		public Space Space;
+		public Space Space { set { space = value; } get { return space; } } [FSA("Space")] [SerializeField] private Space space;
 
 		/// <summary>The first translation direction, used when calling TranslateA or TranslateAB.</summary>
-		[Tooltip("The first translation direction, used when calling TranslateA or TranslateAB.")]
-		public Vector2 DirectionA = Vector2.right;
+		public Vector3 DirectionA { set { directionA = value; } get { return directionA; } } [FSA("DirectionA")] [SerializeField] private Vector3 directionA = Vector3.right;
 
 		/// <summary>The first second direction, used when calling TranslateB or TranslateAB.</summary>
-		[Tooltip("The first second direction, used when calling TranslateB or TranslateAB.")]
-		public Vector2 DirectionB = Vector2.up;
-
-		[Space]
+		public Vector3 DirectionB { set { directionB = value; } get { return directionB; } } [FSA("DirectionB")] [SerializeField] private Vector3 directionB = Vector3.up;
 
 		/// <summary>The translation distance is multiplied by this.
 		/// 1 = Normal distance.
 		/// 2 = Double distance.</summary>
-		[Tooltip("The translation distance is multiplied by this.\n\n1 = Normal distance.\n\n2 = Double distance.")]
-		public float Multiplier = 1.0f;
+		public float Multiplier { set { multiplier = value; } get { return multiplier; } } [FSA("Multiplier")] [SerializeField] private float multiplier = 1.0f;
+
+		/// <summary>If you enable this then the translation will be multiplied by Time.deltaTime. This allows you to maintain frame rate independent movement.</summary>
+		public bool ScaleByTime { set { scaleByTime = value; } get { return scaleByTime; } } [FSA("ScaleByTime")] [SerializeField] private bool scaleByTime;
 
 		/// <summary>If you want this component to change smoothly over time, then this allows you to control how quick the changes reach their target value.
 		/// -1 = Instantly change.
 		/// 1 = Slowly change.
 		/// 10 = Quickly change.</summary>
-		[Tooltip("If you want this component to change smoothly over time, then this allows you to control how quick the changes reach their target value.\n\n-1 = Instantly change.\n\n1 = Slowly change.\n\n10 = Quickly change.")]
-		public float Dampening = 10.0f;
+		public float Damping { set { damping = value; } get { return damping; } } [FSA("Dampening")] [SerializeField] private float damping = 10.0f;
 
-		/// <summary>If you enable this then the translation will be multiplied by Time.deltaTime. This allows you to maintain framerate independent movement.</summary>
-		[Tooltip("If you enable this then the translation will be multiplied by Time.deltaTime. This allows you to maintain framerate independent movement.")]
-		public bool ScaleByTime;
+		/// <summary>If you want this component to override velocity enable this, otherwise disable this and rely on Rigidbody.drag.</summary>
+		public bool ResetVelocityInUpdate { set { resetVelocityInUpdate = value; } get { return resetVelocityInUpdate; } } [FSA("ResetVelocityInUpdate")] [SerializeField] private bool resetVelocityInUpdate = true;
 
-		[Tooltip("If you want this component to override velocity enable this, otherwise disable this and rely on Rigidbody.drag")]
-		public bool ResetVelocityInUpdate = true;
-
-		[HideInInspector]
 		[SerializeField]
 		private Vector2 remainingDelta;
 
 		/// <summary>This method allows you to translate along DirectionA, with the specified multiplier.</summary>
 		public void TranslateA(float magnitude)
 		{
-			Translate(DirectionA * magnitude);
+			Translate(directionA * magnitude);
 		}
 
 		/// <summary>This method allows you to translate along DirectionB, with the specified multiplier.</summary>
 		public void TranslateB(float magnitude)
 		{
-			Translate(DirectionB * magnitude);
+			Translate(directionB * magnitude);
 		}
 
 		/// <summary>This method allows you to translate along DirectionA and DirectionB, with the specified multipliers.</summary>
 		public void TranslateAB(Vector2 magnitude)
 		{
-			Translate(DirectionA * magnitude.x + DirectionB * magnitude.y);
+			Translate(directionA * magnitude.x + directionB * magnitude.y);
 		}
 
 		/// <summary>This method allows you to translate along the specified vector in local space.</summary>
 		public void Translate(Vector3 vector)
 		{
-			if (Space == Space.Self)
+			if (space == Space.Self)
 			{
-				var finalTransform = Target != null ? Target.transform : transform;
+				var finalTransform = Target != null ? target.transform : transform;
 
 				vector = finalTransform.TransformVector(vector);
 			}
@@ -83,18 +74,18 @@ namespace Lean.Touch
 		/// <summary>This method allows you to translate along the specified vector in world space.</summary>
 		public void TranslateWorld(Vector3 vector)
 		{
-			if (ScaleByTime == true)
+			if (scaleByTime == true)
 			{
 				vector *= Time.deltaTime;
 			}
 
-			remainingDelta += (Vector2)vector * Multiplier;
+			remainingDelta += (Vector2)vector * multiplier;
 		}
 
 		protected virtual void FixedUpdate()
 		{
-			var finalTransform = Target != null ? Target.transform : transform;
-			var factor         = LeanTouch.GetDampenFactor(Dampening, Time.fixedDeltaTime);
+			var finalTransform = target != null ? target.transform : transform;
+			var factor         = LeanHelper.GetDampenFactor(Damping, Time.fixedDeltaTime);
 			var newDelta       = Vector2.Lerp(remainingDelta, Vector2.zero, factor);
 			var rigidbody      = finalTransform.GetComponent<Rigidbody2D>();
 
@@ -108,9 +99,9 @@ namespace Lean.Touch
 
 		protected virtual void Update()
 		{
-			if (ResetVelocityInUpdate == true)
+			if (resetVelocityInUpdate == true)
 			{
-				var finalGameObject = Target != null ? Target : gameObject;
+				var finalGameObject = target != null ? target : gameObject;
 				var rigidbody       = finalGameObject.GetComponent<Rigidbody2D>();
 
 				if (rigidbody != null)
@@ -121,3 +112,32 @@ namespace Lean.Touch
 		}
 	}
 }
+
+#if UNITY_EDITOR
+namespace Lean.Common.Editor
+{
+	using TARGET = LeanManualTranslateRigidbody2D;
+
+	[UnityEditor.CanEditMultipleObjects]
+	[UnityEditor.CustomEditor(typeof(TARGET))]
+	public class LeanManualTranslateRigidbody2D_Editor : LeanEditor
+	{
+		protected override void OnInspector()
+		{
+			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
+
+			Draw("target", "If you want this component to work on a different GameObject, then specify it here. This can be used to improve organization if your GameObject already has many components.");
+			Draw("space", "This allows you to set the coordinate space the translation will use.");
+			Draw("directionA", "The first translation direction, used when calling TranslateA or TranslateAB.");
+			Draw("directionB", "The first translation direction, used when calling TranslateB or TranslateAB.");
+
+			Separator();
+
+			Draw("multiplier", "The translation distance is multiplied by this.\n\n1 = Normal distance.\n\n2 = Double distance.");
+			Draw("scaleByTime", "If you enable this then the translation will be multiplied by Time.deltaTime. This allows you to maintain frame rate independent movement.");
+			Draw("damping", "If you want this component to change smoothly over time, then this allows you to control how quick the changes reach their target value.\n\n-1 = Instantly change.\n\n1 = Slowly change.\n\n10 = Quickly change.");
+			Draw("resetVelocityInUpdate", "If you want this component to override velocity enable this, otherwise disable this and rely on Rigidbody.drag.");
+		}
+	}
+}
+#endif

@@ -1,38 +1,32 @@
 using UnityEngine;
+using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
 
-namespace Lean.Touch
+namespace Lean.Common
 {
 	/// <summary>This component adds auto Yaw rotation to the attached LeanPitchYaw component.</summary>
 	[RequireComponent(typeof(LeanPitchYaw))]
-	[HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanPitchYaw")]
-	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Pitch Yaw")]
+	[HelpURL(LeanHelper.PlusHelpUrlPrefix + "LeanPitchYawAutoRotate")]
+	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Pitch Yaw Auto Rotate")]
 	public class LeanPitchYawAutoRotate : MonoBehaviour
 	{
 		/// <summary>The amount of seconds until auto rotation begins after no touches.</summary>
-		[Tooltip("The amount of seconds until auto rotation begins after no touches.")]
-		public float Delay = 5.0f;
+		public float Delay { set { delay = value; } get { return delay; } } [FSA("Delay")] [SerializeField] private float delay = 5.0f;
 
 		/// <summary>The speed of the yaw changes.</summary>
-		[Tooltip("The speed of the yaw changes.")]
-		public float Speed = 5.0f;
+		public float Speed { set { speed = value; } get { return speed; } } [FSA("Speed")] [SerializeField] private float speed = 5.0f;
 
 		/// <summary>The speed the auto rotation goes from 0% to 100%.</summary>
-		[Tooltip("The speed the auto rotation goes from 0% to 100%.")]
-		public float Acceleration = 1.0f;
+		public float Acceleration { set { acceleration = value; } get { return acceleration; } } [FSA("Acceleration")] [SerializeField] private float acceleration = 1.0f;
 
-		[HideInInspector]
 		[SerializeField]
 		private float idleTime;
 
-		[HideInInspector]
 		[SerializeField]
 		private float strength;
 
-		[HideInInspector]
 		[SerializeField]
 		private float expectedPitch;
 
-		[HideInInspector]
 		[SerializeField]
 		private float expectedYaw;
 
@@ -50,11 +44,11 @@ namespace Lean.Touch
 			{
 				idleTime += Time.deltaTime;
 
-				if (idleTime >= Delay)
+				if (idleTime >= delay)
 				{
-					strength += Acceleration * Time.deltaTime;
+					strength += acceleration * Time.deltaTime;
 
-					cachedPitchYaw.Yaw += Mathf.Clamp01(strength) * Speed * Time.deltaTime;
+					cachedPitchYaw.Yaw += Mathf.Clamp01(strength) * speed * Time.deltaTime;
 
 					//cachedPitchYaw.UpdateRotation();
 				}
@@ -70,3 +64,24 @@ namespace Lean.Touch
 		}
 	}
 }
+
+#if UNITY_EDITOR
+namespace Lean.Common.Editor
+{
+	using TARGET = LeanPitchYawAutoRotate;
+
+	[UnityEditor.CanEditMultipleObjects]
+	[UnityEditor.CustomEditor(typeof(TARGET))]
+	public class LeanPitchYawAutoRotate_Editor : LeanEditor
+	{
+		protected override void OnInspector()
+		{
+			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
+
+			Draw("delay", "The amount of seconds until auto rotation begins after no touches.");
+			Draw("speed", "The speed of the yaw changes.");
+			Draw("acceleration", "The speed the auto rotation goes from 0% to 100%.");
+		}
+	}
+}
+#endif

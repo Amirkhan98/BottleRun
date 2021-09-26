@@ -1,46 +1,47 @@
 using UnityEngine;
 using System.Collections.Generic;
+using FSA = UnityEngine.Serialization.FormerlySerializedAsAttribute;
 
-namespace Lean.Touch
+namespace Lean.Common
 {
 	/// <summary>This script will constrain the current transform.position to the specified colliders.
 	/// NOTE: If you're using a MeshCollider then it must be marked as <b>convex</b>.</summary>
-	[HelpURL(LeanTouch.PlusHelpUrlPrefix + "LeanConstrainToColliders")]
-	[AddComponentMenu(LeanTouch.ComponentPathPrefix + "Constrain To Colliders")]
+	[DefaultExecutionOrder(200)]
+	[HelpURL(LeanHelper.PlusHelpUrlPrefix + "LeanConstrainToColliders")]
+	[AddComponentMenu(LeanHelper.ComponentPathPrefix + "Constrain To Colliders")]
 	public class LeanConstrainToColliders : MonoBehaviour
 	{
 		/// <summary>The colliders this transform will be constrained to.</summary>
-		[Tooltip("The colliders this transform will be constrained to.")]
-		public List<Collider> Colliders;
+		public List<Collider> Colliders { get { if (colliders == null) colliders = new List<Collider>(); return colliders; } } [FSA("Colliders")] [SerializeField] private List<Collider> colliders;
 
 		protected virtual void LateUpdate()
 		{
-			if (Colliders != null)
+			if (colliders != null)
 			{
-				var position = transform.position;
-				var closest  = default(Vector3);
-				var distance = float.PositiveInfinity;
-				var count    = 0;
-				var moved    = 0;
+				var oldPosition = transform.position;
+				var newPosition = default(Vector3);
+				var distance    = float.PositiveInfinity;
+				var count       = 0;
+				var moved       = 0;
 
-				for (var i = Colliders.Count - 1; i >= 0; i--)
+				for (var i = colliders.Count - 1; i >= 0; i--)
 				{
-					var collider = Colliders[i];
+					var collider = colliders[i];
 
 					if (collider != null)
 					{
-						var newPosition = collider.ClosestPoint(position);
+						var testPosition = collider.ClosestPoint(oldPosition);
 
-						if (newPosition != position)
+						if (testPosition != oldPosition)
 						{
 							moved++;
 
-							var newDistance = Vector3.SqrMagnitude(newPosition - position);
+							var testDistance = Vector3.SqrMagnitude(testPosition - oldPosition);
 							
-							if (newDistance < distance)
+							if (testDistance < distance)
 							{
-								distance = newDistance;
-								closest  = newPosition;
+								distance    = testDistance;
+								newPosition = testPosition;
 							}
 						}
 
@@ -50,9 +51,33 @@ namespace Lean.Touch
 
 				if (count > 0 && count == moved)
 				{
-					transform.position = closest;
+					if (Mathf.Approximately(oldPosition.x, newPosition.x) == false ||
+						Mathf.Approximately(oldPosition.y, newPosition.y) == false ||
+						Mathf.Approximately(oldPosition.z, newPosition.z) == false)
+					{
+						transform.position = newPosition;
+					}
 				}
 			}
 		}
 	}
 }
+
+#if UNITY_EDITOR
+namespace Lean.Common.Editor
+{
+	using TARGET = LeanConstrainToColliders;
+
+	[UnityEditor.CanEditMultipleObjects]
+	[UnityEditor.CustomEditor(typeof(TARGET))]
+	public class LeanConstrainToColliders_Editor : LeanEditor
+	{
+		protected override void OnInspector()
+		{
+			TARGET tgt; TARGET[] tgts; GetTargets(out tgt, out tgts);
+
+			Draw("colliders", "The colliders this transform will be constrained to.");
+		}
+	}
+}
+#endif
