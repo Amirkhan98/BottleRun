@@ -12,6 +12,18 @@ public class Movement : MonoBehaviour
     void Update()
     {
         transform.Translate(0, 0, speed * Time.deltaTime);
+
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+
+            if (touch.phase == TouchPhase.Stationary || touch.phase == TouchPhase.Moved)
+            {
+                Vector3 touchedPos =
+                    Camera.main.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, 10));
+                transform.position = Vector3.Lerp(transform.position, touchedPos, Time.deltaTime);
+            }
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -30,6 +42,12 @@ public class Movement : MonoBehaviour
                 putToRight = true;
                 count++;
             }
+
+            other.transform.DORotate(new Vector3(0, 0, -30f), 1f).OnComplete(() =>
+            {
+                other.transform.GetChild(1).gameObject.SetActive(true);
+            });
+            // other.GetComponent<Collider>().enabled = false;
         }
     }
 }
