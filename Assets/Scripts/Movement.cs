@@ -1,4 +1,3 @@
-using System;
 using DG.Tweening;
 using UnityEngine;
 
@@ -43,11 +42,10 @@ public class Movement : MonoBehaviour
                 count++;
             }
 
-            other.transform.DORotate(new Vector3(0, 0, -30f), 1f).OnComplete(() =>
+            other.transform.DORotate(new Vector3(120, 90, 0), 1f).OnComplete(() =>
             {
-                other.transform.GetChild(1).gameObject.SetActive(true);
+                other.transform.GetChild(0).gameObject.SetActive(true);
             });
-            // other.GetComponent<Collider>().enabled = false;
         }
     }
 }
