@@ -43,10 +43,11 @@ public class Movement : MonoBehaviour
                 count++;
             }
 
-            other.transform.DORotate(new Vector3(120, 90, 0), 1f).OnComplete(() =>
+            other.transform.DORotate(new Vector3(0, 180, -150), 1f).OnComplete(() =>
             {
                 other.transform.GetChild(0).gameObject.SetActive(true);
                 other.GetComponent<Collider>().enabled = true;
+                other.GetComponent<Collider>().isTrigger = false;
             });
         }
     }
