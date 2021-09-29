@@ -5,7 +5,7 @@ public class Movement : MonoBehaviour
 {
     [SerializeField] private float speed;
     private bool putToRight = true;
-    private float offset = 0.16f;
+    private float offset = 0.19f;
     private int count = 1;
 
     void Update()
@@ -29,6 +29,7 @@ public class Movement : MonoBehaviour
     {
         if (other.CompareTag("Bottle"))
         {
+            other.GetComponent<Collider>().enabled = false;
             other.transform.parent = transform;
             if (putToRight)
             {
@@ -45,6 +46,7 @@ public class Movement : MonoBehaviour
             other.transform.DORotate(new Vector3(120, 90, 0), 1f).OnComplete(() =>
             {
                 other.transform.GetChild(0).gameObject.SetActive(true);
+                other.GetComponent<Collider>().enabled = true;
             });
         }
     }
