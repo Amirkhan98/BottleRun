@@ -25,30 +25,30 @@ public class Movement : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    public void OnTriggerEnterChild(Collider other)
     {
-        if (other.CompareTag("Bottle"))
+        other.GetComponent<Collider>().enabled = false;
+        other.transform.parent = transform;
+        if (putToRight)
         {
-            other.GetComponent<Collider>().enabled = false;
-            other.transform.parent = transform;
-            if (putToRight)
-            {
-                other.transform.DOLocalMove(new Vector3(offset * count, 0, 0), 1f);
-                putToRight = false;
-            }
-            else
-            {
-                other.transform.DOLocalMove(new Vector3(-offset * count, 0, 0), 1f);
-                putToRight = true;
-                count++;
-            }
-
-            other.transform.DORotate(new Vector3(0, 180, -150), 1f).OnComplete(() =>
-            {
-                other.transform.GetChild(0).gameObject.SetActive(true);
-                other.GetComponent<Collider>().enabled = true;
-                other.GetComponent<Collider>().isTrigger = false;
-            });
+            other.transform.DOLocalMove(new Vector3(offset * count, 0, 0), 1f);
+            putToRight = false;
         }
+        else
+        {
+            other.transform.DOLocalMove(new Vector3(-offset * count, 0, 0), 1f);
+            putToRight = true;
+            count++;
+        }
+
+        other.transform.DORotate(new Vector3(0, 180, -150), 1f).OnComplete(() =>
+        {
+            other.transform.GetChild(0).gameObject.SetActive(true);
+            other.GetComponent<Collider>().enabled = true;
+            other.GetComponent<Collider>().isTrigger = false;
+            Rigidbody rb = other.gameObject.AddComponent<Rigidbody>();
+            rb.isKinematic = true;
+            other.gameObject.AddComponent<Bottle>();
+        });
     }
 }

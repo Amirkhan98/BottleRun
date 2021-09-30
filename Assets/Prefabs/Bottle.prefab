@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: 1051921921025047044}
   - component: {fileID: 1051921921025047045}
   - component: {fileID: 1051921921025047043}
-  - component: {fileID: 3168920851429891792}
   m_Layer: 0
   m_Name: Bottle
   m_TagString: Bottle
@@ -129,8 +128,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   destroyOriginal: 1
   generation: 1
-  generationLimit: 3
-  cuts: 5
+  generationLimit: 2
+  cuts: 3
   fillCut: 1
   internalHullType: 0
 --- !u!64 &1051921921025047043
@@ -147,18 +146,6 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: dc3a1db86c73bb14f8ebd6e2953b7e70, type: 3}
---- !u!114 &3168920851429891792
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1051921921025047040}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a2c2776839f56504981be07c2c0d0d33, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1051921921025047046
 GameObject:
   m_ObjectHideFlags: 0
@@ -170,9 +157,6 @@ GameObject:
   - component: {fileID: 1051921921024943654}
   - component: {fileID: 1051921921024140806}
   - component: {fileID: 1051921921023042758}
-  - component: {fileID: 1051921921025047053}
-  - component: {fileID: 1051921921025047050}
-  - component: {fileID: 1051921921025047051}
   - component: {fileID: 1051921921025047048}
   - component: {fileID: 1051921921025047049}
   m_Layer: 0
@@ -245,51 +229,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &1051921921025047053
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1051921921025047046}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62b9da142b71b40e6ada0cf8dc2aa245, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  requiredVelocity: 0.2
-  cooldownTime: 0.5
---- !u!114 &1051921921025047050
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1051921921025047046}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ffc51ee67eb749739cd646e30301d94, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  scale: {x: 1, y: 1}
---- !u!114 &1051921921025047051
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1051921921025047046}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f62b7025d7cc0442fbf846681e55cb7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  destroyOriginal: 1
-  generation: 1
-  generationLimit: 3
-  cuts: 5
-  fillCut: 1
-  internalHullType: 0
 --- !u!54 &1051921921025047048
 Rigidbody:
   m_ObjectHideFlags: 0
