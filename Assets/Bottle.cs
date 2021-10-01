@@ -2,6 +2,10 @@ using UnityEngine;
 
 public class Bottle : MonoBehaviour
 {
+    [SerializeField] private ParticleSystem fluid;
+    [SerializeField] private GameObject wrapper;
+    [SerializeField] private GameObject paint;
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Bottle"))
@@ -14,9 +18,10 @@ public class Bottle : MonoBehaviour
         {
             transform.parent = null;
             GetComponent<Rigidbody>().isKinematic = false;
-            transform.GetChild(0).gameObject.SetActive(false);
-            transform.GetChild(1).GetComponent<Rigidbody>().isKinematic = false;
-            transform.GetChild(1).parent = null;
+            fluid.gameObject.SetActive(false);
+            wrapper.GetComponent<Rigidbody>().isKinematic = false;
+            wrapper.transform.parent = null;
+            paint.SetActive(false);
             Destroy(this);
         }
     }

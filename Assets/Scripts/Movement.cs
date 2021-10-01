@@ -48,7 +48,7 @@ public class Movement : MonoBehaviour
             other.GetComponent<Collider>().isTrigger = false;
             Rigidbody rb = other.gameObject.AddComponent<Rigidbody>();
             rb.isKinematic = true;
-            other.gameObject.AddComponent<Bottle>();
         });
+        other.gameObject.GetComponent<Bottle>().enabled = true;
     }
 }
