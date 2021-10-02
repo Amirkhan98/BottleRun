@@ -43,12 +43,13 @@ public class Movement : MonoBehaviour
 
         other.transform.DORotate(new Vector3(0, 180, -150), 1f).OnComplete(() =>
         {
-            other.transform.GetChild(0).gameObject.SetActive(true);
+            other.gameObject.GetComponent<Bottle>().SetActivePaintAndFluid();
             other.GetComponent<Collider>().enabled = true;
             other.GetComponent<Collider>().isTrigger = false;
             Rigidbody rb = other.gameObject.AddComponent<Rigidbody>();
             rb.isKinematic = true;
         });
         other.gameObject.GetComponent<Bottle>().enabled = true;
+        other.gameObject.GetComponent<Bottle>().canTrigger = true;
     }
 }

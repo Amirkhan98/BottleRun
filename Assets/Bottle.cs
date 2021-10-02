@@ -1,3 +1,4 @@
+using Cinemachine;
 using UnityEngine;
 
 public class Bottle : MonoBehaviour
@@ -5,9 +6,11 @@ public class Bottle : MonoBehaviour
     [SerializeField] private ParticleSystem fluid;
     [SerializeField] private GameObject wrapper;
     [SerializeField] private GameObject paint;
+    public bool canTrigger;
 
     private void OnTriggerEnter(Collider other)
     {
+        if (!canTrigger) return;
         if (other.CompareTag("Bottle"))
         {
             Debug.Log(other.name);
@@ -24,6 +27,12 @@ public class Bottle : MonoBehaviour
             paint.SetActive(false);
             Destroy(this);
         }
+    }
+
+    public void SetActivePaintAndFluid()
+    {
+        // paint.SetActive(true);
+        fluid.gameObject.SetActive(true);
     }
 
     private void Update()

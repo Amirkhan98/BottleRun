@@ -163,6 +163,7 @@ MonoBehaviour:
   fluid: {fileID: 4024444629570993858}
   wrapper: {fileID: 1051921921025047046}
   paint: {fileID: 2128651702777082546}
+  canTrigger: 0
 --- !u!1 &1051921921025047046
 GameObject:
   m_ObjectHideFlags: 0
@@ -5118,7 +5119,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5119888012957318668
 Transform:
   m_ObjectHideFlags: 0
@@ -10212,27 +10213,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1259529471566535292, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.034483187
+      value: 0.8333333
       objectReference: {fileID: 0}
     - target: {fileID: 1259529471566535292, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.06551827
+      value: 0.8333333
       objectReference: {fileID: 0}
     - target: {fileID: 1259529471566535292, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.11912489
+      value: 0.8333333
       objectReference: {fileID: 0}
     - target: {fileID: 1259529471566535292, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.0017
+      value: -0.0011
       objectReference: {fileID: 0}
     - target: {fileID: 1259529471566535292, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.57
+      value: 0.5753
       objectReference: {fileID: 0}
     - target: {fileID: 1259529471566535292, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.0011
+      value: 0.003
       objectReference: {fileID: 0}
     - target: {fileID: 1259529471566535292, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
       propertyPath: m_LocalRotation.w
