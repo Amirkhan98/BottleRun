@@ -7,6 +7,7 @@ public class Glass : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Bottle"))
         {
+            PlayerController.OnWineGlassFill.Invoke();
             GetComponent<Collider>().enabled = false;
             transform.GetChild(0).gameObject.SetActive(true);
             transform.DOMoveY(transform.position.y + 0.1f, 0.1f)

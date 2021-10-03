@@ -1,4 +1,3 @@
-using Cinemachine;
 using UnityEngine;
 
 public class Bottle : MonoBehaviour
@@ -14,7 +13,7 @@ public class Bottle : MonoBehaviour
         if (other.CompareTag("Bottle"))
         {
             Debug.Log(other.name);
-            transform.parent.GetComponent<Movement>().OnTriggerEnterChild(other);
+            transform.parent.GetComponent<PlayerController>().OnTriggerEnterChild(other);
         }
 
         if (other.CompareTag("Obstacle"))
@@ -26,6 +25,11 @@ public class Bottle : MonoBehaviour
             wrapper.transform.parent = null;
             paint.SetActive(false);
             Destroy(this);
+        }
+
+        if (other.name == "Finish")
+        {
+            PlayerController.OnFinish.Invoke();
         }
     }
 
