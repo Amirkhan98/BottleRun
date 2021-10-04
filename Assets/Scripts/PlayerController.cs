@@ -1,7 +1,7 @@
 using System;
+using System.Collections.Generic;
 using DG.Tweening;
 using Lean.Touch;
-using MoreMountains.Tools;
 using TMPro;
 using UnityEngine;
 
@@ -10,17 +10,20 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float speed;
     private bool putToRight = true;
     private float offset = 0.19f;
-    private int count = 1;
     public static Action OnFinish;
     public static Action OnWineGlassFill;
+    public static Action<GameObject> onObstacleHit;
     private int filledWineGlasses = 0;
     [SerializeField] private GameObject thief;
     [SerializeField] private TextMeshProUGUI wineGlassesCountText;
+    private List<GameObject> bottles = new List<GameObject>();
 
     private void Start()
     {
+        bottles.Add(transform.GetChild(0).gameObject);
         OnFinish += Finish;
         OnWineGlassFill += WineGlassFill;
+        onObstacleHit += ObstacleHit;
     }
 
     void Update()
@@ -44,17 +47,9 @@ public class PlayerController : MonoBehaviour
     {
         other.GetComponent<Collider>().enabled = false;
         other.transform.parent = transform;
-        if (putToRight)
-        {
-            other.transform.DOLocalMove(new Vector3(offset * count, 0, 0), 1f);
-            putToRight = false;
-        }
-        else
-        {
-            other.transform.DOLocalMove(new Vector3(-offset * count, 0, 0), 1f);
-            putToRight = true;
-            count++;
-        }
+        bottles.Add(other.gameObject);
+        Debug.Log("Added = " + bottles.Count);
+        RearrangeBottles();
 
         other.transform.DORotate(new Vector3(0, 180, -150), 1f).OnComplete(() =>
         {
@@ -66,6 +61,42 @@ public class PlayerController : MonoBehaviour
         });
         other.gameObject.GetComponent<Bottle>().enabled = true;
         other.gameObject.GetComponent<Bottle>().canTrigger = true;
+    }
+
+    void ObstacleHit(GameObject bottleToRemove)
+    {
+        bottles.RemoveAll(x => x.name == bottleToRemove.name);
+        Debug.Log("Removed = " + bottles.Count);
+        RearrangeBottles();
+    }
+
+    private void RearrangeBottles()
+    {
+        int count = 1;
+        bool firstBottle = true;
+        foreach (var bottle in bottles)
+        {
+            if (firstBottle)
+            {
+                bottle.transform.localPosition = Vector3.zero;
+                firstBottle = false;
+                continue;
+            }
+
+            if (putToRight)
+            {
+                bottle.transform.DOLocalMove(new Vector3(offset * count, 0, 0), 1f);
+                putToRight = false;
+            }
+            else
+            {
+                bottle.transform.DOLocalMove(new Vector3(-offset * count, 0, 0), 1f);
+                putToRight = true;
+                count++;
+            }
+        }
+
+        putToRight = true;
     }
 
     void Finish()

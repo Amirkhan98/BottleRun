@@ -4,7 +4,6 @@ public class Bottle : MonoBehaviour
 {
     [SerializeField] private ParticleSystem fluid;
     [SerializeField] private GameObject wrapper;
-    [SerializeField] private GameObject paint;
     public bool canTrigger;
 
     private void OnTriggerEnter(Collider other)
@@ -18,12 +17,12 @@ public class Bottle : MonoBehaviour
 
         if (other.CompareTag("Obstacle"))
         {
+            PlayerController.onObstacleHit(gameObject);
             transform.parent = null;
             GetComponent<Rigidbody>().isKinematic = false;
             fluid.gameObject.SetActive(false);
             wrapper.GetComponent<Rigidbody>().isKinematic = false;
             wrapper.transform.parent = null;
-            paint.SetActive(false);
             Destroy(this);
         }
 

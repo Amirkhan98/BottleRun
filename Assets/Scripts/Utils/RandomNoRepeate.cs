@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Deslab.Utils
+namespace Amir.Utils
 {
     public class RandomNoRepeate
     {

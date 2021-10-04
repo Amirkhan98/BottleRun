@@ -4,7 +4,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Deslab.UI
+namespace Amir.UI
 {
     [RequireComponent(typeof(CanvasGroup))]
     public class CanvasGroupWindow : MonoBehaviour

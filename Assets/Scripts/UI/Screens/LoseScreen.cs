@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 //using Deslab.Scripts.Deslytics;
 
-namespace Deslab.UI
+namespace Amir.UI
 {
     public class LoseScreen : CanvasGroupWindow
     {

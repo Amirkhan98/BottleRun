@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Deslab.Utils
+namespace Amir.Utils
 {
     public class CameraConstantWidth : MonoBehaviour
     {

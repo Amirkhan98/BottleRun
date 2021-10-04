@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using Amir.Level;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 
-using Deslab.Level;
 //using Deslab.Scripts.Deslytics;
 
-namespace Deslab.UI
+namespace Amir.UI
 {
     [Serializable]
     public struct UpgradePanel

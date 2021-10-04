@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Deslab.Level
+namespace Amir.Level
 {
     [Serializable]
     public class ColorScheme

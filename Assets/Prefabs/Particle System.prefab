@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1259529471566535295}
   - component: {fileID: 1259529471566535294}
   - component: {fileID: 1259529471935285213}
-  - component: {fileID: 220091255379329140}
+  - component: {fileID: 1505358754}
   m_Layer: 0
   m_Name: Particle System
   m_TagString: Untagged
@@ -4822,14 +4822,14 @@ MonoBehaviour:
   _camera: {fileID: 0}
   normal: 0
   offset: 0
-  skip: 5
+  skip: 3
   preview: 0
   priority: 0
   pressureMode: 0
   pressureMin: 0
   pressureMax: 0
   pressureMultiplier: 1
---- !u!114 &220091255379329140
+--- !u!114 &1505358754
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4838,34 +4838,27 @@ MonoBehaviour:
   m_GameObject: {fileID: 1259529471566535289}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b36498e7e45483f478ff74ab3f1cb21c, type: 3}
+  m_Script: {fileID: 11500000, guid: 724ff6f732015ec4e8fecdb3d889fb82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   layers:
     serializedVersion: 2
     m_Bits: 4294967295
-  targetModel: {fileID: 0}
   group:
     index: 0
+  targetModel: {fileID: 0}
   targetTexture: {fileID: 0}
   blendMode:
     Index: 0
     Texture: {fileID: 0}
     Color: {r: 1, g: 1, b: 1, a: 1}
     Channels: {x: 1, y: 1, z: 1, w: 1}
-  texture: {fileID: 2800000, guid: 70b110d2da8a5fe47b52682ec2f4b775, type: 3}
-  shape: {fileID: 0}
-  shapeChannel: 3
-  color: {r: 0.30588236, g: 0.011764707, b: 0.16470589, a: 1}
+  color: {r: 0.30588236, g: 0.011764706, b: 0.16470589, a: 1}
   opacity: 1
   angle: 0
   scale: {x: 1, y: 1, z: 1}
-  radius: 0.2
-  hardness: 3
-  wrapping: 1
-  normalFront: 1
-  normalBack: 0
-  normalFade: 0.01
+  radius: 0.15
+  hardness: 1
   tileTexture: {fileID: 0}
   tileTransform: {fileID: 0}
   tileOpacity: 1

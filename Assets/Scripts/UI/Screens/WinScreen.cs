@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 
-namespace Deslab.UI
+namespace Amir.UI
 {
     [Serializable]
     public class EndGameStars
