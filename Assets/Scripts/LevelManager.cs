@@ -26,21 +26,23 @@ namespace Amir.Level
             if (currentPlayer != null) Destroy(currentPlayer);
 
             GameObject _instance;
-            _instance = Instantiate(Resources.Load("Levels/Level_" + StaticManager.GetLevelID(), typeof(GameObject))) as GameObject;
+            _instance =
+                Instantiate(Resources.Load("Levels/Level_" + StaticManager.GetLevelID(), typeof(GameObject))) as
+                    GameObject;
             ResetTransform(_instance.transform);
             currentLevel = _instance;
 
             LevelSettings levelSettings = _instance.GetComponent<LevelSettings>();
 
             GameObject playerInstance;
-            playerInstance = Instantiate(Resources.Load("Player/PlayerController", typeof(GameObject))) as GameObject;
-            ResetTransform(playerInstance.transform);
-            currentPlayer = playerInstance;
+            // playerInstance = Instantiate(Resources.Load("Player/PlayerController", typeof(GameObject))) as GameObject;
+            // ResetTransform(playerInstance.transform);
+            // currentPlayer = playerInstance;
 
-            levelProgression.startPoint = levelSettings.startLevelPoint;
-            levelProgression.endPoint = levelSettings.endLevelPoint;
-            levelProgression.playerTransform = playerInstance.transform;
-            levelProgression.SetDistance();
+            // levelProgression.startPoint = levelSettings.startLevelPoint;
+            // levelProgression.endPoint = levelSettings.endLevelPoint;
+            // levelProgression.playerTransform = playerInstance.transform;
+            // levelProgression.SetDistance();
         }
 
         /// <summary>
@@ -59,7 +61,7 @@ namespace Amir.Level
         /// </summary>
         internal void StartLevel()
         {
-           //Make what you need when game/level started
+            //Make what you need when game/level started
         }
     }
 }

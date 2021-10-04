@@ -3,6 +3,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using UnityEngine.SceneManagement;
+
 //using Deslab.Scripts.Deslytics;
 
 namespace Amir.UI
@@ -23,8 +25,9 @@ namespace Amir.UI
                 StaticManager.reloadLevel = true;
                 //DeslyticsManager.LevelRestart();
                 UIManager.instance.ShowMenu();
-                StaticManager.LoadNextLevel();
-        });
+                StaticManager.Restart();
+                SceneManager.LoadScene(0);
+            });
         }
 
         public override void ShowWindow(Action onCompleted = null)
@@ -42,10 +45,7 @@ namespace Amir.UI
 
         public override void HideWindow()
         {
-            base.HideWindow(() =>
-            {
-                claimButton.transform.localScale = Vector3.zero;
-            });
+            base.HideWindow(() => { claimButton.transform.localScale = Vector3.zero; });
         }
 
         private void ClaimCoins()
@@ -62,10 +62,10 @@ namespace Amir.UI
             }
 
             float currentCoinsVal = int.Parse(earningsMoneyCount.text);
-            StaticManager.moneyCollectedOnLevel = (int)money;
+            StaticManager.moneyCollectedOnLevel = (int) money;
             DOTween.To(() => currentCoinsVal, x => currentCoinsVal = x, money, 0.3f).OnUpdate(() =>
             {
-                currentCoinsVal = (int)Mathf.Round(currentCoinsVal);
+                currentCoinsVal = (int) Mathf.Round(currentCoinsVal);
                 earningsMoneyCount.text = currentCoinsVal + "";
             }).SetDelay(fadeTime);
             claimButton.transform.DOScale(1, 0.2f).SetDelay(fadeTime).SetEase(Ease.InOutSine);

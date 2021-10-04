@@ -138,7 +138,7 @@ public class StaticManager : MonoBehaviour
         }
 
         instance.levelManager.LoadLevelFromResources();
-        UIManager.instance.SetUpgradesStats(instance.playerData.playerUpgradeData);
+        // UIManager.instance.SetUpgradesStats(instance.playerData.playerUpgradeData);
         ValueChanged();
     }
 

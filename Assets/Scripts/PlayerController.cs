@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Amir.Level;
+using Amir.UI;
 using DG.Tweening;
 using Lean.Touch;
 using TMPro;
@@ -17,6 +19,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject thief;
     [SerializeField] private TextMeshProUGUI wineGlassesCountText;
     private List<GameObject> bottles = new List<GameObject>();
+    static public bool moving = true;
 
     private void Start()
     {
@@ -28,7 +31,8 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        transform.Translate(0, 0, speed * Time.deltaTime);
+        if (moving)
+            transform.Translate(0, 0, speed * Time.deltaTime);
 
         if (Input.touchCount > 0)
         {
@@ -65,9 +69,19 @@ public class PlayerController : MonoBehaviour
 
     void ObstacleHit(GameObject bottleToRemove)
     {
-        bottles.RemoveAll(x => x.name == bottleToRemove.name);
-        Debug.Log("Removed = " + bottles.Count);
+        bottles.Remove(bottleToRemove);
+        if (bottles.Count == 0)
+        {
+            Lose();
+        }
+
         RearrangeBottles();
+    }
+
+    void Lose()
+    {
+        UIManager.instance.ShowLoseSrceen();
+        moving = false;
     }
 
     private void RearrangeBottles()
@@ -101,7 +115,8 @@ public class PlayerController : MonoBehaviour
 
     void Finish()
     {
-        speed = 0;
+        moving = false;
+        Camera.main.transform.DOMoveZ(Camera.main.transform.position.z + 3f, 2f);
         GetComponent<LeanDragTranslate>().enabled = false;
         thief.GetComponent<Animator>().SetTrigger("Turn");
         thief.transform.DORotate(new Vector3(0, 0, 0), 3f).OnComplete(() =>

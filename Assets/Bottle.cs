@@ -36,6 +36,8 @@ public class Bottle : MonoBehaviour
     {
         // paint.SetActive(true);
         fluid.gameObject.SetActive(true);
+        var space = fluid.main;
+        space.customSimulationSpace = Camera.main.transform;
     }
 
     private void Update()
