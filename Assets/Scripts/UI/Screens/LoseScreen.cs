@@ -26,6 +26,8 @@ namespace Amir.UI
                 //DeslyticsManager.LevelRestart();
                 UIManager.instance.ShowMenu();
                 StaticManager.Restart();
+                Destroy(StaticManager.instance.gameObject);
+                PlayerController.moving = true;
                 SceneManager.LoadScene(0);
             });
         }
@@ -34,7 +36,7 @@ namespace Amir.UI
         {
             int failedLevel = StaticManager.levelID;
             earningsMoneyCount.text = "0";
-            failedLevelLabel.text = "LEVEL " + failedLevel + "\n FAILED";
+            failedLevelLabel.text = "LEVEL " + (failedLevel + 1) + "\n FAILED";
             base.ShowWindow(() =>
             {
                 ClaimCoins();

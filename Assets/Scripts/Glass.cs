@@ -12,8 +12,8 @@ public class Glass : MonoBehaviour
             transform.GetChild(0).gameObject.SetActive(true);
             transform.DOMoveY(transform.position.y + 0.1f, 0.1f)
                 .OnComplete(() =>
-                    transform.DOScale(transform.localScale * 1.5f, 0.2f)
-                        .OnComplete(() => transform.DOScale(transform.localScale / 1.5f, 0.2f)
+                    transform.DOScale(transform.localScale * 1.3f, 0.2f)
+                        .OnComplete(() => transform.DOScale(transform.localScale / 1.3f, 0.2f)
                             .OnComplete(() => { transform.DOMoveY(transform.position.y - 0.1f, 0.1f); }))
                 );
         }

@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using UnityEngine.SceneManagement;
 
 namespace Amir.UI
 {
@@ -23,7 +24,8 @@ namespace Amir.UI
                 .SetDelay(showDelay)
                 .OnComplete(() =>
                 {
-                    sparkParticle.Play(); StaticManager.LightVibrate();
+                    sparkParticle.Play();
+                    StaticManager.LightVibrate();
                 });
         }
 
@@ -45,13 +47,17 @@ namespace Amir.UI
         {
             claimButton.onClick.AddListener(() =>
             {
+                StaticManager.levelID++;
                 claimButton.interactable = false;
                 claimButton.transform.localScale = Vector3.zero;
                 StaticManager.AddMoney(StaticManager.moneyCollectedOnLevel);
                 StaticManager.SavePlayerData();
                 StaticManager.Restart();
                 UIManager.instance.ShowMenu();
-                StaticManager.LoadNextLevel();
+                // StaticManager.LoadNextLevel();
+                Destroy(StaticManager.instance.gameObject);
+                PlayerController.moving = true;
+                SceneManager.LoadScene(0);
             });
         }
 
@@ -71,7 +77,8 @@ namespace Amir.UI
 
         public override void ShowWindow(Action onCompleted = null)
         {
-            int decrementLevel = StaticManager.levelID - 1; // because after level completed we increase levelID immediately
+            int decrementLevel =
+                StaticManager.levelID + 1; // because after level completed we increase levelID immediately
             earningsMoneyCount.text = "0";
             completedLevelLabel.text = "LEVEL " + decrementLevel + "\n COMPLETED";
             base.ShowWindow(() =>
@@ -104,6 +111,7 @@ namespace Amir.UI
         public Transform multiplierPanel;
         public TMP_Text multiplierText;
         public ParticleSystem multiplierParticles;
+
         IEnumerator WaitAndShowMultiplier()
         {
             multiplierText.text = "x" + StaticManager.currentMoneyMultiplier;
@@ -128,16 +136,16 @@ namespace Amir.UI
             }
 
             float currentCoinsVal = int.Parse(earningsMoneyCount.text);
-            StaticManager.moneyCollectedOnLevel = (int)money;
+            StaticManager.moneyCollectedOnLevel = (int) money;
             DOTween.To(() => currentCoinsVal, x => currentCoinsVal = x, money, 0.3f).OnUpdate(() =>
             {
-                currentCoinsVal = (int)Mathf.Round(currentCoinsVal);
+                currentCoinsVal = (int) Mathf.Round(currentCoinsVal);
                 earningsMoneyCount.text = currentCoinsVal + "";
             }).SetDelay(fadeTime);
 
-            claimButton.transform.DOScale(1, 0.2f)
-                .SetDelay(fadeTime + 3.5f)
-                .SetEase(Ease.InOutSine);
+            // claimButton.transform.DOScale(1, 0.2f)
+            //     .SetDelay(fadeTime + 3.5f)
+            //     .SetEase(Ease.InOutSine);
         }
     }
 }

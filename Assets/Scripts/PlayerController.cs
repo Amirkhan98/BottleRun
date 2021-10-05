@@ -29,6 +29,13 @@ public class PlayerController : MonoBehaviour
         onObstacleHit += ObstacleHit;
     }
 
+    private void OnDestroy()
+    {
+        OnFinish -= Finish;
+        OnWineGlassFill -= WineGlassFill;
+        onObstacleHit -= ObstacleHit;
+    }
+
     void Update()
     {
         if (moving)
@@ -92,7 +99,8 @@ public class PlayerController : MonoBehaviour
         {
             if (firstBottle)
             {
-                bottle.transform.localPosition = Vector3.zero;
+                if (bottle)
+                    bottle.transform.localPosition = Vector3.zero;
                 firstBottle = false;
                 continue;
             }
@@ -118,30 +126,42 @@ public class PlayerController : MonoBehaviour
         moving = false;
         Camera.main.transform.DOMoveZ(Camera.main.transform.position.z + 3f, 2f);
         GetComponent<LeanDragTranslate>().enabled = false;
-        thief.GetComponent<Animator>().SetTrigger("Turn");
+        thief.GetComponent<Animator>().SetTrigger("Drink");
         thief.transform.DORotate(new Vector3(0, 0, 0), 3f).OnComplete(() =>
         {
             float winDistanceToWalk;
             if (filledWineGlasses > 18)
             {
-                winDistanceToWalk = 2;
+                winDistanceToWalk = 1;
             }
             else if (filledWineGlasses > 15)
             {
-                winDistanceToWalk = 5;
+                winDistanceToWalk = 2.5f;
             }
             else if (filledWineGlasses > 10)
             {
-                winDistanceToWalk = 8;
+                winDistanceToWalk = 4;
             }
             else if (filledWineGlasses > 5)
             {
-                winDistanceToWalk = 11;
+                winDistanceToWalk = 5.5f;
             }
-            else winDistanceToWalk = 14;
+            else winDistanceToWalk = 7;
 
-            thief.transform.DOMoveZ(thief.transform.position.z + winDistanceToWalk, winDistanceToWalk / 2);
+
+            thief.transform.DOMoveZ(thief.transform.position.z + winDistanceToWalk, winDistanceToWalk / 2)
+                .OnComplete(() =>
+                {
+                    thief.GetComponent<Animator>().applyRootMotion = true;
+                    thief.GetComponent<Animator>().SetTrigger("Fall");
+                    Invoke("ShowWinScreen", 2f);
+                });
         });
+    }
+
+    void ShowWinScreen()
+    {
+        UIManager.instance.ShowWinScreen();
     }
 
     void WineGlassFill()
