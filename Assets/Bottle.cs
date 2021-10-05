@@ -3,7 +3,6 @@ using UnityEngine;
 public class Bottle : MonoBehaviour
 {
     [SerializeField] private ParticleSystem fluid;
-    [SerializeField] private GameObject wrapper;
     public bool canTrigger;
 
     private void OnTriggerEnter(Collider other)
@@ -21,8 +20,6 @@ public class Bottle : MonoBehaviour
             transform.parent = null;
             GetComponent<Rigidbody>().isKinematic = false;
             fluid.gameObject.SetActive(false);
-            wrapper.GetComponent<Rigidbody>().isKinematic = false;
-            wrapper.transform.parent = null;
             Destroy(this);
         }
 
