@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: FeedbacksDemoGroundRocks
-  m_Shader: {fileID: 4800000, guid: 82c42a0b06f4f684db1ee2c535fb985c, type: 3}
+  m_Shader: {fileID: 4800000, guid: 21b28f3ee4b3c13408ed85c229008f40, type: 3}
   m_ShaderKeywords: _NORMALMAP _SHADOWMIXMODE_MULTIPLY _SHARPRIMLIGHT_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -92,6 +92,7 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 1
     - _HideRimUnderShadow: 0
+    - _Intensity: 1
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
@@ -101,6 +102,8 @@ Material:
     - _RampOffset: 0.5
     - _RimAmount: 0.7
     - _RimPower: 0.6547081
+    - _Saturation: 1
+    - _ScreenSpace: 0
     - _SecondaryTextureSize: 1
     - _SecondaryTextureSpeedFactor: 0
     - _SecondaryTextureStrength: 0
@@ -132,6 +135,7 @@ Material:
     - _ZWrite: 1
     - __dirty: 1
     m_Colors:
+    - _BottomColor: {r: 1, g: 0.6, b: 0, a: 0}
     - _Color: {r: 0.46226418, g: 0.46226418, b: 0.46226418, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
     - _LightColor: {r: 0.8207547, g: 0.51167095, b: 0.081301175, a: 1}
@@ -142,3 +146,5 @@ Material:
     - _ShadowColor: {r: 0.8509804, g: 0.27450982, b: 0, a: 1}
     - _SpecularColor: {r: 2, g: 2, b: 2, a: 1}
     - _Tint: {r: 1, g: 1, b: 1, a: 1}
+    - _TopColor: {r: 1, g: 1, b: 1, a: 0}
+  m_BuildTextureStacks: []

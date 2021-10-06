@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Amir.Level;
 using Amir.UI;
 using DG.Tweening;
 using Lean.Touch;
@@ -11,7 +10,7 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float speed;
     private bool putToRight = true;
-    private float offset = 0.19f;
+    private float offset = 0.22f;
     public static Action OnFinish;
     public static Action OnWineGlassFill;
     public static Action<GameObject> onObstacleHit;
@@ -59,10 +58,9 @@ public class PlayerController : MonoBehaviour
         other.GetComponent<Collider>().enabled = false;
         other.transform.parent = transform;
         bottles.Add(other.gameObject);
-        Debug.Log("Added = " + bottles.Count);
         RearrangeBottles();
 
-        other.transform.DORotate(new Vector3(0, 180, -150), 1f).OnComplete(() =>
+        other.transform.DORotate(new Vector3(60, -90, -90), 1f).OnComplete(() =>
         {
             other.gameObject.GetComponent<Bottle>().SetActivePaintAndFluid();
             other.GetComponent<Collider>().enabled = true;
@@ -168,6 +166,5 @@ public class PlayerController : MonoBehaviour
     {
         filledWineGlasses++;
         wineGlassesCountText.text = filledWineGlasses.ToString();
-        Debug.Log("Filled wine glasses" + filledWineGlasses);
     }
 }

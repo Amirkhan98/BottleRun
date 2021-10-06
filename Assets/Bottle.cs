@@ -10,13 +10,14 @@ public class Bottle : MonoBehaviour
         if (!canTrigger) return;
         if (other.CompareTag("Bottle"))
         {
-            Debug.Log(other.name);
             transform.parent.GetComponent<PlayerController>().OnTriggerEnterChild(other);
         }
 
         if (other.CompareTag("Obstacle"))
         {
+            GetComponent<MeshRenderer>().materials[1].color = new Color32(49, 13, 12, 255);
             PlayerController.onObstacleHit(gameObject);
+            Debug.Log("Postion = " + transform.position);
             transform.parent = null;
             GetComponent<Rigidbody>().isKinematic = false;
             fluid.gameObject.SetActive(false);

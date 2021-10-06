@@ -4853,12 +4853,12 @@ MonoBehaviour:
     Texture: {fileID: 0}
     Color: {r: 1, g: 1, b: 1, a: 1}
     Channels: {x: 1, y: 1, z: 1, w: 1}
-  color: {r: 0.30588236, g: 0.011764706, b: 0.16470589, a: 1}
+  color: {r: 0.19215687, g: 0, b: 0, a: 1}
   opacity: 1
   angle: 0
   scale: {x: 1, y: 1, z: 1}
   radius: 0.15
-  hardness: 1
+  hardness: 3
   tileTexture: {fileID: 0}
   tileTransform: {fileID: 0}
   tileOpacity: 1
