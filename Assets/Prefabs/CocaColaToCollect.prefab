@@ -269,6 +269,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Particle System
       objectReference: {fileID: 0}
+    - target: {fileID: 1259529471566535289, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1259529471566535292, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -312,6 +316,10 @@ PrefabInstance:
     - target: {fileID: 1259529471566535292, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 1259529471935285213, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0388dd7081a955446b952cf51fb72188, type: 3}

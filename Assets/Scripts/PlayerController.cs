@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Amir.UI;
 using DG.Tweening;
+using Lean.Common;
 using Lean.Touch;
 using TMPro;
 using UnityEngine;
@@ -123,7 +124,7 @@ public class PlayerController : MonoBehaviour
     {
         moving = false;
         Camera.main.transform.DOMoveZ(Camera.main.transform.position.z + 3f, 2f);
-        GetComponent<LeanDragTranslate>().enabled = false;
+        GetComponent<LeanManualTranslate>().enabled = false;
         thief.GetComponent<Animator>().SetTrigger("Drink");
         thief.transform.DORotate(new Vector3(0, 0, 0), 3f).OnComplete(() =>
         {
