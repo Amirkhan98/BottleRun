@@ -1756,11 +1756,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1329989518507407694, guid: 900a0317d146d5240a26a3278e503532, type: 3}
       propertyPath: m_MaxParticleSize
-      value: 0.05
+      value: 0.04
+      objectReference: {fileID: 0}
+    - target: {fileID: 1329989518507407694, guid: 900a0317d146d5240a26a3278e503532, type: 3}
+      propertyPath: m_MinParticleSize
+      value: 0.03
       objectReference: {fileID: 0}
     - target: {fileID: 1329989518507407695, guid: 900a0317d146d5240a26a3278e503532, type: 3}
       propertyPath: CollisionModule.enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1329989518507407695, guid: 900a0317d146d5240a26a3278e503532, type: 3}
       propertyPath: CollisionModule.quality
@@ -1771,12 +1775,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 963194228}
     - target: {fileID: 1329989518507407695, guid: 900a0317d146d5240a26a3278e503532, type: 3}
+      propertyPath: InitialModule.rotation3D
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1329989518507407695, guid: 900a0317d146d5240a26a3278e503532, type: 3}
       propertyPath: InitialModule.startSize.scalar
-      value: 0.7
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 1329989518507407695, guid: 900a0317d146d5240a26a3278e503532, type: 3}
       propertyPath: EmissionModule.rateOverTime.scalar
-      value: 50
+      value: 100
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 900a0317d146d5240a26a3278e503532, type: 3}
@@ -2872,7 +2880,7 @@ MonoBehaviour:
   directionA: {x: 1, y: 0, z: 0}
   directionB: {x: 0, y: 0, z: 0}
   multiplier: 1
-  damping: 10
+  damping: 50
   scaleByTime: 0
   defaultPosition: {x: 0, y: 0, z: 0}
   remainingDelta: {x: 0, y: 0, z: 0}
@@ -40419,7 +40427,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -5.9002075, y: 6.2001953}
+  m_AnchoredPosition: {x: -5.9002686, y: 6.2001953}
   m_SizeDelta: {x: 236.11914, y: 260.33765}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4982656270859710906
@@ -62278,7 +62286,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -5.9002075, y: 6.2001953}
+  m_AnchoredPosition: {x: -5.9002686, y: 6.2001953}
   m_SizeDelta: {x: 236.11914, y: 260.33765}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &4982656271398322512

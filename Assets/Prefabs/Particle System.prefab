@@ -3612,7 +3612,7 @@ ParticleSystem:
         m_NumAlphaKeys: 2
     range: {x: 0, y: 1}
   CollisionModule:
-    enabled: 1
+    enabled: 0
     serializedVersion: 4
     type: 1
     collisionMode: 0
@@ -4783,8 +4783,8 @@ ParticleSystemRenderer:
   m_SortingOrder: 0
   m_RenderMode: 0
   m_SortMode: 1
-  m_MinParticleSize: 0.05
-  m_MaxParticleSize: 0.05
+  m_MinParticleSize: 0.03
+  m_MaxParticleSize: 0.04
   m_CameraVelocityScale: 0
   m_VelocityScale: 0
   m_LengthScale: 2
@@ -4822,7 +4822,7 @@ MonoBehaviour:
   _camera: {fileID: 0}
   normal: 0
   offset: 0
-  skip: 3
+  skip: 1
   preview: 0
   priority: 0
   pressureMode: 0
