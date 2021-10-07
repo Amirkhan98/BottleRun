@@ -62494,6 +62494,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7210206240474942281}
+  - component: {fileID: -2634025767509576094}
   m_Layer: 0
   m_Name: Level_7
   m_TagString: Untagged
@@ -62518,6 +62519,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-2634025767509576094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7210206240474942282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d476448206fbb84493ccb685cc55dc4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startLevelPoint: {fileID: 0}
+  endLevelPoint: {fileID: 0}
+  applyColorScheme: 0
+  colorScheme: {fileID: 0}
 --- !u!1 &7459517970633774770
 GameObject:
   m_ObjectHideFlags: 0
@@ -62790,7 +62807,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fluid: {fileID: 6041155925308825225}
-  wrapper: {fileID: 7680573836591176269}
   canTrigger: 0
 --- !u!1 &7680573836591176269
 GameObject:
@@ -63065,7 +63081,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fluid: {fileID: 6041155925372617195}
-  wrapper: {fileID: 7680573836663620911}
   canTrigger: 0
 --- !u!1 &7680573836663620911
 GameObject:
@@ -63340,7 +63355,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fluid: {fileID: 6041155925796715035}
-  wrapper: {fileID: 7680573837044465375}
   canTrigger: 0
 --- !u!1 &7680573837044465375
 GameObject:
@@ -63728,7 +63742,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fluid: {fileID: 6041155925864182550}
-  wrapper: {fileID: 7680573837109049298}
   canTrigger: 0
 --- !u!1 &7680573837401071426
 GameObject:
@@ -63890,7 +63903,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fluid: {fileID: 6041155926111116160}
-  wrapper: {fileID: 7680573837401071428}
   canTrigger: 0
 --- !u!1 &7680573837401071428
 GameObject:
@@ -64278,7 +64290,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fluid: {fileID: 6041155926176660101}
-  wrapper: {fileID: 7680573837467663937}
   canTrigger: 0
 --- !u!1 &7680573837601600569
 GameObject:
@@ -64553,7 +64564,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fluid: {fileID: 6041155926311612669}
-  wrapper: {fileID: 7680573837601600569}
   canTrigger: 0
 --- !u!1 &7680573837870677050
 GameObject:
@@ -64828,7 +64838,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fluid: {fileID: 6041155926580984062}
-  wrapper: {fileID: 7680573837870677050}
   canTrigger: 0
 --- !u!1 &7680573837989264163
 GameObject:
@@ -65103,7 +65112,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fluid: {fileID: 6041155926728671207}
-  wrapper: {fileID: 7680573837989264163}
   canTrigger: 0
 --- !u!1 &7680573838002056083
 GameObject:
@@ -65265,7 +65273,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fluid: {fileID: 6041155926716526417}
-  wrapper: {fileID: 7680573838002056085}
   canTrigger: 0
 --- !u!1 &7680573838002056085
 GameObject:
@@ -65540,7 +65547,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fluid: {fileID: 6041155927102973849}
-  wrapper: {fileID: 7680573838355964765}
   canTrigger: 0
 --- !u!1 &7680573838355964765
 GameObject:
@@ -65928,7 +65934,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fluid: {fileID: 6041155927236585821}
-  wrapper: {fileID: 7680573838488563097}
   canTrigger: 0
 --- !u!1 &8103889786920027493
 GameObject:
