@@ -591,8 +591,9 @@ GameObject:
   m_Component:
   - component: {fileID: 267451097}
   - component: {fileID: 267451098}
+  - component: {fileID: 267451099}
   m_Layer: 0
-  m_Name: LiquidPool
+  m_Name: Pool_Liquid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -605,8 +606,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 267451096}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.042859, y: -8.775784, z: 12.168362}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -632,6 +633,20 @@ MonoBehaviour:
   logMessages: 1
   _perPrefabPoolOptions: []
   maxParticleDespawnTime: 30
+--- !u!114 &267451099
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 267451096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a922c025c80b0ad468ddab68a5d86aa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnAmount: 10
+  circleSprite: {fileID: 1424551439796454577, guid: 97b1f8e6a60ee1b45a6dac8f6d5f2fcb, type: 3}
 --- !u!1 &325378586
 GameObject:
   m_ObjectHideFlags: 0
@@ -1725,6 +1740,25 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1259529471566535292, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
   m_PrefabInstance: {fileID: 1259529471935285210}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &963106457 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1329989518507407689, guid: 900a0317d146d5240a26a3278e503532, type: 3}
+  m_PrefabInstance: {fileID: 1110644689}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &963106459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963106457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f690ea2474ba4545966410e3f1d50bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  followDistance: 50
+  period: 0.1
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -2027,6 +2061,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7339346217473358604, guid: 900a0317d146d5240a26a3278e503532, type: 3}
+    - {fileID: 6930438703986311100, guid: 900a0317d146d5240a26a3278e503532, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 900a0317d146d5240a26a3278e503532, type: 3}
 --- !u!4 &1110644690 stripped
 Transform:
@@ -2250,9 +2285,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5a070505507f184083a897b99754c70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnAmount: 20
-  circleSprite: {fileID: 0}
-  spawnInterval: 0
 --- !u!1 &1432052968
 GameObject:
   m_ObjectHideFlags: 0
