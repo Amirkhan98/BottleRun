@@ -5,7 +5,7 @@ public class ColaParticles : MonoBehaviour
 {
     [SerializeField] private int followDistance;
     private List<Vector3> storedPositions;
-    private float nextActionTime = 0.0f;
+    private float nextActionTime;
     public float period = 0.1f;
     private Vector3 followPosition;
 
@@ -14,7 +14,7 @@ public class ColaParticles : MonoBehaviour
         storedPositions = new List<Vector3>(); //create a blank list
     }
 
-    void LateUpdate()
+    void Update()
     {
         Vector3 playerPos = transform.position;
 
@@ -23,7 +23,8 @@ public class ColaParticles : MonoBehaviour
             storedPositions.Add(playerPos); //store the players currect position
             return;
         }
-        else if (storedPositions[storedPositions.Count - 1] != playerPos)
+
+        if (storedPositions[storedPositions.Count - 1] != playerPos)
         {
             storedPositions.Add(playerPos); //store the position every frame
         }
@@ -41,7 +42,7 @@ public class ColaParticles : MonoBehaviour
 
         if (Time.time > nextActionTime)
         {
-            nextActionTime += period;
+            nextActionTime += period * Time.deltaTime;
             LiquidEffect.onParticleHit.Invoke(followPosition);
         }
     }

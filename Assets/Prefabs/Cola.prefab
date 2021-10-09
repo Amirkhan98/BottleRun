@@ -11,10 +11,9 @@ GameObject:
   - component: {fileID: 1259529471566535292}
   - component: {fileID: 1259529471566535295}
   - component: {fileID: 1259529471566535294}
-  - component: {fileID: 1259529471935285213}
-  - component: {fileID: 1505358754}
+  - component: {fileID: 4056600268382102058}
   m_Layer: 0
-  m_Name: Particle System
+  m_Name: Cola
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 1259529471566535289}
   m_LocalRotation: {x: 0, y: 0, z: 0.2588191, w: 0.9659258}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.83333325, y: 0.83333325, z: 0.83333325}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -286,7 +285,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.1
+      scalar: 0.02
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -867,7 +866,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 50
+      scalar: 100
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -4783,8 +4782,8 @@ ParticleSystemRenderer:
   m_SortingOrder: 0
   m_RenderMode: 0
   m_SortMode: 1
-  m_MinParticleSize: 0.03
-  m_MaxParticleSize: 0.04
+  m_MinParticleSize: 0
+  m_MaxParticleSize: 1
   m_CameraVelocityScale: 0
   m_VelocityScale: 0
   m_LengthScale: 2
@@ -4797,7 +4796,7 @@ ParticleSystemRenderer:
   m_UseCustomVertexStreams: 0
   m_EnableGPUInstancing: 1
   m_ApplyActiveColorSpace: 1
-  m_AllowRoll: 1
+  m_AllowRoll: 0
   m_FreeformStretching: 0
   m_RotateWithStretchDirection: 1
   m_VertexStreams: 00010304
@@ -4806,7 +4805,7 @@ ParticleSystemRenderer:
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
   m_MaskInteraction: 0
---- !u!114 &1259529471935285213
+--- !u!114 &4056600268382102058
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4815,54 +4814,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 1259529471566535289}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2f9cea69abe8304a84accae904c56be, type: 3}
+  m_Script: {fileID: 11500000, guid: 2f690ea2474ba4545966410e3f1d50bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  orientation: 0
-  _camera: {fileID: 0}
-  normal: 0
-  offset: 0
-  skip: 1
-  preview: 0
-  priority: 0
-  pressureMode: 0
-  pressureMin: 0
-  pressureMax: 0
-  pressureMultiplier: 1
---- !u!114 &1505358754
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1259529471566535289}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 724ff6f732015ec4e8fecdb3d889fb82, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  layers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  group:
-    index: 0
-  targetModel: {fileID: 0}
-  targetTexture: {fileID: 0}
-  blendMode:
-    Index: 0
-    Texture: {fileID: 0}
-    Color: {r: 1, g: 1, b: 1, a: 1}
-    Channels: {x: 1, y: 1, z: 1, w: 1}
-  color: {r: 0.19215687, g: 0, b: 0, a: 1}
-  opacity: 1
-  angle: 0
-  scale: {x: 1, y: 1, z: 1}
-  radius: 0.15
-  hardness: 3
-  tileTexture: {fileID: 0}
-  tileTransform: {fileID: 0}
-  tileOpacity: 1
-  tileTransition: 4
-  modifiers:
-    types: []
-    jsons: []
+  followDistance: 13
+  period: 2

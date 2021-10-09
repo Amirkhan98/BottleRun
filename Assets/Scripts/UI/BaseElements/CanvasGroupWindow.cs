@@ -1,6 +1,7 @@
 ﻿using DG.Tweening;
 using Sirenix.OdinInspector;
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,27 +17,32 @@ namespace Amir.UI
         /// If Screen|Window have close button set it in inspector 
         /// and set onClick Listener in Start.
         /// </summary>
-        [ShowIf("hasCloseButton")]
-        [SerializeField] Button closeButton;
+        [ShowIf("hasCloseButton")] [SerializeField]
+        Button closeButton;
 
         /// <summary>
         /// Tween animation ease.
         /// </summary>
         [SerializeField] private Ease ease;
+
         [SerializeField] internal float fadeTime;
         [SerializeField] internal float showDelay = 0f;
         [SerializeField] private float hideDelay = 0f;
         [SerializeField] private bool fullInteractable = true;
+        [SerializeField] private TextMeshProUGUI wineGlassesCountText;
+
         void Start()
         {
             canvasGroup = GetComponent<CanvasGroup>();
             if (hasCloseButton)
-                closeButton.onClick.AddListener(() =>
-                {
-                    HideWindow();
-                });
+                closeButton.onClick.AddListener(() => { HideWindow(); });
         }
-        
+
+        public void SetWineGlassesCountText(int number)
+        {
+            wineGlassesCountText.text = number.ToString();
+        }
+
 
         public virtual void ShowWindow(Action onCompleted = null)
         {
@@ -48,6 +54,7 @@ namespace Amir.UI
                     canvasGroup.blocksRaycasts = true;
                     canvasGroup.interactable = true;
                 }
+
                 onCompleted?.Invoke();
             }).SetUpdate(true).SetDelay(showDelay);
         }
@@ -79,10 +86,8 @@ namespace Amir.UI
             //Debug.LogError("ShowWindow CanvasGroupWindow");
             canvasGroup.blocksRaycasts = false;
             canvasGroup.interactable = false;
-            canvasGroup.DOFade(0f, fadeTime).SetEase(ease).OnComplete(() =>
-            {
-                onCompleted?.Invoke();
-            }).SetUpdate(true).SetDelay(hideDelay);
+            canvasGroup.DOFade(0f, fadeTime).SetEase(ease).OnComplete(() => { onCompleted?.Invoke(); }).SetUpdate(true)
+                .SetDelay(hideDelay);
         }
 
         public virtual void DisableWindow()
@@ -92,6 +97,8 @@ namespace Amir.UI
             canvasGroup.alpha = 0;
         }
 
-        private void Update() { }
+        private void Update()
+        {
+        }
     }
 }

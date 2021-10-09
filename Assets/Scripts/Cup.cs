@@ -6,11 +6,13 @@ public class Cup : MonoBehaviour
     [SerializeField] private GameObject liquid;
     [SerializeField] private GameObject particles;
     [SerializeField] private Transform surface;
+    public bool filled;
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Bottle"))
         {
+            filled = true;
             PlayerController.OnWineGlassFill.Invoke();
             GetComponent<Collider>().enabled = false;
             liquid.SetActive(true);

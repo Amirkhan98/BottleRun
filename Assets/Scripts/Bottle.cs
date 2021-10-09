@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Bottle : MonoBehaviour
@@ -24,9 +25,10 @@ public class Bottle : MonoBehaviour
             Destroy(this);
         }
 
-        if (other.name == "Finish")
+        if (other.name == "Finish" && !StaticManager.levelFinished)
         {
             PlayerController.OnFinish.Invoke();
+            StaticManager.levelFinished = true;
         }
     }
 

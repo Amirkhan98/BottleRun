@@ -11,22 +11,26 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float speed;
     private bool putToRight = true;
-    private float offset = 0.22f;
+    private float offset = 0.28f;
     public static Action OnFinish;
     public static Action OnWineGlassFill;
     public static Action<GameObject> onObstacleHit;
-    private int filledWineGlasses = 0;
     [SerializeField] private GameObject thief;
-    [SerializeField] private TextMeshProUGUI wineGlassesCountText;
     private List<GameObject> bottles = new List<GameObject>();
     static public bool moving = true;
 
     private void Start()
     {
         bottles.Add(transform.GetChild(0).gameObject);
+        Invoke("SetActiveParticles", 1f);
         OnFinish += Finish;
         OnWineGlassFill += WineGlassFill;
         onObstacleHit += ObstacleHit;
+    }
+
+    void SetActiveParticles()
+    {
+        transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
     }
 
     private void OnDestroy()
@@ -41,17 +45,17 @@ public class PlayerController : MonoBehaviour
         if (moving)
             transform.Translate(0, 0, speed * Time.deltaTime);
 
-        if (Input.touchCount > 0)
-        {
-            Touch touch = Input.GetTouch(0);
-
-            if (touch.phase == TouchPhase.Stationary || touch.phase == TouchPhase.Moved)
-            {
-                Vector3 touchedPos =
-                    Camera.main.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, 10));
-                transform.position = Vector3.Lerp(transform.position, touchedPos, Time.deltaTime);
-            }
-        }
+        // if (Input.touchCount > 0)
+        // {
+        //     Touch touch = Input.GetTouch(0);
+        //
+        //     if (touch.phase == TouchPhase.Stationary || touch.phase == TouchPhase.Moved)
+        //     {
+        //         Vector3 touchedPos =
+        //             Camera.main.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, 10));
+        //         transform.position = Vector3.Lerp(transform.position, touchedPos, Time.deltaTime);
+        //     }
+        // }
     }
 
     public void OnTriggerEnterChild(Collider other)
@@ -123,39 +127,39 @@ public class PlayerController : MonoBehaviour
     void Finish()
     {
         moving = false;
-        Camera.main.transform.DOMoveZ(Camera.main.transform.position.z + 3f, 2f);
+        // Camera.main.transform.DOMoveZ(Camera.main.transform.position.z + 3f, 2f);
         GetComponent<LeanManualTranslate>().enabled = false;
-        thief.GetComponent<Animator>().SetTrigger("Drink");
-        thief.transform.DORotate(new Vector3(0, 0, 0), 3f).OnComplete(() =>
-        {
-            float winDistanceToWalk;
-            if (filledWineGlasses > 18)
-            {
-                winDistanceToWalk = 1;
-            }
-            else if (filledWineGlasses > 15)
-            {
-                winDistanceToWalk = 2.5f;
-            }
-            else if (filledWineGlasses > 10)
-            {
-                winDistanceToWalk = 4;
-            }
-            else if (filledWineGlasses > 5)
-            {
-                winDistanceToWalk = 5.5f;
-            }
-            else winDistanceToWalk = 7;
-
-
-            thief.transform.DOMoveZ(thief.transform.position.z + winDistanceToWalk, winDistanceToWalk / 2)
-                .OnComplete(() =>
-                {
-                    thief.GetComponent<Animator>().applyRootMotion = true;
-                    thief.GetComponent<Animator>().SetTrigger("Fall");
-                    Invoke("ShowWinScreen", 2f);
-                });
-        });
+        // thief.GetComponent<Animator>().SetTrigger("Drink");
+        // thief.transform.DORotate(new Vector3(0, 0, 0), 3f).OnComplete(() =>
+        // {
+        //     float winDistanceToWalk;
+        //     if (filledWineGlasses > 18)
+        //     {
+        //         winDistanceToWalk = 1;
+        //     }
+        //     else if (filledWineGlasses > 15)
+        //     {
+        //         winDistanceToWalk = 2.5f;
+        //     }
+        //     else if (filledWineGlasses > 10)
+        //     {
+        //         winDistanceToWalk = 4;
+        //     }
+        //     else if (filledWineGlasses > 5)
+        //     {
+        //         winDistanceToWalk = 5.5f;
+        //     }
+        //     else winDistanceToWalk = 7;
+        //
+        //
+        //     thief.transform.DOMoveZ(thief.transform.position.z + winDistanceToWalk, winDistanceToWalk / 2)
+        //         .OnComplete(() =>
+        //         {
+        //             thief.GetComponent<Animator>().applyRootMotion = true;
+        //             thief.GetComponent<Animator>().SetTrigger("Fall");
+        //             ;
+        //         });
+        // });
     }
 
     void ShowWinScreen()
@@ -165,7 +169,7 @@ public class PlayerController : MonoBehaviour
 
     void WineGlassFill()
     {
-        filledWineGlasses++;
-        wineGlassesCountText.text = filledWineGlasses.ToString();
+        StaticManager.instance.filledWineGlasses++;
+        UIManager.instance.inGameGroup.SetWineGlassesCountText(StaticManager.instance.filledWineGlasses);
     }
 }

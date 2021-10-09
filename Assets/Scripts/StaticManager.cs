@@ -4,10 +4,10 @@ using UnityEngine;
 using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using MoreMountains.NiceVibrations;
-
 using Amir.UI;
 using Amir.Utils;
 using Amir.Level;
+
 //using Deslab.Scripts.Deslytics;
 
 
@@ -49,7 +49,10 @@ public class PlayerUpgradeData
 /// </summary>
 public enum GameStatus
 {
-    Menu, Shop, Ride, Fly
+    Menu,
+    Shop,
+    Ride,
+    Fly
 }
 
 /// <summary>
@@ -60,6 +63,7 @@ public class StaticManager : MonoBehaviour
     public PlayerData playerData;
     public GameStatus gameStatus;
     public LevelManager levelManager;
+    public int filledWineGlasses;
 
     /// <summary>
     /// Level count what we will have in Resources/Levels/
@@ -68,11 +72,10 @@ public class StaticManager : MonoBehaviour
     public int uniqueLevelsCount = 10;
 
 
-    [BoxGroup("DEBUG MODE", true, true)]
-    [GUIColor(0.3f, 0.8f, 0.8f, 1f)]
+    [BoxGroup("DEBUG MODE", true, true)] [GUIColor(0.3f, 0.8f, 0.8f, 1f)]
     public bool debugMode = false;
-    [ShowIf("debugMode")]
-    [BoxGroup("DEBUG MODE", true, true)]
+
+    [ShowIf("debugMode")] [BoxGroup("DEBUG MODE", true, true)]
     public int debugLevel = 0;
 
     public static StaticManager instance;
@@ -81,6 +84,7 @@ public class StaticManager : MonoBehaviour
     /// Called when money count changed.
     /// </summary>
     public delegate void OnValueChange();
+
     public static event OnValueChange onValueChange;
 
     internal static int levelID = 0;
@@ -91,16 +95,19 @@ public class StaticManager : MonoBehaviour
     internal static bool reviveReload = false;
     internal static bool allLevelsReached = false;
     internal static int restartLevelID = -1;
+    public static bool levelFinished;
 
     private static RandomNoRepeate randomLevelsNoRepeate = new RandomNoRepeate();
 
     void Awake()
     {
+        levelFinished = false;
+
         if (debugMode)
             levelID = debugLevel;
 
         QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = 120;
+        Application.targetFrameRate = 30;
 
         if (instance != null)
         {
@@ -149,12 +156,14 @@ public class StaticManager : MonoBehaviour
     {
         PlayerPrefs.SetInt("LevelID", levelID);
 
-        string serializedData = JsonConvert.SerializeObject(instance.playerData, Formatting.None, new JsonSerializerSettings()
-        {
-            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-        });
+        string serializedData = JsonConvert.SerializeObject(instance.playerData, Formatting.None,
+            new JsonSerializerSettings()
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            });
         PlayerPrefs.SetString("PlayerData", serializedData);
     }
+
     #endregion
 
     #region Money
@@ -201,9 +210,11 @@ public class StaticManager : MonoBehaviour
             LightVibrate();
         }
     }
+
     #endregion
 
     #region Level Management
+
     /// <summary>
     /// Initialize random levels list what we will load from resources if player all levels completed
     /// </summary>
@@ -246,6 +257,7 @@ public class StaticManager : MonoBehaviour
     }
 
     public delegate void OnRestart();
+
     public static event OnRestart onRestart;
 
     /// <summary>
@@ -263,9 +275,11 @@ public class StaticManager : MonoBehaviour
     {
         instance.levelManager.LoadLevelFromResources();
     }
+
     #endregion
 
     #region Vibration
+
     public static bool vibrationEnabled = true;
 
     /// <summary>
@@ -310,5 +324,6 @@ public class StaticManager : MonoBehaviour
 #endif
         }
     }
+
     #endregion
 }
