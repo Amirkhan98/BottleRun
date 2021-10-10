@@ -671,7 +671,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a922c025c80b0ad468ddab68a5d86aa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnAmount: 100
+  spawnAmount: 150
   circleSprite: {fileID: 1424551439796454577, guid: 97b1f8e6a60ee1b45a6dac8f6d5f2fcb, type: 3}
 --- !u!1 &325378586
 GameObject:
@@ -1285,7 +1285,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6012955491088589122, guid: c96e378fc0b1edd4bb65e265fe68bd5c, type: 3}
       propertyPath: uniqueLevelsCount
-      value: 5
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c96e378fc0b1edd4bb65e265fe68bd5c, type: 3}
