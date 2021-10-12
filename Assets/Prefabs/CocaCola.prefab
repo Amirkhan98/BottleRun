@@ -131,7 +131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2c2776839f56504981be07c2c0d0d33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fluid: {fileID: 0}
+  fluid: {fileID: 1329989518507407695}
   canTrigger: 1
 --- !u!114 &220585167221049531
 MonoBehaviour:
@@ -188,6 +188,10 @@ PrefabInstance:
     - target: {fileID: 1259529471566535289, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
       propertyPath: m_Name
       value: Particle System
+      objectReference: {fileID: 0}
+    - target: {fileID: 1259529471566535289, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1259529471566535292, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
       propertyPath: m_RootOrder
@@ -254,5 +258,10 @@ PrefabInstance:
 --- !u!4 &1329989518507407692 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1259529471566535292, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
+  m_PrefabInstance: {fileID: 220585166123017008}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &1329989518507407695 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 1259529471566535295, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
   m_PrefabInstance: {fileID: 220585166123017008}
   m_PrefabAsset: {fileID: 0}

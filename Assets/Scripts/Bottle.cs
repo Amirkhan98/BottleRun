@@ -6,6 +6,21 @@ public class Bottle : MonoBehaviour
     [SerializeField] private ParticleSystem fluid;
     public bool canTrigger;
 
+    private void Start()
+    {
+        PlayerController.OnFinish += DisbleFluid;
+    }
+
+    private void OnDisable()
+    {
+        PlayerController.OnFinish -= DisbleFluid;
+    }
+
+    private void DisbleFluid()
+    {
+        fluid.gameObject.SetActive(false);
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (!canTrigger) return;

@@ -4,12 +4,8 @@ using UnityEngine;
 using Newtonsoft.Json;
 using Sirenix.OdinInspector;
 using MoreMountains.NiceVibrations;
-using Amir.UI;
 using Amir.Utils;
 using Amir.Level;
-
-//using Deslab.Scripts.Deslytics;
-
 
 /// <summary>
 /// Containt all player data.

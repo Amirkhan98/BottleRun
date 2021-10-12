@@ -92,7 +92,7 @@ Material:
     - _Glossiness: 1
     - _GlossyReflections: 1
     - _HideRimUnderShadow: 0
-    - _Intensity: 1
+    - _Intensity: 0.85
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
@@ -102,7 +102,7 @@ Material:
     - _RampOffset: 0.5
     - _RimAmount: 0.7
     - _RimPower: 0.6547081
-    - _Saturation: 1
+    - _Saturation: -1.63
     - _ScreenSpace: 0
     - _SecondaryTextureSize: 1
     - _SecondaryTextureSpeedFactor: 0
@@ -135,7 +135,7 @@ Material:
     - _ZWrite: 1
     - __dirty: 1
     m_Colors:
-    - _BottomColor: {r: 1, g: 0.6, b: 0, a: 0}
+    - _BottomColor: {r: 0.58431375, g: 0.9294118, b: 0.9294118, a: 1}
     - _Color: {r: 0.83259535, g: 0, b: 1, a: 1}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _LightColor: {r: 1, g: 1, b: 1, a: 1}
@@ -146,5 +146,5 @@ Material:
     - _ShadowColor: {r: 0.8509804, g: 0.27450982, b: 0, a: 1}
     - _SpecularColor: {r: 2, g: 2, b: 2, a: 1}
     - _Tint: {r: 0.8773585, g: 0.25797766, b: 0.25244746, a: 1}
-    - _TopColor: {r: 1, g: 1, b: 1, a: 0}
+    - _TopColor: {r: 0.95294124, g: 0.9960785, b: 0.6313726, a: 0}
   m_BuildTextureStacks: []

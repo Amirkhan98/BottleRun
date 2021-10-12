@@ -20,6 +20,7 @@ public class Cup : MonoBehaviour
             liquid.transform.DOScale(surface.transform.localScale, 0.5f).OnComplete(() =>
             {
                 particles.gameObject.SetActive(true);
+                Invoke("DisableParticles", 1f);
             });
 
             transform.DOMoveY(transform.position.y + 0.1f, 0.1f)
@@ -29,5 +30,10 @@ public class Cup : MonoBehaviour
                             .OnComplete(() => { transform.DOMoveY(transform.position.y - 0.1f, 0.1f); }))
                 );
         }
+    }
+
+    public void DisableParticles()
+    {
+        particles.SetActive(false);
     }
 }
