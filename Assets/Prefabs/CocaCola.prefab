@@ -245,9 +245,13 @@ PrefabInstance:
       propertyPath: InitialModule.startSize.scalar
       value: 0.05
       objectReference: {fileID: 0}
+    - target: {fileID: 1259529471566535295, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
+      propertyPath: EmissionModule.rateOverTime.scalar
+      value: 150
+      objectReference: {fileID: 0}
     - target: {fileID: 4056600268382102058, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
       propertyPath: period
-      value: 0.05
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 4056600268382102058, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
       propertyPath: followDistance

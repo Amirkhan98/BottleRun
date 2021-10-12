@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: 0a1985bb2529e5e42b326b7b7c80b2d8, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 6e044c899ad224c49a365cf038dc3dd0, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -1962,6 +1962,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CocaCola
       objectReference: {fileID: 0}
+    - target: {fileID: 1139064203112575511, guid: 900a0317d146d5240a26a3278e503532, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1329989518206248173, guid: 900a0317d146d5240a26a3278e503532, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -2016,7 +2020,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1329989518507407695, guid: 900a0317d146d5240a26a3278e503532, type: 3}
       propertyPath: EmissionModule.rateOverTime.scalar
-      value: 100
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 1329989518507407695, guid: 900a0317d146d5240a26a3278e503532, type: 3}
       propertyPath: InitialModule.startLifetime.scalar

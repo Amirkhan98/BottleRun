@@ -41,10 +41,8 @@ public class CupTower : MonoBehaviour
 
                 if (fiveRow)
                 {
-                    cup.DOMove(transform.position + new Vector3(xOffset, yOffset, 0), 0.02f).OnComplete(() =>
-                    {
-                        cup.GetComponent<BoxCollider>().enabled = true;
-                    });
+                    cup.transform.position = transform.position + new Vector3(xOffset, yOffset, 0);
+                    cup.GetComponent<BoxCollider>().enabled = true;
                     xOffset += 0.3f;
                     if (i % 6 == 0)
                     {
@@ -52,9 +50,8 @@ public class CupTower : MonoBehaviour
                         Camera.main.transform.DOMoveY((transform.position + new Vector3(0, yOffset, 0)).y + 3f, 0.5f);
                         yOffset += 0.4f;
                         xOffset = 0;
+                        yield return new WaitForSeconds(0.02f);
                     }
-
-                    yield return new WaitForSeconds(0.02f);
                 }
                 else
                 {
