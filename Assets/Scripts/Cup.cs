@@ -32,6 +32,24 @@ public class Cup : MonoBehaviour
         }
     }
 
+    public void RunEffect()
+    {
+        liquid.SetActive(true);
+        liquid.transform.DOLocalMoveY(surface.transform.localPosition.y, 0.5f);
+        liquid.transform.DOScale(surface.transform.localScale, 0.5f).OnComplete(() =>
+        {
+            particles.gameObject.SetActive(true);
+            Invoke("DisableParticles", 1f);
+        });
+
+        transform.DOMoveY(transform.position.y + 0.1f, 0.1f)
+            .OnComplete(() =>
+                transform.DOScale(transform.localScale * 2f, 0.2f)
+                    .OnComplete(() => transform.DOScale(transform.localScale / 2f, 0.2f)
+                        .OnComplete(() => { transform.DOMoveY(transform.position.y - 0.1f, 0.1f); }))
+            );
+    }
+
     public void DisableParticles()
     {
         particles.SetActive(false);

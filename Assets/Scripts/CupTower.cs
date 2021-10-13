@@ -43,6 +43,7 @@ public class CupTower : MonoBehaviour
                 {
                     cup.transform.position = transform.position + new Vector3(xOffset, yOffset, 0);
                     cup.GetComponent<BoxCollider>().enabled = true;
+                    cup.GetComponent<Cup>().RunEffect();
                     xOffset += 0.3f;
                     if (i % 6 == 0)
                     {
@@ -58,6 +59,7 @@ public class CupTower : MonoBehaviour
                     cup.DOMove(transform.position + new Vector3(0, yOffset, 0), 0.3f).OnComplete(() =>
                     {
                         cup.GetComponent<BoxCollider>().enabled = true;
+                        cup.GetComponent<Cup>().RunEffect();
                     });
                     yOffset += 0.4f;
                     Camera.main.transform.DOMoveY((transform.position + new Vector3(0, yOffset, 0)).y + 3f, 0.2f);
