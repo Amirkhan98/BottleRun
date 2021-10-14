@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: 0a1985bb2529e5e42b326b7b7c80b2d8, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 05fa953830786f34fa5fd7523273f72c, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -912,11 +912,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!198 &522940732 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 1329989518507407695, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-  m_PrefabInstance: {fileID: 1110644689}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &567822280
 GameObject:
   m_ObjectHideFlags: 0
@@ -1906,14 +1901,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2009674874}
     m_Modifications:
-    - target: {fileID: 220585167050395794, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-      propertyPath: hardness
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 220585167221049529, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-      propertyPath: fluid
-      value: 
-      objectReference: {fileID: 522940732}
     - target: {fileID: 325689049527560365, guid: 900a0317d146d5240a26a3278e503532, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -1962,82 +1949,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: CocaCola
       objectReference: {fileID: 0}
-    - target: {fileID: 1139064203112575511, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1329989518206248173, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1329989518507407689, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-      propertyPath: m_Name
-      value: Cola
-      objectReference: {fileID: 0}
-    - target: {fileID: 1329989518507407689, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1329989518507407694, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-      propertyPath: m_AllowRoll
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1329989518507407694, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-      propertyPath: m_MaxParticleSize
-      value: 0.04
-      objectReference: {fileID: 0}
-    - target: {fileID: 1329989518507407694, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-      propertyPath: m_MinParticleSize
-      value: 0.03
-      objectReference: {fileID: 0}
-    - target: {fileID: 1329989518507407695, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-      propertyPath: ShapeModule.type
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: 1329989518507407695, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-      propertyPath: ShapeModule.enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1329989518507407695, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-      propertyPath: CollisionModule.enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1329989518507407695, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-      propertyPath: CollisionModule.quality
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 1329989518507407695, guid: 900a0317d146d5240a26a3278e503532, type: 3}
       propertyPath: moveWithCustomTransform
       value: 
       objectReference: {fileID: 963194228}
-    - target: {fileID: 1329989518507407695, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-      propertyPath: ShapeModule.radiusThickness
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1329989518507407695, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-      propertyPath: InitialModule.startSize.scalar
-      value: 0.02
-      objectReference: {fileID: 0}
-    - target: {fileID: 1329989518507407695, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-      propertyPath: EmissionModule.rateOverTime.scalar
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 1329989518507407695, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-      propertyPath: InitialModule.startLifetime.scalar
-      value: 0.44
-      objectReference: {fileID: 0}
-    - target: {fileID: 4270641124111073562, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-      propertyPath: period
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4270641124111073562, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-      propertyPath: followDistance
-      value: 13
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 7339346217473358604, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-    - {fileID: 6930438703986311100, guid: 900a0317d146d5240a26a3278e503532, type: 3}
-    - {fileID: 220585167050395794, guid: 900a0317d146d5240a26a3278e503532, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 900a0317d146d5240a26a3278e503532, type: 3}
 --- !u!4 &1110644690 stripped
 Transform:

@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Knife
-  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_Shader: {fileID: 4800000, guid: 347d075079871254d871af0522a7596e, type: 3}
   m_ShaderKeywords: _METALLICGLOSSMAP _NORMALMAP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -40,7 +40,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: c0977b023a866d747b2a0ba5adab8d03, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -67,12 +67,23 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _RampSmooth: 0.1
+    - _RampThreshold: 0.5
+    - _RimMax: 1
+    - _RimMin: 0.5
+    - _Smoothness: 0.2
     - _SmoothnessTextureChannel: 0
+    - _SpecSmooth: 0.05
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
+    - __dummy__: 0
     m_Colors:
-    - _Color: {r: 0.3584906, g: 0.3584906, b: 0.3584906, a: 1}
+    - _Color: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _HColor: {r: 0.785, g: 0.785, b: 0.785, a: 1}
+    - _RimColor: {r: 0.8, g: 0.8, b: 0.8, a: 0.6}
+    - _SColor: {r: 0.195, g: 0.195, b: 0.195, a: 1}
+    - _SpecColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_BuildTextureStacks: []

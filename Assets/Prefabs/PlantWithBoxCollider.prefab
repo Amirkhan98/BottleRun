@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &4911419567980285537
+--- !u!1 &5154708865054614764
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,47 +8,47 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8247084651475696754}
-  - component: {fileID: 1092265248024938052}
-  - component: {fileID: 6634937084317285053}
-  - component: {fileID: 8352556186074466968}
-  - component: {fileID: 7110869619151217787}
+  - component: {fileID: 8201738534369220351}
+  - component: {fileID: 903370852831784137}
+  - component: {fileID: 6896667350686306352}
+  - component: {fileID: 3366037829898951860}
+  - component: {fileID: 3263503128285009013}
   m_Layer: 0
-  m_Name: Barstool (7)
+  m_Name: PlantWithBoxCollider
   m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8247084651475696754
+--- !u!4 &8201738534369220351
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4911419567980285537}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.5993011, y: 1.5993011, z: 1.5993011}
+  m_GameObject: {fileID: 5154708865054614764}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 31.97}
+  m_LocalScale: {x: 1.9884, y: 1.9884, z: 1.9884}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &1092265248024938052
+--- !u!33 &903370852831784137
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4911419567980285537}
-  m_Mesh: {fileID: 2145892182783528961, guid: e347f99df42080c44b85c809e9995048, type: 3}
---- !u!23 &6634937084317285053
+  m_GameObject: {fileID: 5154708865054614764}
+  m_Mesh: {fileID: -8365129639449590315, guid: d0ec048757bd8fa48a07b378c2df609d, type: 3}
+--- !u!23 &6896667350686306352
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4911419567980285537}
+  m_GameObject: {fileID: 5154708865054614764}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -61,8 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8203c55d481d6fa4c919840d58fbb901, type: 2}
-  - {fileID: 2100000, guid: 4aacb03d5ecd46a4aae393349b431373, type: 2}
+  - {fileID: 2100000, guid: b9209c2436b844b4cb285f9f44ab85ff, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -84,26 +83,13 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &8352556186074466968
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4911419567980285537}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.48319322, y: 0.74180424, z: 0.4831933}
-  m_Center: {x: 0.000000007450581, y: 0.3709017, z: 0.000000014901161}
---- !u!54 &7110869619151217787
+--- !u!54 &3366037829898951860
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4911419567980285537}
+  m_GameObject: {fileID: 5154708865054614764}
   serializedVersion: 2
   m_Mass: 1
   m_Drag: 0
@@ -113,3 +99,16 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!65 &3263503128285009013
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5154708865054614764}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.2274646, y: 0.605352, z: 0.22506025}
+  m_Center: {x: 0.0010313457, y: 0.30267593, z: 0.0008431776}
