@@ -6,7 +6,7 @@ public class ColaParticles : MonoBehaviour
     [SerializeField] private int followDistance;
     private List<Vector3> storedPositions;
     private float nextActionTime;
-    public float period = 0.1f;
+    public float period = 2f;
     private Vector3 followPosition;
 
     void Awake()

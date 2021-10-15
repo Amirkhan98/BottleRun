@@ -656,7 +656,7 @@ MonoBehaviour:
   matchPoolLayer: 1
   dontReparent: 0
   _dontDestroyOnLoad: 0
-  logMessages: 1
+  logMessages: 0
   _perPrefabPoolOptions: []
   maxParticleDespawnTime: 30
 --- !u!114 &267451099
@@ -1555,7 +1555,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 177638, guid: 0abab5bb77339e4428787a870eb31bd3, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 22451668, guid: 0abab5bb77339e4428787a870eb31bd3, type: 3}
       propertyPath: m_Pivot.x
