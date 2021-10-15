@@ -103,7 +103,7 @@ public class StaticManager : MonoBehaviour
             levelID = debugLevel;
 
         QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = 30;
+        Application.targetFrameRate = 300;
 
         if (instance != null)
         {

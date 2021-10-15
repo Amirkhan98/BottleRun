@@ -116,7 +116,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.5
+      scalar: 0.4
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -601,7 +601,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     randomizeRotationDirection: 0
-    maxNumParticles: 1000
+    maxNumParticles: 100
     size3D: 0
     rotation3D: 0
     gravityModifier:
@@ -4817,5 +4817,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f690ea2474ba4545966410e3f1d50bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  followDistance: 13
+  followDistance: 18
   period: 2

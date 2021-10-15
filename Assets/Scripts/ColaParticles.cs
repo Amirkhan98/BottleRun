@@ -14,7 +14,7 @@ public class ColaParticles : MonoBehaviour
         storedPositions = new List<Vector3>(); //create a blank list
     }
 
-    void Update()
+    void FixedUpdate()
     {
         Vector3 playerPos = transform.position;
 
@@ -42,7 +42,7 @@ public class ColaParticles : MonoBehaviour
 
         if (Time.time > nextActionTime)
         {
-            nextActionTime += period * Time.deltaTime;
+            nextActionTime += period;
             LiquidEffect.onParticleHit.Invoke(followPosition);
         }
     }

@@ -245,9 +245,33 @@ PrefabInstance:
       propertyPath: m_MinParticleSize
       value: 0.03
       objectReference: {fileID: 0}
+    - target: {fileID: 1259529471566535294, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
+      propertyPath: m_UseCustomVertexStreams
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1259529471566535294, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
+      propertyPath: m_VertexStreams.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1259529471566535294, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
+      propertyPath: m_VertexStreams.Array.data[1]
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1259529471566535294, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
+      propertyPath: m_VertexStreams.Array.data[2]
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1259529471566535295, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
+      propertyPath: ShapeModule.type
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 1259529471566535295, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
       propertyPath: moveWithCustomTransform
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1259529471566535295, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
+      propertyPath: ShapeModule.radiusThickness
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1259529471566535295, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
       propertyPath: InitialModule.startSize.scalar
@@ -255,7 +279,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1259529471566535295, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
       propertyPath: EmissionModule.rateOverTime.scalar
-      value: 100
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 1259529471566535295, guid: 0388dd7081a955446b952cf51fb72188, type: 3}
       propertyPath: InitialModule.startLifetime.scalar
