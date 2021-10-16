@@ -4817,5 +4817,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f690ea2474ba4545966410e3f1d50bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  followDistance: 18
-  period: 2
+  followDistance: 17
+  period: 0.09

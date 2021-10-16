@@ -15,6 +15,11 @@ public class LiquidEffect : MonoBehaviour
         onParticleHit += OnParticleHit;
     }
 
+    private void OnDestroy()
+    {
+        onParticleHit -= OnParticleHit;
+    }
+
     private void OnParticleHit(Vector3 position)
     {
         position += new Vector3(0, 0.01f, 0);

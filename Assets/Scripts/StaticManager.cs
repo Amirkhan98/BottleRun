@@ -133,12 +133,12 @@ public class StaticManager : MonoBehaviour
         if (!instance.debugMode)
             levelID = PlayerPrefs.GetInt("LevelID", 0);
 
-        if (PlayerPrefs.HasKey("PlayerData"))
-        {
-            string serializedData = PlayerPrefs.GetString("PlayerData");
-            //Debug.LogError("Player data : " + serializedData);
-            instance.playerData = JsonConvert.DeserializeObject<PlayerData>(serializedData);
-        }
+        // if (PlayerPrefs.HasKey("PlayerData"))
+        // {
+        //     string serializedData = PlayerPrefs.GetString("PlayerData");
+        //     //Debug.LogError("Player data : " + serializedData);
+        //     instance.playerData = JsonConvert.DeserializeObject<PlayerData>(serializedData);
+        // }
 
         instance.levelManager.LoadLevelFromResources();
         // UIManager.instance.SetUpgradesStats(instance.playerData.playerUpgradeData);
@@ -243,8 +243,8 @@ public class StaticManager : MonoBehaviour
             }
 
             int newID = randomLevelsNoRepeate.GetAvailable();
-            while (newID <= 5) // Ignore first 5 levels because first levels too easy
-                newID = randomLevelsNoRepeate.GetAvailable();
+            // while (newID <= 5) // Ignore first 5 levels because first levels too easy
+            //     newID = randomLevelsNoRepeate.GetAvailable();
 
             restartLevelID = newID;
             return newID;

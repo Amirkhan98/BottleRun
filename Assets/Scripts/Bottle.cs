@@ -33,7 +33,6 @@ public class Bottle : MonoBehaviour
         {
             GetComponent<MeshRenderer>().materials[1].color = new Color32(49, 13, 12, 255);
             PlayerController.onObstacleHit(gameObject);
-            Debug.Log("Postion = " + transform.position);
             transform.parent = null;
             GetComponent<Rigidbody>().isKinematic = false;
             fluid.gameObject.SetActive(false);

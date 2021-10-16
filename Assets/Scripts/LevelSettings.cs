@@ -7,12 +7,12 @@ namespace Amir.Level
     {
         public Transform startLevelPoint;
         public Transform endLevelPoint;
+        public bool stuckBySix;
         //public Transform flyStartPoint;
 
         public bool applyColorScheme = false;
 
-        [ShowIf("applyColorScheme")]
-        public ColorSchemeObject colorScheme;
+        [ShowIf("applyColorScheme")] public ColorSchemeObject colorScheme;
 
         private void Start()
         {

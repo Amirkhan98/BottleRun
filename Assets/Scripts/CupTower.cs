@@ -1,4 +1,5 @@
 using System.Collections;
+using Amir.Level;
 using Amir.UI;
 using DG.Tweening;
 using Lean.Transition.Method;
@@ -27,7 +28,8 @@ public class CupTower : MonoBehaviour
 
     IEnumerator Build()
     {
-        bool fiveRow = (StaticManager.GetLevelID() + 1) % 3 == 0;
+        bool fiveRow = StaticManager.instance.levelManager.currentLevel.GetComponent<LevelSettings>().stuckBySix;
+
 
         int i = 0;
         foreach (Transform cup in StaticManager.instance.levelManager.currentLevel.transform.GetChild(0).transform)

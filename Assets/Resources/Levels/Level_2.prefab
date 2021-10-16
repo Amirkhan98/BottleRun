@@ -757,6 +757,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startLevelPoint: {fileID: 0}
   endLevelPoint: {fileID: 0}
+  stuckBySix: 1
   applyColorScheme: 0
   colorScheme: {fileID: 0}
 --- !u!1 &7459517970633774770
