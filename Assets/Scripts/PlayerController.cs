@@ -83,6 +83,7 @@ public class PlayerController : MonoBehaviour
         if (bottles.Count == 0)
         {
             Lose();
+            return;
         }
 
         RearrangeBottles();
@@ -111,11 +112,13 @@ public class PlayerController : MonoBehaviour
             if (putToRight)
             {
                 bottle.transform.DOLocalMove(new Vector3(offset * count, 0, 0), 1f);
+                // bottle.transform.localPosition = new Vector3(offset * count, 0, 0);
                 putToRight = false;
             }
             else
             {
                 bottle.transform.DOLocalMove(new Vector3(-offset * count, 0, 0), 1f);
+                // bottle.transform.localPosition = new Vector3(-offset * count, 0, 0);
                 putToRight = true;
                 count++;
             }
