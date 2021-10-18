@@ -42,6 +42,7 @@ namespace Amir.UI
         [SerializeField] private TMP_Text completedLevelLabel;
         [SerializeField] private TMP_Text earningsMoneyCount;
         [SerializeField] private ParticleSystem confettiParticles;
+        [SerializeField] private TextMeshProUGUI scoreText;
 
         private void Awake()
         {
@@ -59,6 +60,7 @@ namespace Amir.UI
                 PlayerController.moving = true;
                 SceneManager.LoadScene(0);
             });
+            CupTower.onCupTowerBuilt += FillScore;
         }
 
         /// <summary>
@@ -73,6 +75,13 @@ namespace Amir.UI
                     if (i == StaticManager.starsCollected)
                         confettiParticles.Play();
                 }
+        }
+
+        private void FillScore()
+        {
+            scoreText.text = StaticManager.instance.filledWineGlasses + " x " +
+                             StaticManager.instance.multiplier + " = " + StaticManager.instance.filledWineGlasses *
+                             StaticManager.instance.multiplier;
         }
 
         public override void ShowWindow(Action onCompleted = null)

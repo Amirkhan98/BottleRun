@@ -60,6 +60,7 @@ public class StaticManager : MonoBehaviour
     public GameStatus gameStatus;
     public LevelManager levelManager;
     public int filledWineGlasses;
+    public int multiplier;
 
     /// <summary>
     /// Level count what we will have in Resources/Levels/
